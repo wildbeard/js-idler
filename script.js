@@ -15,6 +15,32 @@
  */
 
 /**
+ * @typedef Quest
+ * @type {object}
+ * 
+ * @property {string} id
+ * @property {string} name
+ * @property {string} description
+ * @property {{ 
+ *  stats: State['stats'],
+ *  levels: State['levels'],
+ *  quests: string[],
+ * }} requirements
+ * @property {{
+ *  item_id: string,
+ *  category: ('money'|'item'|'experience')
+ *  affects: string,
+ *  value: number,
+ * }[]} rewards
+ * @property {{
+ *  id: number,
+ *  name: string,
+ *  description: string,
+ *  requirements: { items: { item_id: string, value: number }[] }
+ * }[]} steps
+ */
+
+/**
  * @typedef Upgrade
  * @type {object}
  *
@@ -24,7 +50,12 @@
  * @property {string} affects
  * @property {number} cost
  * @property {string} category
- * @property {{ id: string, level: number, cost: number, value: number }[]} upgrades
+ * @property {{ 
+ *  id: string,
+ *  level: number,
+ *  cost: number,
+ *  value: number,
+ * }[]} upgrades
  */
 
 /**
@@ -41,11 +72,13 @@
  * @type {object}
  *
  * @property {number} gold
- * @property {number} mining_level
+ * @property {{ lifetime_wealth: number }} stats
  * @property {{mining: number, smithing: number}} levels
  * @property {{mining: number, mining_next_leve: number; smithing_next_level: number, smithing: number}} xp
  * @property {PurchasedUpgrade[]} upgrades
  * @property {{item_id: string, quantity: number}[]} inventory
+ * @property {{ quest_id: number, step: number, complete: bool, }[]} quests_started
+ * @property {string[]} quests_completed
  */
 
 (
@@ -369,7 +402,7 @@
       {
         id: "sword_store",
         name: "Shopfront: Sword Stall",
-        description: "Automatically sells swords you make",
+        description: "Automatically sells a random sword you've made.",
         cost: 250,
         affects: "swords",
         category: "autoer",
@@ -379,6 +412,9 @@
             level: 1,
             cost: 350,
             value: 1750,
+            requirements: {
+                smithing: 5,
+            }
           },
           {
             level: 2,
@@ -415,6 +451,11 @@
         value: 0.1,
         category: "gold_bonus",
         upgrades: [
+          {
+            level: 0,
+            cost: 1000,
+            value: 0.1,
+          },
           {
             level: 1,
             cost: 2500,
@@ -501,8 +542,106 @@
       },
     ];
 
+    /** @type {Quest[]} */
+    const quests = [
+        {
+            id: "test",
+            name: "Test Quest",
+            description: "Description",
+            requirements: {
+                stats: {
+                    lifetime_wealth: 0,
+                },
+                levels: {
+                    mining: 1,
+                    smithing: 1,
+                },
+                quests: [],
+            },
+            rewards: [
+                {
+                    item_id: "money",
+                    category: "money",
+                    affects: "gold",
+                    value: 250,
+                },
+                {
+                    item_id: "exp",
+                    category: "experience",
+                    affects: "mining",
+                    value: 250,
+                },
+                {
+                    item_id: "exp",
+                    category: "experience",
+                    affects: "smithing",
+                    value: 250,
+                }
+            ],
+            steps: [
+                {
+                    id: 0,
+                    name: "Do the thing",
+                    description: "I need to deliver 10 bronze bars.",
+                    requirements: {
+                        items: [
+                            { item_id: "bronze_bar", value: 10 },
+                        ]
+                    },
+                }
+            ]
+        },
+        {
+            id: "test_two",
+            name: "Test Quest but Harder",
+            description: "Description",
+            requirements: {
+                stats: {
+                    lifetime_wealth: 0,
+                },
+                levels: {
+                    mining: 1,
+                    smithing: 1,
+                },
+                quests: ["test"],
+            },
+            rewards: [
+                {
+                    item_id: "money",
+                    category: "money",
+                    affects: "gold",
+                    value: 250,
+                },
+                {
+                    item_id: "exp",
+                    category: "experience",
+                    affects: "mining",
+                    value: 250,
+                },
+                {
+                    item_id: "exp",
+                    category: "experience",
+                    affects: "smithing",
+                    value: 250,
+                }
+            ],
+            steps: [
+                {
+                    id: 0,
+                    name: "Do the thing",
+                    description: "",
+                    requirements: [],
+                }
+            ]
+        }
+    ];
+
     /** @type {State} */
     const state = {
+      // @TODO: Shit like total bronze swords sold (count + value)
+      stats: {
+        lifetime_wealth: 500,
+      },
       gold: 500,
       levels: {
         mining: 1,
@@ -510,9 +649,11 @@
       },
       xp: {
         mining: 0,
-        mining_next_level: 100,
+        mining_xp_level: 0,
+        mining_next_level: 83,
+        smithing_xp_level: 0,
         smithing: 0,
-        smithing_next_level: 100,
+        smithing_next_level: 83,
       },
       upgrades: [],
       inventory: [
@@ -530,12 +671,14 @@
         },
       ],
       running_upgrades: {},
+      quests_started: [],
+      quests_completed: [],
     };
 
     /**
      * @param {Item} item
      *
-     * @return {bool}
+     * @returns {bool}
      */
     const hasIngredientsFor = (item) => {
       const ingredients = item.ingredients;
@@ -546,7 +689,7 @@
           (i) => i.item_id === ingredient.item_id,
         );
 
-        if (!item || item.quantity <= ingredient.quantity) {
+        if (!item || item.quantity < ingredient.quantity) {
           hasIngredients = false;
           return;
         }
@@ -556,16 +699,27 @@
     };
 
     /**
+     * @param {number} level 
+     * 
+     * @returns {number}
+     */
+    const getXpForLevel = (level) => {
+      return Math.floor((level + 300 * Math.pow(2, level / 7)) / 4);
+    };
+
+    /**
      * @param {string} key
      * @param {number} value
      */
     const updateXp = (key, value) => {
       const nxtLvlKey = `${key}_next_level`;
       state.xp[key] += value;
+      state.xp[`${key}_xp_level`] += value;
 
       if (state.xp[key] >= state.xp[nxtLvlKey]) {
         const nxtLvl = state.levels[key] + 1;
-        state.xp[nxtLvlKey] += Math.floor((4 / 3) * (nxtLvl * (3 / 2)));
+        state.xp[`${key}_xp_level`] = Math.abs(state.xp[nxtLvlKey] - state.xp[key]);
+        state.xp[nxtLvlKey] += getXpForLevel(nxtLvl);
         state.levels[key] += 1;
       }
     };
@@ -573,7 +727,7 @@
     /**
      * @param {Item} item
      *
-     * @return {number}
+     * @returns {number}
      */
     const mine = (item) => {
       const baseSuccess = item.success_chance;
@@ -614,7 +768,7 @@
     /**
      * @param {Item} item
      *
-     * @return {}
+     * @returns {{ success: bool, result: {item_id: string, quantity: number}[]}}
      */
     const smith = (item) => {
       // @TODO: Do some fancy maths to get % chance success
@@ -727,7 +881,7 @@
     /**
      * @param {Upgrade} upgrade
      *
-     * @return {number}
+     * @returns {number}
      */
     const getUpgradeCost = (upgrade) => {
       const currUpgrade = state.upgrades.find((u) => u.id === upgrade.id);
@@ -805,7 +959,7 @@
     /**
      * @param {string} key
      *
-     * @return {number}
+     * @returns {number}
      */
     const getInventoryItem = (key) => {
       return state.inventory.find((i) => i.item_id === key)?.quantity ?? 0;
@@ -841,6 +995,13 @@
       renderMineButtons();
       renderSmithingButtons();
       renderAvailableUpgrades();
+      renderAvailableQuests();
+
+      // And this is where this render system starts to break down :)
+      if (state.quests_started.length) {
+        const quest = quests.find((q) => q.id === state.quests_started[1].quest_id);
+        renderCurrentQuest(quest);
+      }
     };
 
     const renderLevels = () => {
@@ -850,9 +1011,11 @@
       for (const key in state.levels) {
         const li = document.createElement("li");
         const progBar = document.createElement("progress");
+        const curr = state.xp[`${key}_xp_level`];
+        const needed = getXpForLevel(state.levels[key]);
 
-        progBar.value = state.xp[key];
-        progBar.max = state.xp[`${key}_next_level`];
+        progBar.value = Math.floor((curr / needed) * 100);
+        progBar.max = 100;
 
         li.innerHTML = `${key} (${state.levels[key]})<br>`;
         li.appendChild(progBar);
@@ -959,7 +1122,294 @@
       return [actionBtn, sellBtn];
     };
 
+    /**
+     * @param {Quest} quest 
+     * @param {State} state 
+     * 
+     * @returns {bool}
+     */
+    const checkQuestRequirements = (quest, state) => {
+      let hasRequirements = true;
+
+      for (const key in quest.requirements) {
+        if (key === 'stats') {
+          // @TODO: Maybe we don't care about this
+          continue;
+        } else if (key === 'levels') {
+          for (const lKey in state.levels) {
+            if (quest.requirements.levels[lKey] > state.levels[lKey]) {
+              return false;
+            }
+          }
+        } else if (key === 'quests') {
+          const requiredQuests = quest.requirements.quests;
+
+          if (requiredQuests.length !== 0) {
+            hasRequirements = requiredQuests.filter((q) => state.quests_completed.includes(q)).length === requiredQuests.length;
+
+            if (!hasRequirements) {
+              return false;
+            }
+          }
+        }
+      }
+
+      return hasRequirements;
+    };
+
+    /**
+     * @param {Quest} quest 
+     */
+    const canCompleteQuest = (quest) => {
+      return state.quests_started.filter((q) => q.quest_id === quest.id && q.complete).length === quest.steps.length;
+    };
+
+    /**
+     * @param {Quest} quest 
+     * @param {number} step 
+     * 
+     * @returns {bool}
+     */
+    const canCompleteQuestStep = (quest, step) => {
+      // I mean technically, we can just do quest.steps[step]; :)
+      const questStep = quest.steps.find((s) => s.id === step);
+      console.log(quest, step);
+
+      if (!questStep) {
+        console.log('no quest step');
+        return false;
+      }
+
+      if (questStep.requirements.items.filter((i) => getInventoryItem(i.item_id) < i.value).length) {
+        console.log('do not meet item reqs');
+        return false;
+      }
+
+      console.log('you can complete this step');
+      return true;
+    }
+
+    /**
+     * @param {Quest} quest 
+     * @param {number} step 
+     */
+    const completeQuestStep = (quest, step) => {
+      if (!canCompleteQuestStep(quest, step)) {
+        return;
+      }
+
+      const idx = state.quests_started.findIndex((q) => q.quest_id === quest.id && q.step === step);
+
+      if (idx === -1) {
+        console.log(`unable to find ${quest.id}`);
+        return;
+      }
+
+      state.quests_started[idx].complete = true;
+
+      for (const qItemReq of quest.steps[idx].requirements.items) {
+        updateInventory(qItemReq.item_id, qItemReq * -1);
+      }
+    }
+
+    /**
+     * @param {Quest} quest 
+     */
+    const populateQuestBox = (quest) => {
+      const parent = document.querySelector('.quest-panel');
+      // @TODO: Make these elements in the DOM but replace contents :)
+      const title = document.createElement('p');
+      const desc = document.createElement('p');
+
+      parent.querySelector('.quest-title').innerText = `Title: ${quest.name}`;
+      parent.querySelector('.quest-desc').innerText = `Description: ${quest.description}`;
+
+      for (const key in quest.requirements) {
+        if (key === 'levels') {
+          const levelReqs = document.querySelector('.level-reqs');
+          levelReqs.innerHTML = null;
+          parent.querySelector('.quest-level-requirements').style.display = Object.keys(quest.requirements.levels).length ? null : 'none';
+
+          for (const lKey in quest.requirements.levels) {
+            const li = document.createElement('li');
+            const span = document.createElement('span');
+
+            span.innerText = `${lKey}: ${quest.requirements.levels[lKey]}`;
+            span.style.color = state.levels[lKey] >= quest.requirements[lKey] ? 'red' : 'green';
+          
+            li.append(span);
+            levelReqs.append(li);
+          }
+        } else if (key === 'quests') {
+          const questReqs = document.querySelector('.quest-reqs');
+          questReqs.innerHTML = null;
+          parent.querySelector('.quest-quest-requirements').style.display = quest.requirements.quests.length ? null : 'none';
+
+          for (const qKey of quest.requirements.quests) {
+            const li = document.createElement('li');
+            const span = document.createElement('span');
+
+            span.innerText = quests.find((q) => q.id === qKey)?.name;
+            span.style.color = state.quests_completed.includes(qKey) ? 'green' : 'red';
+
+            li.append(span);
+            questReqs.append(li);
+          }
+        }
+      }
+
+      const rewardsParent = parent.querySelector('.quest-rewards');
+      rewardsParent.innerHTML = null;
+
+      for (const reward of quest.rewards) {
+        const li = document.createElement('li');
+
+        if (reward.category === "experience") {
+          li.innerText = `${reward.value} ${reward.affects} xp`
+        } else if (reward.category === "item") {
+          const item = items.find((i) => i.item_id === reward.item_id);
+
+          if (!item) {
+            continue;
+          }
+
+          li.innerText = `${reward.value} ${item.name}`
+        } else if (reward.category === "money") {
+          li.innerText = `${reward.value} gold`
+        }
+
+        rewardsParent.append(li);
+      }
+
+      // Buttons
+      const startBtn = parent.querySelector('.start-quest');
+      const completeBtn = parent.querySelector('.complete-quest');
+
+      if (!state.quests_started.find((q) => q.quest_id === quest.id)) {
+        completeBtn.style.display = "none";
+      } else {
+        startBtn.style.display = "none";
+      }
+
+      startBtn.onclick = () => startQuest(quest);
+      completeBtn.onclick = () => completeQuest(quest);
+
+      if (!checkQuestRequirements(quest, state)) {
+        completeBtn.setAttribute("disabled", true);
+      } else {
+        completeBtn.removeAttribute("disabled");
+      }
+
+      parent.style.display = null;
+    };
+
+    /**
+     * @param {Quest} quest 
+     */
+    const renderCurrentQuest = (quest) => {
+      const parent = document.querySelector('.current-quest');
+      const currentQuest = state.quests_started.find((q) => q.quest_id === quest.id);
+      const steps = quest.steps.filter((s) => s.id <= currentQuest.step);
+      const stepList = parent.querySelector('.quest-steps');
+      stepList.innerHTML = null;
+
+      parent.querySelector('.quest-title').innerText = quest.name;
+
+      for (const step of steps) {
+        const li = document.createElement('li');
+        li.innerText = step.description;
+
+        if (step.id < currentQuest.step) {
+          li.style.textDecoration = "line-through";
+        }
+
+        stepList.append(li);
+      }
+
+      const stepBtn = parent.querySelector('.complete-step');
+
+      if (!canCompleteQuestStep(quest, currentQuest.step)) {
+        stepBtn.setAttribute("disabled", true);
+      } else {
+        stepBtn.removeAttribute("disabled");
+      }
+
+      parent.style.display = null;
+    };
+
+    /**
+     * @param {Quest} quest 
+     * 
+     * @returns {bool}
+     */
+    const startQuest = (quest) => {
+      if (state.quests_started.length) {
+        console.log('cannot start quest. one is already in progress');
+        return false;
+      }
+
+      state.quests_started.push({
+        quest_id: quest.id,
+        step: quest.steps[0].id,
+        complete: false,
+      });
+
+      renderCurrentQuest(quest);
+      populateQuestBox(quest);
+      return true;
+    };
+
+    /**
+     * @param {Quest} quest 
+     */
+    const completeQuest = (quest) => {
+      if (!canCompleteQuest(quest)) {
+        console.log(`unable to complete quest #${quest.id} - ${quest.name}`)
+        return;
+      }
+
+      state.quests_started = state.quests_started.filter((q) => q.id !== quest.id);
+      state.quests_completed.push(quest.id);
+
+      for (const reward of quest.rewards) {
+        switch (reward.category) {
+          case "experience":
+            updateXp(reward.affects, reward.value);
+          break;
+          case "item":
+            updateInventory(reward.item_id, reward.value);
+            break;
+          case "money":
+            state.gold += reward.value;
+            // Ugh
+            render();
+          break;
+          default:
+            console.log("unknown reward category", reward);
+        }
+      }
+    };
+
+    const renderAvailableQuests = () => {
+        const parent = document.querySelector('.available-quests');
+        const available = quests.filter((q) => !state.quests_completed.includes(q.id));
+        // hehexd
+        parent.innerHTML = null;
+
+        available.forEach((q) => {
+            const li = document.createElement('li');
+            const span = document.createElement('span');
+            const reqMet = checkQuestRequirements(q, state);
+
+            span.innerText = q.name;
+            span.style.color = reqMet ? 'black' : 'red';
+            li.onclick = () => populateQuestBox(q);
+
+            li.append(span);
+            parent.appendChild(li);
+        });
+    };
+
     render();
   }
 )();
-
