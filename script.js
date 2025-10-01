@@ -667,7 +667,7 @@
         },
         {
           item_id: "bronze_bar",
-          quantity: 0,
+          quantity: 10,
         },
       ],
       running_upgrades: {},
@@ -716,11 +716,12 @@
       state.xp[key] += value;
       state.xp[`${key}_xp_level`] += value;
 
-      if (state.xp[key] >= state.xp[nxtLvlKey]) {
-        const nxtLvl = state.levels[key] + 1;
-        state.xp[`${key}_xp_level`] = Math.abs(state.xp[nxtLvlKey] - state.xp[key]);
-        state.xp[nxtLvlKey] += getXpForLevel(nxtLvl);
+      let currXp = state.xp[key];
+
+      while (currXp >= state.xp[nxtLvlKey]) {
         state.levels[key] += 1;
+        state.xp[`${key}_xp_level`] = Math.abs(state.xp[nxtLvlKey] - state.xp[key]);
+        state.xp[nxtLvlKey] += getXpForLevel(state.levels[key] + 1);
       }
     };
 
@@ -999,7 +1000,7 @@
 
       // And this is where this render system starts to break down :)
       if (state.quests_started.length) {
-        const quest = quests.find((q) => q.id === state.quests_started[1].quest_id);
+        const quest = quests.find((q) => q.id === state.quests_started[0].quest_id);
         renderCurrentQuest(quest);
       }
     };
@@ -1173,7 +1174,6 @@
     const canCompleteQuestStep = (quest, step) => {
       // I mean technically, we can just do quest.steps[step]; :)
       const questStep = quest.steps.find((s) => s.id === step);
-      console.log(quest, step);
 
       if (!questStep) {
         console.log('no quest step');
@@ -1185,7 +1185,6 @@
         return false;
       }
 
-      console.log('you can complete this step');
       return true;
     }
 
@@ -1208,7 +1207,11 @@
       state.quests_started[idx].complete = true;
 
       for (const qItemReq of quest.steps[idx].requirements.items) {
-        updateInventory(qItemReq.item_id, qItemReq * -1);
+        updateInventory(qItemReq.item_id, qItemReq.value * -1);
+      }
+
+      if (quest.steps.length === step + 1) {
+        completeQuest(quest);
       }
     }
 
@@ -1217,9 +1220,6 @@
      */
     const populateQuestBox = (quest) => {
       const parent = document.querySelector('.quest-panel');
-      // @TODO: Make these elements in the DOM but replace contents :)
-      const title = document.createElement('p');
-      const desc = document.createElement('p');
 
       parent.querySelector('.quest-title').innerText = `Title: ${quest.name}`;
       parent.querySelector('.quest-desc').innerText = `Description: ${quest.description}`;
@@ -1327,6 +1327,7 @@
       }
 
       const stepBtn = parent.querySelector('.complete-step');
+      stepBtn.onclick = () => completeQuestStep(quest, currentQuest.step);
 
       if (!canCompleteQuestStep(quest, currentQuest.step)) {
         stepBtn.setAttribute("disabled", true);
@@ -1368,8 +1369,9 @@
         return;
       }
 
-      state.quests_started = state.quests_started.filter((q) => q.id !== quest.id);
+      state.quests_started = state.quests_started.filter((q) => q.quest_id !== quest.id);
       state.quests_completed.push(quest.id);
+      document.querySelector('.current-quest').style.display = "none";
 
       for (const reward of quest.rewards) {
         switch (reward.category) {
@@ -1381,13 +1383,17 @@
             break;
           case "money":
             state.gold += reward.value;
-            // Ugh
-            render();
           break;
           default:
             console.log("unknown reward category", reward);
         }
       }
+
+      document.querySelector('.quest-panel').style.display = "none";
+      document.querySelector('.current-quest').style.display = "none";
+
+      // Ugh
+      render();
     };
 
     const renderAvailableQuests = () => {
