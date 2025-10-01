@@ -600,8 +600,8 @@
                     lifetime_wealth: 0,
                 },
                 levels: {
-                    mining: 1,
-                    smithing: 1,
+                    mining: 10,
+                    smithing: 10,
                 },
                 quests: ["test"],
             },
@@ -610,27 +610,31 @@
                     item_id: "money",
                     category: "money",
                     affects: "gold",
-                    value: 250,
+                    value: 375,
                 },
                 {
                     item_id: "exp",
                     category: "experience",
                     affects: "mining",
-                    value: 250,
+                    value: 500,
                 },
                 {
                     item_id: "exp",
                     category: "experience",
                     affects: "smithing",
-                    value: 250,
+                    value: 500,
                 }
             ],
             steps: [
                 {
                     id: 0,
-                    name: "Do the thing",
-                    description: "",
-                    requirements: [],
+                    name: "Iron Bars",
+                    description: "The bum down the street wants 10 iron bars. Go figured.",
+                    requirements: {
+                      items: [
+                        { item_id: "iron_bar", value: 10 },
+                      ],
+                    },
                 }
             ]
         }
@@ -1284,6 +1288,9 @@
       // Buttons
       const startBtn = parent.querySelector('.start-quest');
       const completeBtn = parent.querySelector('.complete-quest');
+      // Ugh, reset because manual state management is a bitch
+      completeBtn.style.display = null;
+      startBtn.style.display = null;
 
       if (!state.quests_started.find((q) => q.quest_id === quest.id)) {
         completeBtn.style.display = "none";
