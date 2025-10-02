@@ -681,7 +681,7 @@
               && getInventoryItem(i.item_id) > 0,
           );
           const rng = Math.floor(Math.random() * availItems.length);
-          sellItem(availItems[rng].item_id);
+          sellItem(availItems[rng]);
         },
       },
       {
@@ -946,6 +946,16 @@
                         { item_id: "iron_bar", value: 10 },
                       ],
                     },
+                },
+                {
+                  id: 1,
+                  name: "Steel Bars",
+                  description: "Well wouldn't ya know it? That damn bum wants 15 steel bars now. What's up with this guy?",
+                  requirements: {
+                    items: [
+                      { item_id: "steel_bar", value: 15 },
+                    ]
+                  }
                 }
             ]
         }
@@ -1381,6 +1391,10 @@
       const currLevel = state.upgrades.find((u) => u.id === upgrade.id)?.level ?? 0;
       const nextLevel = upgrade.upgrades.find((u) => u.level === (currLevel === 0 ? 0 : currLevel + 1));
 
+      if (!nextLevel) {
+        return false;
+      }
+
       for (const reqKey in nextLevel.requirements) {
         if (nextLevel.requirements[reqKey] > state.levels[reqKey]) {
           return false;
@@ -1509,7 +1523,13 @@
      * @param {Quest} quest 
      */
     const canCompleteQuest = (quest) => {
-      return state.quests_started.filter((q) => q.quest_id === quest.id && q.complete).length === quest.steps.length;
+      const currStep = state.quests_started.find((q) => q.quest_id === quest.id);
+
+      if (!currStep) {
+        return false;
+      }
+
+      return (quest.steps[quest.steps.length - 1].id === currStep.step && currStep.complete);
     };
 
     /**
@@ -1540,26 +1560,36 @@
      * @param {number} step 
      */
     const completeQuestStep = (quest, step) => {
+      console.log(quest.id, step);
       if (!canCompleteQuestStep(quest, step)) {
         return;
       }
 
-      const idx = state.quests_started.findIndex((q) => q.quest_id === quest.id && q.step === step);
+      const idx = state.quests_started.findIndex((q) => q.quest_id);
 
       if (idx === -1) {
         console.log(`unable to find ${quest.id}`);
         return;
       }
 
+      const currStep = quest.steps.find((s) => s.id === step);
       state.quests_started[idx].complete = true;
 
-      for (const qItemReq of quest.steps[idx].requirements.items) {
+      for (const qItemReq of currStep.requirements.items) {
         updateInventory(qItemReq.item_id, qItemReq.value * -1);
       }
 
-      if (quest.steps.length === step + 1) {
+      const hasMoreSteps = quest.steps.find((s) => s.id === step + 1);
+
+      if (!!!hasMoreSteps) {
         completeQuest(quest);
+      } else {
+        state.quests_started[idx].step = step + 1;
+        renderCurrentQuest(quest);
       }
+
+      // Technically a double render from the above else
+      render();
     }
 
     /**
@@ -1582,7 +1612,7 @@
             const span = document.createElement('span');
 
             span.innerText = `${lKey}: ${quest.requirements.levels[lKey]}`;
-            span.style.color = state.levels[lKey] >= quest.requirements[lKey] ? 'red' : 'green';
+            span.style.color = state.levels[lKey] < quest.requirements.levels[lKey] ? 'red' : 'green';
           
             li.append(span);
             levelReqs.append(li);
@@ -1645,9 +1675,9 @@
       completeBtn.onclick = () => completeQuest(quest);
 
       if (!checkQuestRequirements(quest, state)) {
-        completeBtn.setAttribute("disabled", true);
+        startBtn.setAttribute("disabled", true);
       } else {
-        completeBtn.removeAttribute("disabled");
+        startBtn.removeAttribute("disabled");
       }
 
       parent.style.display = null;
@@ -1677,6 +1707,7 @@
       }
 
       const stepBtn = parent.querySelector('.complete-step');
+      stepBtn.removeAttribute("disabled");
       stepBtn.onclick = () => completeQuestStep(quest, currentQuest.step);
 
       if (!canCompleteQuestStep(quest, currentQuest.step)) {
