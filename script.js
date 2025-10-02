@@ -46,6 +46,7 @@
  *
  * @property {string} id
  * @property {string} name
+ * @property {string} description
  * @property {number} interval
  * @property {string} affects
  * @property {number} cost
@@ -55,6 +56,10 @@
  *  level: number,
  *  cost: number,
  *  value: number,
+ *  requirements: {
+ *    smithing: number,
+ *    mining: number,
+ * }
  * }[]} upgrades
  */
 
@@ -137,7 +142,24 @@
         success_change: 1.0,
         xp_given: 10,
         sellable: true,
-        categories: ["swords"],
+        categories: ["swords", "weapons", "bronze"],
+        ingredients: [
+          {
+            item_id: "bronze_bar",
+            quantity: 3,
+          },
+        ],
+      },
+      {
+        item_id: "bronze_mace",
+        level: 1,
+        value: 24,
+        skill: "smithing",
+        name: "Bronze Mace",
+        success_change: 1.0,
+        xp_given: 10,
+        sellable: true,
+        categories: ["maces", "weapons", "bronze"],
         ingredients: [
           {
             item_id: "bronze_bar",
@@ -189,34 +211,56 @@
         ],
       },
     ];
+    /** @type  Upgrade[] */
     const allUpgrades = [
       {
         id: "automine_copper",
         name: "Copper Autominer",
+        description: "Automagically mines copper for you!",
         value: 2000,
         cost: 25,
         affects: "copper_ore",
         category: "autoer",
         upgrades: [
           {
+            level: 0,
+            cost: 25,
+            value: 2000,
+            requirements: {
+              mining: 1,
+            },
+          },
+          {
             level: 1,
             cost: 75,
             value: 1750,
+            requirements: {
+              mining: 2,
+            },
           },
           {
             level: 2,
             cost: 125,
             value: 1500,
+            requirements: {
+              mining: 4,
+            },
           },
           {
             level: 3,
             cost: 175,
             value: 1250,
+            requirements: {
+              mining: 6,
+            },
           },
           {
             level: 4,
             cost: 225,
             value: 1000,
+            requirements: {
+              mining: 6,
+            },
           },
         ],
         fn: () => userDidMine(items.find((i) => i.item_id === "copper_ore")),
@@ -224,30 +268,51 @@
       {
         id: "automine_tin",
         name: "Tin Autominer",
+        description: "Automagically mines tin for you!",
         value: 2000,
         cost: 25,
         affects: "copper_tin",
         category: "autoer",
         upgrades: [
           {
+            level: 0,
+            cost: 25,
+            value: 2000,
+            requirements: {
+              mining: 1,
+            },
+          },
+          {
             level: 1,
             cost: 75,
             value: 1750,
+            requirements: {
+              mining: 2,
+            }
           },
           {
             level: 2,
             cost: 125,
             value: 1500,
+            requirements: {
+              mining: 4,
+            },
           },
           {
             level: 3,
             cost: 175,
             value: 1250,
+            requirements: {
+              mining: 6,
+            },
           },
           {
             level: 4,
             cost: 225,
             value: 1000,
+            requirements: {
+              mining: 6,
+            },
           },
         ],
         fn: () => userDidMine(items.find((i) => i.item_id === "tin_ore")),
@@ -255,25 +320,51 @@
       {
         id: "autosmelt_bronze",
         name: "Bronze Autosmelter",
+        description: "Imagine having an apprentice smelting bronze for you. It's just like that.",
         value: 2000,
         cost: 100,
         affects: "bronze_bar",
         category: "autoer",
         upgrades: [
           {
+            level: 0,
+            cost: 100,
+            value: 2000,
+            requirements: {
+              smithing: 3,
+            },
+          },
+          {
             level: 1,
             cost: 200,
             value: 1750,
+            requirements: {
+              smithing: 4,
+            },
           },
           {
             level: 2,
             cost: 350,
             value: 1500,
+            requirements: {
+              smithing: 4,
+            },
           },
           {
             level: 3,
             cost: 500,
             value: 1250,
+            requirements: {
+              smithing: 6,
+            },
+          },
+          {
+            level: 4,
+            cost: 1000,
+            value: 1000,
+            requirements: {
+              smithing: 6,
+            },
           },
         ],
         fn: () => userDidSmith(items.find((i) => i.item_id === "bronze_bar")),
@@ -281,25 +372,51 @@
       {
         id: "autoforge_bronze_sword",
         name: "Bronze Sword Autohammer",
+        description: "Remember your bronze bar apprentice? Well they're good enough to make swords now.",
         value: 2000,
         cost: 200,
         affects: "bronze_sword",
         category: "autoer",
         upgrades: [
           {
+            level: 0,
+            cost: 200,
+            value: 2000,
+            requirements: {
+              smithing: 2,
+            },
+          },
+          {
             level: 1,
             cost: 300,
             value: 1750,
+            requirements: {
+              smithing: 3,
+            },
           },
           {
             level: 2,
             cost: 450,
             value: 1500,
+            requirements: {
+              smithing: 5,
+            },
           },
           {
             level: 3,
             cost: 600,
             value: 1250,
+            requirements: {
+              smithing: 6,
+            },
+          },
+          {
+            level: 4,
+            cost: 1200,
+            value: 1000,
+            requirements: {
+              smithing: 6,
+            },
           },
         ],
         fn: () => userDidSmith(items.find((i) => i.item_id === "bronze_sword")),
@@ -307,136 +424,212 @@
       {
         id: "copper_mining_excess",
         name: "Mining: Excess Copper",
-        description: "Chance to get some extra copper",
+        description: "Lady luck is on your side but she prefers copper.",
         cost: 100,
         value: 0.1,
         affects: "copper_ore",
         category: "mining_excess",
         upgrades: [
           {
+            level: 0,
+            value: 0.1,
+            cost: 200,
+            requirements: {
+              mining: 8,
+            }
+          },
+          {
             id: "copper_mining_excess",
             level: 1,
             value: 0.15,
-            cost: 275,
+            cost: 350,
+            requirements: {
+              mining: 9,
+            }
           },
           {
             id: "copper_mining_excess",
             level: 2,
             value: 0.25,
-            cost: 350,
+            cost: 450,
+            requirements: {
+              mining: 11,
+            }
           },
           {
             id: "copper_mining_excess",
             level: 3,
             value: 0.75,
-            cost: 500,
+            cost: 750,
+            requirements: {
+              mining: 13,
+            }
           },
           {
             id: "copper_mining_excess",
             level: 4,
             value: 1.0,
             cost: 1000,
+            requirements: {
+              mining: 15,
+            }
           },
         ],
       },
       {
         id: "tin_mining_excess",
         name: "Mining: Excess Tin",
-        description: "Chance to get some extra tin",
+        description: "Lady luck is back, but this time she fancies tin. Or is it ten? Tin ten?",
         cost: 100,
         value: 0.1,
         affects: "tin_ore",
         category: "mining_excess",
         upgrades: [
           {
+            level: 0,
+            cost: 200,
+            value: 0.1,
+            requirements: {
+              mining: 8,
+            },
+          },
+          {
             id: "tin_mining_excess",
             level: 1,
             value: 0.15,
-            cost: 275,
+            cost: 350,
+            requirements: {
+              mining: 9,
+            },
           },
           {
             id: "tin_mining_excess",
             level: 2,
             value: 0.25,
-            cost: 350,
+            cost: 450,
+            requirements: {
+              mining: 11,
+            },
           },
           {
             id: "tin_mining_excess",
             level: 3,
             value: 0.75,
-            cost: 500,
+            cost: 750,
+            requirements: {
+              mining: 13,
+            },
           },
           {
             id: "tin_mining_excess",
             level: 4,
             value: 1.0,
             cost: 1000,
+            requirements: {
+              mining: 15,
+            },
           },
         ],
       },
       {
         id: "iron_mining_mastery",
         name: "Mining: Iron Mastery",
+        description: "You've swung a pickaxe enough times to know how to get ore more often.",
         cost: 200,
         value: 0.08,
         affects: "iron_ore",
         category: "mining_mastery",
         upgrades: [
           {
+            level: 0,
+            cost: 200,
+            value: 0.08,
+            requirements: {
+              mining: 12,
+            },
+          },
+          {
             level: 1,
             cost: 300,
             value: 0.08,
+            requirements: {
+              mining: 14,
+            },
           },
           {
             level: 2,
             cost: 450,
             value: 0.08,
+            requirements: {
+              mining: 16,
+            },
           },
           {
             level: 3,
             cost: 600,
             value: 0.09,
+            requirements: {
+              mining: 18,
+            },
           },
         ],
       },
       {
         id: "sword_store",
-        name: "Shopfront: Sword Stall",
-        description: "Automatically sells a random sword you've made.",
+        name: "Shopfront: Bronze Weapon",
+        description: "Automatically sells a random bronze weapon you've made.",
         cost: 250,
-        affects: "swords",
+        affects: "weapons",
         category: "autoer",
         value: 2000,
         upgrades: [
+          {
+            level: 0,
+            cost: 250,
+            value: 2000,
+            requirements: {
+              smithing: 5,
+            },
+          },
           {
             level: 1,
             cost: 350,
             value: 1750,
             requirements: {
-                smithing: 5,
+              smithing: 5,
             }
           },
           {
             level: 2,
             cost: 450,
             value: 1500,
+            requirements: {
+              smithing: 8,
+            },
           },
           {
             level: 3,
             cost: 550,
             value: 1250,
+            requirements: {
+              smithing: 8,
+            },
           },
           {
             level: 4,
             cost: 650,
             value: 1000,
+            requirements: {
+              smithing: 10,
+            },
           },
         ],
         fn: () => {
           const items = items.filter(
             (i) =>
-              i.categories.includes("swords") &&
-              getInventoryItem(i.item_id) > 0,
+              i.categories.includes("weapons")
+              && i.categories.includes("bronze")
+              && getInventoryItem(i.item_id) > 0,
           );
           const rng = Math.floor(Math.random() * items.length);
           sellItem(items[rng].item_id);
@@ -455,41 +648,73 @@
             level: 0,
             cost: 1000,
             value: 0.1,
+            requirements: {
+              mining: 10,
+              smithing: 10,
+            },
           },
           {
             level: 1,
             cost: 2500,
             value: 0.15,
+            requirements: {
+              mining: 20,
+              smithing: 20,
+            },
           },
           {
             level: 2,
             cost: 2750,
             value: 0.25,
+            requirements: {
+              mining: 25,
+              smithing: 25,
+            },
           },
           {
             level: 3,
             cost: 3500,
             value: 0.35,
+            requirements: {
+              mining: 30,
+              smithing: 30,
+            },
           },
           {
             level: 4,
             cost: 4000,
             value: 0.45,
+            requirements: {
+              mining: 40,
+              smithing: 40,
+            },
           },
           {
             level: 5,
             cost: 4000,
             value: 0.6,
+            requirements: {
+              mining: 50,
+              smithing: 50,
+            },
           },
           {
             level: 6,
             cost: 4000,
             value: 0.8,
+            requirements: {
+              mining: 60,
+              smithing: 60,
+            },
           },
           {
             level: 7,
             cost: 4000,
             value: 1.0,
+            requirements: {
+              mining: 70,
+              smithing: 70,
+            },
           },
         ],
       },
@@ -504,39 +729,76 @@
         category: "autoer_speed",
         upgrades: [
           {
+            level: 0,
+            cost: 1000,
+            value: 0.1,
+            requirements: {
+              mining: 10,
+              smithing: 10,
+            },
+          },
+          {
             level: 1,
             cost: 2500,
             value: 0.15,
+            requirements: {
+              mining: 20,
+              smithing: 20,
+            },
           },
           {
             level: 2,
             cost: 2750,
             value: 0.25,
+            requirements: {
+              mining: 25,
+              smithing: 25,
+            },
           },
           {
             level: 3,
             cost: 3500,
             value: 0.35,
+            requirements: {
+              mining: 30,
+              smithing: 30,
+            },
           },
           {
             level: 4,
             cost: 4000,
             value: 0.45,
+            requirements: {
+              mining: 40,
+              smithing: 40,
+            },
           },
           {
             level: 5,
             cost: 4000,
             value: 0.6,
+            requirements: {
+              mining: 50,
+              smithing: 50,
+            },
           },
           {
             level: 6,
             cost: 4000,
             value: 0.8,
+            requirements: {
+              mining: 60,
+              smithing: 60,
+            },
           },
           {
             level: 7,
             cost: 4000,
             value: 1.0,
+            requirements: {
+              mining: 70,
+              smithing: 70,
+            },
           },
         ],
       },
@@ -953,6 +1215,7 @@
       }
 
       state.gold += gold;
+      state.stats.lifetime_wealth += gold;
     };
 
     const userDidSell = (item) => {
@@ -1060,11 +1323,45 @@
       }
     };
 
+    /**
+     * @param {Upgrade} upgrade
+     * 
+     * @returns {bool}
+     */
+    const hasRequirementsForUpgrade = (upgrade) => {
+      const currLevel = state.upgrades.find((u) => u.id === upgrade.id)?.level ?? 0;
+      const nextLevel = upgrade.upgrades.find((u) => u.level === (currLevel === 0 ? 0 : currLevel + 1));
+
+      for (const reqKey in nextLevel.requirements) {
+        if (nextLevel.requirements[reqKey] > state.levels[reqKey]) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    /**
+     * @param {Upgrade} upgrade 
+     * 
+     * @returns {bool}
+     */
+    const canUpgradeUpgrade = (upgrade) => {
+      const currLevel = state.upgrades.find((u) => u.id === upgrade.id)?.level ?? 0;
+      const nextLevel = upgrade.upgrades.find((u) => u.level === (currLevel === 0 ? 0 : currLevel + 1));
+
+      if (!nextLevel || nextLevel.cost > state.gold) {
+        return false;
+      }
+
+      return hasRequirementsForUpgrade(upgrade);
+    };
+
     const renderAvailableUpgrades = () => {
       const parent = document.querySelector(".available-upgrades");
       parent.innerHTML = null;
 
-      for (const upgrade of allUpgrades) {
+      for (const upgrade of allUpgrades.filter((u) => hasRequirementsForUpgrade(u))) {
         const li = document.createElement("li");
         const btn = document.createElement("button");
         const currUpgrade = state.upgrades.find((u) => u.id === upgrade.id);
@@ -1086,10 +1383,7 @@
         btn.onclick = () => userPurchasedUpgrade(upgrade);
 
         // @TODO: We also need to check if they've maxxed out the upgrade
-        if (
-          cost > state.gold ||
-          (currUpgrade && currUpgrade.level >= maxUpgrade.level)
-        ) {
+        if (!canUpgradeUpgrade(upgrade)) {
           btn.setAttribute("disabled", true);
         }
 
@@ -1390,6 +1684,7 @@
             break;
           case "money":
             state.gold += reward.value;
+            state.lifetime_wealth += reward.value;
           break;
           default:
             console.log("unknown reward category", reward);
