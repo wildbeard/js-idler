@@ -4,6 +4,7 @@
  *
  * @property {string} item_id
  * @property {string} name
+ * @property {string} description
  * @property {string} skill
  * @property {number} level
  * @property {number} value
@@ -11,7 +12,7 @@
  * @property {number} success_chance
  * @property {boolean} sellable
  * @property {{item_id: string, quantity: number}[]?} ingredients
- * @proprety {string[]} categories
+ * @property {string[]} categories
  */
 
 /**
@@ -135,7 +136,7 @@
       },
       {
         item_id: "bronze_sword",
-        level: 1,
+        level: 3,
         value: 24,
         skill: "smithing",
         name: "Bronze Sword",
@@ -152,7 +153,7 @@
       },
       {
         item_id: "bronze_mace",
-        level: 1,
+        level: 3,
         value: 24,
         skill: "smithing",
         name: "Bronze Mace",
@@ -185,7 +186,7 @@
         name: "Iron Bar",
         success_chance: 0.65,
         xp_given: 15,
-        categories: ["bars"],
+        categories: ["iron", "bars"],
         ingredients: [
           {
             item_id: "iron_ore",
@@ -201,8 +202,8 @@
         name: "Iron Sword",
         description: "A sword made of iron.",
         success_chance: 1.0,
-        xp_given: 25,
-        categories: ["swords"],
+        xp_given: 45,
+        categories: ["iron", "swords"],
         ingredients: [
           {
             item_id: "iron_bar",
@@ -210,6 +211,54 @@
           },
         ],
       },
+      {
+        item_id: "iron_chain_vest",
+        level: 14,
+        value: 78,
+        skill: "smithing",
+        name: "Iron Chain Vest",
+        description: "If you like it, you should put a ring on it. Or several thousand.",
+        success_chance: 1.0,
+        xp_given: 60,
+        categories: ["iron", "armor"],
+        ingredients: [
+          {
+            item_id: "iron_bar",
+            quantity: 4,
+          }
+        ]
+      },
+      {
+        item_id: "coal",
+        level: 10,
+        value: 8,
+        skill: "mining",
+        name: "Coal",
+        description: "A lump-o-coal",
+        success_chance: 1.0,
+        xp_given: 20,
+        categories: ["ore"],
+      },
+      {
+        item_id: "steel_bar",
+        level: 20,
+        skill: "smithing",
+        name: "Steel Bar",
+        description: "It's like iron but better.",
+        success_chance: 1.0,
+        xp_given: 45,
+        categories: ["steel", "bars"],
+        ingredients: [
+          {
+            item_id: "iron_ore",
+            quantity: 2,
+          },
+          {
+            item_id: "coal",
+            quantity: 1,
+          }
+        ]
+      }
     ];
     /** @type  Upgrade[] */
     const allUpgrades = [
@@ -625,14 +674,14 @@
           },
         ],
         fn: () => {
-          const items = items.filter(
+          const availItems = items.filter(
             (i) =>
               i.categories.includes("weapons")
               && i.categories.includes("bronze")
               && getInventoryItem(i.item_id) > 0,
           );
-          const rng = Math.floor(Math.random() * items.length);
-          sellItem(items[rng].item_id);
+          const rng = Math.floor(Math.random() * availItems.length);
+          sellItem(availItems[rng].item_id);
         },
       },
       {
@@ -1684,7 +1733,7 @@
             break;
           case "money":
             state.gold += reward.value;
-            state.lifetime_wealth += reward.value;
+            state.stats.lifetime_wealth += reward.value;
           break;
           default:
             console.log("unknown reward category", reward);
