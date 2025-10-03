@@ -18,11 +18,11 @@
 /**
  * @typedef Quest
  * @type {object}
- * 
+ *
  * @property {string} id
  * @property {string} name
  * @property {string} description
- * @property {{ 
+ * @property {{
  *  stats: State['stats'],
  *  levels: State['levels'],
  *  quests: string[],
@@ -52,7 +52,7 @@
  * @property {string} affects
  * @property {number} cost
  * @property {string} category
- * @property {{ 
+ * @property {{
  *  id: string,
  *  level: number,
  *  cost: number,
@@ -92,184 +92,185 @@
     /** @type Item[] */
     const items = [
       {
-        item_id: "copper_ore",
+        item_id: 'copper_ore',
         level: 1,
         value: 1,
-        skill: "mining",
-        name: "Copper Ore",
+        skill: 'mining',
+        name: 'Copper Ore',
         success_chance: 1.0,
         xp_given: 10,
         sellable: true,
-        categories: ["ore"],
+        categories: ['ore'],
       },
       {
-        item_id: "tin_ore",
+        item_id: 'tin_ore',
         level: 1,
         value: 1,
-        skill: "mining",
-        name: "Tin Ore",
+        skill: 'mining',
+        name: 'Tin Ore',
         success_chance: 1.0,
         xp_given: 10,
         sellable: true,
-        categories: ["ore"],
+        categories: ['ore'],
       },
       {
-        item_id: "bronze_bar",
+        item_id: 'bronze_bar',
         level: 1,
         value: 3,
-        skill: "smithing",
-        name: "Bronze Bar",
+        skill: 'smithing',
+        name: 'Bronze Bar',
         success_chance: 1.0,
         xp_given: 10,
         sellable: true,
-        categories: ["bars"],
+        categories: ['bars'],
         ingredients: [
           {
-            item_id: "copper_ore",
+            item_id: 'copper_ore',
             quantity: 1,
           },
           {
-            item_id: "tin_ore",
+            item_id: 'tin_ore',
             quantity: 1,
           },
         ],
       },
       {
-        item_id: "bronze_sword",
+        item_id: 'bronze_sword',
         level: 3,
         value: 24,
-        skill: "smithing",
-        name: "Bronze Sword",
+        skill: 'smithing',
+        name: 'Bronze Sword',
         success_change: 1.0,
         xp_given: 10,
         sellable: true,
-        categories: ["swords", "weapons", "bronze"],
+        categories: ['swords', 'weapons', 'bronze'],
         ingredients: [
           {
-            item_id: "bronze_bar",
+            item_id: 'bronze_bar',
             quantity: 3,
           },
         ],
       },
       {
-        item_id: "bronze_mace",
+        item_id: 'bronze_mace',
         level: 3,
         value: 24,
-        skill: "smithing",
-        name: "Bronze Mace",
+        skill: 'smithing',
+        name: 'Bronze Mace',
         success_change: 1.0,
         xp_given: 10,
         sellable: true,
-        categories: ["maces", "weapons", "bronze"],
+        categories: ['maces', 'weapons', 'bronze'],
         ingredients: [
           {
-            item_id: "bronze_bar",
+            item_id: 'bronze_bar',
             quantity: 3,
           },
         ],
       },
       {
-        item_id: "iron_ore",
+        item_id: 'iron_ore',
         level: 10,
         value: 12,
-        skill: "mining",
-        name: "Iron Ore",
+        skill: 'mining',
+        name: 'Iron Ore',
         xp_given: 20,
         success_chance: 0.75,
-        categories: ["ores"],
+        categories: ['ores'],
       },
       {
-        item_id: "iron_bar",
+        item_id: 'iron_bar',
         level: 10,
         value: 15,
-        skill: "smithing",
-        name: "Iron Bar",
+        skill: 'smithing',
+        name: 'Iron Bar',
         success_chance: 0.65,
         xp_given: 15,
-        categories: ["iron", "bars"],
+        categories: ['iron', 'bars'],
         ingredients: [
           {
-            item_id: "iron_ore",
+            item_id: 'iron_ore',
             quantity: 1,
           },
         ],
       },
       {
-        item_id: "iron_sword",
+        item_id: 'iron_sword',
         level: 12,
         value: 68,
-        skill: "smithing",
-        name: "Iron Sword",
-        description: "A sword made of iron.",
+        skill: 'smithing',
+        name: 'Iron Sword',
+        description: 'A sword made of iron.',
         success_chance: 1.0,
         xp_given: 45,
-        categories: ["iron", "swords"],
+        categories: ['iron', 'swords'],
         ingredients: [
           {
-            item_id: "iron_bar",
+            item_id: 'iron_bar',
             quantity: 3,
           },
         ],
       },
       {
-        item_id: "iron_chain_vest",
+        item_id: 'iron_chain_vest',
         level: 14,
         value: 78,
-        skill: "smithing",
-        name: "Iron Chain Vest",
-        description: "If you like it, you should put a ring on it. Or several thousand.",
+        skill: 'smithing',
+        name: 'Iron Chain Vest',
+        description:
+          'If you like it, you should put a ring on it. Or several thousand.',
         success_chance: 1.0,
         xp_given: 60,
-        categories: ["iron", "armor"],
+        categories: ['iron', 'armor'],
         ingredients: [
           {
-            item_id: "iron_bar",
+            item_id: 'iron_bar',
             quantity: 4,
-          }
-        ]
+          },
+        ],
       },
       {
-        item_id: "coal",
+        item_id: 'coal',
         level: 10,
         value: 8,
-        skill: "mining",
-        name: "Coal",
-        description: "A lump-o-coal",
+        skill: 'mining',
+        name: 'Coal',
+        description: 'A lump-o-coal',
         success_chance: 1.0,
         xp_given: 20,
-        categories: ["ore"],
+        categories: ['ore'],
       },
       {
-        item_id: "steel_bar",
+        item_id: 'steel_bar',
         level: 20,
-        skill: "smithing",
-        name: "Steel Bar",
+        skill: 'smithing',
+        name: 'Steel Bar',
         description: "It's like iron but better.",
         success_chance: 1.0,
         xp_given: 45,
-        categories: ["steel", "bars"],
+        categories: ['steel', 'bars'],
         ingredients: [
           {
-            item_id: "iron_ore",
+            item_id: 'iron_ore',
             quantity: 2,
           },
           {
-            item_id: "coal",
+            item_id: 'coal',
             quantity: 1,
-          }
-        ]
-      }
+          },
+        ],
+      },
     ];
     /** @type  Upgrade[] */
     const allUpgrades = [
       {
-        id: "automine_copper",
-        name: "Copper Autominer",
-        description: "Automagically mines copper for you!",
+        id: 'automine_copper',
+        name: 'Copper Autominer',
+        description: 'Automagically mines copper for you!',
         value: 2000,
         cost: 25,
-        affects: "copper_ore",
-        category: "autoer",
+        affects: 'copper_ore',
+        category: 'autoer',
         upgrades: [
           {
             level: 0,
@@ -312,16 +313,16 @@
             },
           },
         ],
-        fn: () => userDidMine(items.find((i) => i.item_id === "copper_ore")),
+        fn: () => userDidMine(items.find((i) => i.item_id === 'copper_ore')),
       },
       {
-        id: "automine_tin",
-        name: "Tin Autominer",
-        description: "Automagically mines tin for you!",
+        id: 'automine_tin',
+        name: 'Tin Autominer',
+        description: 'Automagically mines tin for you!',
         value: 2000,
         cost: 25,
-        affects: "copper_tin",
-        category: "autoer",
+        affects: 'copper_tin',
+        category: 'autoer',
         upgrades: [
           {
             level: 0,
@@ -337,7 +338,7 @@
             value: 1750,
             requirements: {
               mining: 2,
-            }
+            },
           },
           {
             level: 2,
@@ -364,16 +365,17 @@
             },
           },
         ],
-        fn: () => userDidMine(items.find((i) => i.item_id === "tin_ore")),
+        fn: () => userDidMine(items.find((i) => i.item_id === 'tin_ore')),
       },
       {
-        id: "autosmelt_bronze",
-        name: "Bronze Autosmelter",
-        description: "Imagine having an apprentice smelting bronze for you. It's just like that.",
+        id: 'autosmelt_bronze',
+        name: 'Bronze Autosmelter',
+        description:
+          "Imagine having an apprentice smelting bronze for you. It's just like that.",
         value: 2000,
         cost: 100,
-        affects: "bronze_bar",
-        category: "autoer",
+        affects: 'bronze_bar',
+        category: 'autoer',
         upgrades: [
           {
             level: 0,
@@ -416,16 +418,17 @@
             },
           },
         ],
-        fn: () => userDidSmith(items.find((i) => i.item_id === "bronze_bar")),
+        fn: () => userDidSmith(items.find((i) => i.item_id === 'bronze_bar')),
       },
       {
-        id: "autoforge_bronze_sword",
-        name: "Bronze Sword Autohammer",
-        description: "Remember your bronze bar apprentice? Well they're good enough to make swords now.",
+        id: 'autoforge_bronze_sword',
+        name: 'Bronze Sword Autohammer',
+        description:
+          "Remember your bronze bar apprentice? Well they're good enough to make swords now.",
         value: 2000,
         cost: 200,
-        affects: "bronze_sword",
-        category: "autoer",
+        affects: 'bronze_sword',
+        category: 'autoer',
         upgrades: [
           {
             level: 0,
@@ -468,82 +471,27 @@
             },
           },
         ],
-        fn: () => userDidSmith(items.find((i) => i.item_id === "bronze_sword")),
+        fn: () => userDidSmith(items.find((i) => i.item_id === 'bronze_sword')),
       },
       {
-        id: "copper_mining_excess",
-        name: "Mining: Excess Copper",
-        description: "Lady luck is on your side but she prefers copper.",
+        id: 'copper_mining_excess',
+        name: 'Mining: Excess Copper',
+        description: 'Lady luck is on your side but she prefers copper.',
         cost: 100,
         value: 0.1,
-        affects: "copper_ore",
-        category: "mining_excess",
+        affects: 'copper_ore',
+        category: 'mining_excess',
         upgrades: [
           {
             level: 0,
             value: 0.1,
             cost: 200,
-            requirements: {
-              mining: 8,
-            }
-          },
-          {
-            id: "copper_mining_excess",
-            level: 1,
-            value: 0.15,
-            cost: 350,
-            requirements: {
-              mining: 9,
-            }
-          },
-          {
-            id: "copper_mining_excess",
-            level: 2,
-            value: 0.25,
-            cost: 450,
-            requirements: {
-              mining: 11,
-            }
-          },
-          {
-            id: "copper_mining_excess",
-            level: 3,
-            value: 0.75,
-            cost: 750,
-            requirements: {
-              mining: 13,
-            }
-          },
-          {
-            id: "copper_mining_excess",
-            level: 4,
-            value: 1.0,
-            cost: 1000,
-            requirements: {
-              mining: 15,
-            }
-          },
-        ],
-      },
-      {
-        id: "tin_mining_excess",
-        name: "Mining: Excess Tin",
-        description: "Lady luck is back, but this time she fancies tin. Or is it ten? Tin ten?",
-        cost: 100,
-        value: 0.1,
-        affects: "tin_ore",
-        category: "mining_excess",
-        upgrades: [
-          {
-            level: 0,
-            cost: 200,
-            value: 0.1,
             requirements: {
               mining: 8,
             },
           },
           {
-            id: "tin_mining_excess",
+            id: 'copper_mining_excess',
             level: 1,
             value: 0.15,
             cost: 350,
@@ -552,7 +500,7 @@
             },
           },
           {
-            id: "tin_mining_excess",
+            id: 'copper_mining_excess',
             level: 2,
             value: 0.25,
             cost: 450,
@@ -561,7 +509,7 @@
             },
           },
           {
-            id: "tin_mining_excess",
+            id: 'copper_mining_excess',
             level: 3,
             value: 0.75,
             cost: 750,
@@ -570,7 +518,7 @@
             },
           },
           {
-            id: "tin_mining_excess",
+            id: 'copper_mining_excess',
             level: 4,
             value: 1.0,
             cost: 1000,
@@ -581,13 +529,70 @@
         ],
       },
       {
-        id: "iron_mining_mastery",
-        name: "Mining: Iron Mastery",
-        description: "You've swung a pickaxe enough times to know how to get ore more often.",
+        id: 'tin_mining_excess',
+        name: 'Mining: Excess Tin',
+        description:
+          'Lady luck is back, but this time she fancies tin. Or is it ten? Tin ten?',
+        cost: 100,
+        value: 0.1,
+        affects: 'tin_ore',
+        category: 'mining_excess',
+        upgrades: [
+          {
+            level: 0,
+            cost: 200,
+            value: 0.1,
+            requirements: {
+              mining: 8,
+            },
+          },
+          {
+            id: 'tin_mining_excess',
+            level: 1,
+            value: 0.15,
+            cost: 350,
+            requirements: {
+              mining: 9,
+            },
+          },
+          {
+            id: 'tin_mining_excess',
+            level: 2,
+            value: 0.25,
+            cost: 450,
+            requirements: {
+              mining: 11,
+            },
+          },
+          {
+            id: 'tin_mining_excess',
+            level: 3,
+            value: 0.75,
+            cost: 750,
+            requirements: {
+              mining: 13,
+            },
+          },
+          {
+            id: 'tin_mining_excess',
+            level: 4,
+            value: 1.0,
+            cost: 1000,
+            requirements: {
+              mining: 15,
+            },
+          },
+        ],
+      },
+      {
+        id: 'iron_mining_mastery',
+        name: 'Mining: Iron Mastery',
+        description:
+          "You've swung a pickaxe enough times to know how to get ore more often.",
         cost: 200,
         value: 0.08,
-        affects: "iron_ore",
-        category: "mining_mastery",
+        affects: 'iron_ore',
+        category: 'mining_mastery',
         upgrades: [
           {
             level: 0,
@@ -624,12 +629,12 @@
         ],
       },
       {
-        id: "sword_store",
-        name: "Shopfront: Bronze Weapon",
+        id: 'sword_store',
+        name: 'Shopfront: Bronze Weapon',
         description: "Automatically sells a random bronze weapon you've made.",
         cost: 250,
-        affects: "weapons",
-        category: "autoer",
+        affects: 'weapons',
+        category: 'autoer',
         value: 2000,
         upgrades: [
           {
@@ -646,7 +651,7 @@
             value: 1750,
             requirements: {
               smithing: 5,
-            }
+            },
           },
           {
             level: 2,
@@ -676,22 +681,22 @@
         fn: () => {
           const availItems = items.filter(
             (i) =>
-              i.categories.includes("weapons")
-              && i.categories.includes("bronze")
-              && getInventoryItem(i.item_id) > 0,
+              i.categories.includes('weapons') &&
+              i.categories.includes('bronze') &&
+              getInventoryItem(i.item_id) > 0,
           );
           const rng = Math.floor(Math.random() * availItems.length);
           sellItem(availItems[rng]);
         },
       },
       {
-        id: "time_is_money",
-        name: "Time is Money",
-        description: "Increase gold gained from sales.",
+        id: 'time_is_money',
+        name: 'Time is Money',
+        description: 'Increase gold gained from sales.',
         cost: 1000,
-        affects: "sales",
+        affects: 'sales',
         value: 0.1,
-        category: "gold_bonus",
+        category: 'gold_bonus',
         upgrades: [
           {
             level: 0,
@@ -768,14 +773,14 @@
         ],
       },
       {
-        id: "money_is_time",
-        name: "Money is Time",
+        id: 'money_is_time',
+        name: 'Money is Time',
         description:
-          "Increases rate of all auto miners, smelters, forges, and sellers.",
+          'Increases rate of all auto miners, smelters, forges, and sellers.',
         cost: 1000,
-        affects: "rates",
+        affects: 'rates',
         value: 0.1,
-        category: "autoer_speed",
+        category: 'autoer_speed',
         upgrades: [
           {
             level: 0,
@@ -855,110 +860,106 @@
 
     /** @type {Quest[]} */
     const quests = [
-        {
-            id: "test",
-            name: "Test Quest",
-            description: "Description",
-            requirements: {
-                stats: {
-                    lifetime_wealth: 0,
-                },
-                levels: {
-                    mining: 1,
-                    smithing: 1,
-                },
-                quests: [],
-            },
-            rewards: [
-                {
-                    item_id: "money",
-                    category: "money",
-                    affects: "gold",
-                    value: 250,
-                },
-                {
-                    item_id: "exp",
-                    category: "experience",
-                    affects: "mining",
-                    value: 250,
-                },
-                {
-                    item_id: "exp",
-                    category: "experience",
-                    affects: "smithing",
-                    value: 250,
-                }
-            ],
-            steps: [
-                {
-                    id: 0,
-                    name: "Do the thing",
-                    description: "I need to deliver 10 bronze bars.",
-                    requirements: {
-                        items: [
-                            { item_id: "bronze_bar", value: 10 },
-                        ]
-                    },
-                }
-            ]
+      {
+        id: 'test',
+        name: 'Test Quest',
+        description: 'Description',
+        requirements: {
+          stats: {
+            lifetime_wealth: 0,
+          },
+          levels: {
+            mining: 1,
+            smithing: 1,
+          },
+          quests: [],
         },
-        {
-            id: "test_two",
-            name: "Test Quest but Harder",
-            description: "Description",
+        rewards: [
+          {
+            item_id: 'money',
+            category: 'money',
+            affects: 'gold',
+            value: 250,
+          },
+          {
+            item_id: 'exp',
+            category: 'experience',
+            affects: 'mining',
+            value: 250,
+          },
+          {
+            item_id: 'exp',
+            category: 'experience',
+            affects: 'smithing',
+            value: 250,
+          },
+        ],
+        steps: [
+          {
+            id: 0,
+            name: 'Do the thing',
+            description: 'I need to deliver 10 bronze bars.',
             requirements: {
-                stats: {
-                    lifetime_wealth: 0,
-                },
-                levels: {
-                    mining: 10,
-                    smithing: 10,
-                },
-                quests: ["test"],
+              items: [{ item_id: 'bronze_bar', value: 10 }],
             },
-            rewards: [
-                {
-                    item_id: "money",
-                    category: "money",
-                    affects: "gold",
-                    value: 375,
-                },
-                {
-                    item_id: "exp",
-                    category: "experience",
-                    affects: "mining",
-                    value: 500,
-                },
-                {
-                    item_id: "exp",
-                    category: "experience",
-                    affects: "smithing",
-                    value: 500,
-                }
-            ],
-            steps: [
-                {
-                    id: 0,
-                    name: "Iron Bars",
-                    description: "The bum down the street wants 10 iron bars. Go figured.",
-                    requirements: {
-                      items: [
-                        { item_id: "iron_bar", value: 10 },
-                      ],
-                    },
-                },
-                {
-                  id: 1,
-                  name: "Steel Bars",
-                  description: "Well wouldn't ya know it? That damn bum wants 15 steel bars now. What's up with this guy?",
-                  requirements: {
-                    items: [
-                      { item_id: "steel_bar", value: 15 },
-                    ]
-                  }
-                }
-            ]
-        }
+          },
+        ],
+      },
+      {
+        id: 'test_two',
+        name: 'Test Quest but Harder',
+        description: 'Description',
+        requirements: {
+          stats: {
+            lifetime_wealth: 0,
+          },
+          levels: {
+            mining: 10,
+            smithing: 10,
+          },
+          quests: ['test'],
+        },
+        rewards: [
+          {
+            item_id: 'money',
+            category: 'money',
+            affects: 'gold',
+            value: 375,
+          },
+          {
+            item_id: 'exp',
+            category: 'experience',
+            affects: 'mining',
+            value: 500,
+          },
+          {
+            item_id: 'exp',
+            category: 'experience',
+            affects: 'smithing',
+            value: 500,
+          },
+        ],
+        steps: [
+          {
+            id: 0,
+            name: 'Iron Bars',
+            description:
+              'The bum down the street wants 10 iron bars. Go figured.',
+            requirements: {
+              items: [{ item_id: 'iron_bar', value: 10 }],
+            },
+          },
+          {
+            id: 1,
+            name: 'Steel Bars',
+            description:
+              "Well wouldn't ya know it? That damn bum wants 15 steel bars now. What's up with this guy?",
+            requirements: {
+              items: [{ item_id: 'steel_bar', value: 15 }],
+            },
+          },
+        ],
+      },
     ];
 
     /** @type {State} */
@@ -983,15 +984,15 @@
       upgrades: [],
       inventory: [
         {
-          item_id: "copper_ore",
+          item_id: 'copper_ore',
           quantity: 0,
         },
         {
-          item_id: "tin_ore",
+          item_id: 'tin_ore',
           quantity: 0,
         },
         {
-          item_id: "bronze_bar",
+          item_id: 'bronze_bar',
           quantity: 10,
         },
       ],
@@ -1024,8 +1025,8 @@
     };
 
     /**
-     * @param {number} level 
-     * 
+     * @param {number} level
+     *
      * @returns {number}
      */
     const getXpForLevel = (level) => {
@@ -1045,7 +1046,9 @@
 
       while (currXp >= state.xp[nxtLvlKey]) {
         state.levels[key] += 1;
-        state.xp[`${key}_xp_level`] = Math.abs(state.xp[nxtLvlKey] - state.xp[key]);
+        state.xp[`${key}_xp_level`] = Math.abs(
+          state.xp[nxtLvlKey] - state.xp[key],
+        );
         state.xp[nxtLvlKey] += getXpForLevel(state.levels[key] + 1);
       }
     };
@@ -1059,7 +1062,7 @@
       const baseSuccess = item.success_chance;
       const rng = Math.random();
       const bonusYieldChance = state.upgrades
-        .filter((u) => u.affects === item.id && u.category === "mining_excess")
+        .filter((u) => u.affects === item.id && u.category === 'mining_excess')
         .reduce((total, curr) => (total += curr.value), 0);
       const yield = rng < bonusYieldChance ? 2 : 1;
 
@@ -1069,7 +1072,7 @@
       }
 
       const bonusSuccess = state.upgrades
-        .filter((u) => u.affects === item.id && u.category === "mining_mastery")
+        .filter((u) => u.affects === item.id && u.category === 'mining_mastery')
         .reduce((total, curr) => (total += curr.value), 0);
 
       return rng < baseSuccess + bonusSuccess ? yield : 0;
@@ -1082,7 +1085,7 @@
       const gathered = mine(item);
 
       if (gathered > 0) {
-        updateXp("mining", item.xp_given);
+        updateXp('mining', item.xp_given);
         updateInventory(item.item_id, gathered);
       } else {
         // @TODO: Add some visual logs for the user!
@@ -1124,7 +1127,7 @@
       const result = smith(item);
 
       if (result.success) {
-        updateXp("smithing", item.xp_given);
+        updateXp('smithing', item.xp_given);
       }
 
       result.result.forEach((invUpdate) =>
@@ -1170,13 +1173,13 @@
       }
 
       if (!up) {
-        console.log("no upgrade found");
+        console.log('no upgrade found');
         return;
       }
 
-      if (upgrade.category === "autoer") {
+      if (upgrade.category === 'autoer') {
         upgradeAutoer(upgrade, up);
-      } else if (upgrade.id === "money_is_time") {
+      } else if (upgrade.id === 'money_is_time') {
         // @TODO: Finish all running autoers + update their intervals
         // Also create a function to do this rather than repeating code
       }
@@ -1197,7 +1200,7 @@
         cost: up.cost,
         level: up.level,
         value:
-          level !== 0 && upgrade.category !== "autoer"
+          level !== 0 && upgrade.category !== 'autoer'
             ? up.value + state.upgrades[currIdx].value
             : up.value,
         category: upgrade.category,
@@ -1264,7 +1267,7 @@
      */
     const sellItem = (item) => {
       const bonusUpgrade = state.upgrades.find(
-        (u) => u.category === "gold_bonus",
+        (u) => u.category === 'gold_bonus',
       );
       let gold = item.value;
 
@@ -1293,11 +1296,11 @@
     };
 
     const renderInventory = () => {
-      const parent = document.querySelector(".inventory");
+      const parent = document.querySelector('.inventory');
       // hehexdd
-      parent.innerHTML = "";
+      parent.innerHTML = '';
 
-      const goldLi = document.createElement("li");
+      const goldLi = document.createElement('li');
       goldLi.textContent = `Gold: ${state.gold}`;
       parent.appendChild(goldLi);
 
@@ -1308,7 +1311,7 @@
           continue;
         }
 
-        const li = document.createElement("li");
+        const li = document.createElement('li');
         li.textContent = `${item.name}: ${invItem.quantity}`;
         parent.appendChild(li);
       }
@@ -1326,18 +1329,20 @@
 
       // And this is where this render system starts to break down :)
       if (state.quests_started.length) {
-        const quest = quests.find((q) => q.id === state.quests_started[0].quest_id);
+        const quest = quests.find(
+          (q) => q.id === state.quests_started[0].quest_id,
+        );
         renderCurrentQuest(quest);
       }
     };
 
     const renderLevels = () => {
-      const parent = document.querySelector(".levels");
+      const parent = document.querySelector('.levels');
       parent.innerHTML = null;
 
       for (const key in state.levels) {
-        const li = document.createElement("li");
-        const progBar = document.createElement("progress");
+        const li = document.createElement('li');
+        const progBar = document.createElement('progress');
         const curr = state.xp[`${key}_xp_level`];
         const needed = getXpForLevel(state.levels[key]);
 
@@ -1351,32 +1356,32 @@
     };
 
     const renderMineButtons = () => {
-      const parent = document.querySelector(".ore-list");
+      const parent = document.querySelector('.ore-list');
       parent.innerHTML = null;
 
       for (const item of items) {
-        if (item.skill !== "mining" || state.levels.mining < item.level) {
+        if (item.skill !== 'mining' || state.levels.mining < item.level) {
           continue;
         }
 
-        const li = document.createElement("li");
+        const li = document.createElement('li');
         li.append(...createItemActionButtons(item));
         parent.appendChild(li);
       }
     };
 
     const renderSmithingButtons = () => {
-      const parent = document.querySelector(".smithing-list");
+      const parent = document.querySelector('.smithing-list');
       parent.innerHTML = null;
 
       // @TODO: Do we just want to create a category system rather than iterating
       // over _every_ item?
       for (const item of items) {
-        if (item.skill !== "smithing" || state.levels.smithing < item.level) {
+        if (item.skill !== 'smithing' || state.levels.smithing < item.level) {
           continue;
         }
 
-        const li = document.createElement("li");
+        const li = document.createElement('li');
         li.append(...createItemActionButtons(item));
         parent.appendChild(li);
       }
@@ -1384,12 +1389,15 @@
 
     /**
      * @param {Upgrade} upgrade
-     * 
+     *
      * @returns {bool}
      */
     const hasRequirementsForUpgrade = (upgrade) => {
-      const currLevel = state.upgrades.find((u) => u.id === upgrade.id)?.level ?? 0;
-      const nextLevel = upgrade.upgrades.find((u) => u.level === (currLevel === 0 ? 0 : currLevel + 1));
+      const currLevel =
+        state.upgrades.find((u) => u.id === upgrade.id)?.level ?? 0;
+      const nextLevel = upgrade.upgrades.find(
+        (u) => u.level === (currLevel === 0 ? 0 : currLevel + 1),
+      );
 
       if (!nextLevel) {
         return false;
@@ -1402,16 +1410,19 @@
       }
 
       return true;
-    }
+    };
 
     /**
-     * @param {Upgrade} upgrade 
-     * 
+     * @param {Upgrade} upgrade
+     *
      * @returns {bool}
      */
     const canUpgradeUpgrade = (upgrade) => {
-      const currLevel = state.upgrades.find((u) => u.id === upgrade.id)?.level ?? 0;
-      const nextLevel = upgrade.upgrades.find((u) => u.level === (currLevel === 0 ? 0 : currLevel + 1));
+      const currLevel =
+        state.upgrades.find((u) => u.id === upgrade.id)?.level ?? 0;
+      const nextLevel = upgrade.upgrades.find(
+        (u) => u.level === (currLevel === 0 ? 0 : currLevel + 1),
+      );
 
       if (!nextLevel || nextLevel.cost > state.gold) {
         return false;
@@ -1421,12 +1432,14 @@
     };
 
     const renderAvailableUpgrades = () => {
-      const parent = document.querySelector(".available-upgrades");
+      const parent = document.querySelector('.available-upgrades');
       parent.innerHTML = null;
 
-      for (const upgrade of allUpgrades.filter((u) => hasRequirementsForUpgrade(u))) {
-        const li = document.createElement("li");
-        const btn = document.createElement("button");
+      for (const upgrade of allUpgrades.filter((u) =>
+        hasRequirementsForUpgrade(u),
+      )) {
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
         const currUpgrade = state.upgrades.find((u) => u.id === upgrade.id);
         const maxUpgrade = allUpgrades
           .find((u) => u.id === upgrade.id)
@@ -1435,19 +1448,19 @@
         let cost = upgrade.cost;
 
         if (currUpgrade && currUpgrade.level === maxUpgrade.level) {
-          btnText += " | Max Level";
+          btnText += ' | Max Level';
         } else {
           cost = getUpgradeCost(upgrade);
           btnText += ` | ${cost}gp`;
         }
 
         btn.innerText = btnText;
-        btn.title = upgrade.description ?? "An upgrade";
+        btn.title = upgrade.description ?? 'An upgrade';
         btn.onclick = () => userPurchasedUpgrade(upgrade);
 
         // @TODO: We also need to check if they've maxxed out the upgrade
         if (!canUpgradeUpgrade(upgrade)) {
-          btn.setAttribute("disabled", true);
+          btn.setAttribute('disabled', true);
         }
 
         li.appendChild(btn);
@@ -1459,25 +1472,25 @@
      * @param {Item} item
      */
     const createItemActionButtons = (item) => {
-      const actionBtn = document.createElement("button");
-      const sellBtn = document.createElement("button");
+      const actionBtn = document.createElement('button');
+      const sellBtn = document.createElement('button');
 
-      sellBtn.innerText = "$";
+      sellBtn.innerText = '$';
       sellBtn.onclick = () => userDidSell(item);
 
       if (getInventoryItem(item.item_id) <= 0) {
-        sellBtn.setAttribute("disabled", true);
+        sellBtn.setAttribute('disabled', true);
       }
 
       actionBtn.innerText = item.name;
 
-      if (item.skill === "smithing") {
+      if (item.skill === 'smithing') {
         actionBtn.onclick = () => userDidSmith(item);
 
         if (!hasIngredientsFor(item)) {
-          actionBtn.setAttribute("disabled", true);
+          actionBtn.setAttribute('disabled', true);
         }
-      } else if (item.skill === "mining") {
+      } else if (item.skill === 'mining') {
         actionBtn.onclick = () => userDidMine(item);
       }
 
@@ -1485,9 +1498,9 @@
     };
 
     /**
-     * @param {Quest} quest 
-     * @param {State} state 
-     * 
+     * @param {Quest} quest
+     * @param {State} state
+     *
      * @returns {bool}
      */
     const checkQuestRequirements = (quest, state) => {
@@ -1507,7 +1520,9 @@
           const requiredQuests = quest.requirements.quests;
 
           if (requiredQuests.length !== 0) {
-            hasRequirements = requiredQuests.filter((q) => state.quests_completed.includes(q)).length === requiredQuests.length;
+            hasRequirements =
+              requiredQuests.filter((q) => state.quests_completed.includes(q))
+                .length === requiredQuests.length;
 
             if (!hasRequirements) {
               return false;
@@ -1520,22 +1535,27 @@
     };
 
     /**
-     * @param {Quest} quest 
+     * @param {Quest} quest
      */
     const canCompleteQuest = (quest) => {
-      const currStep = state.quests_started.find((q) => q.quest_id === quest.id);
+      const currStep = state.quests_started.find(
+        (q) => q.quest_id === quest.id,
+      );
 
       if (!currStep) {
         return false;
       }
 
-      return (quest.steps[quest.steps.length - 1].id === currStep.step && currStep.complete);
+      return (
+        quest.steps[quest.steps.length - 1].id === currStep.step &&
+        currStep.complete
+      );
     };
 
     /**
-     * @param {Quest} quest 
-     * @param {number} step 
-     * 
+     * @param {Quest} quest
+     * @param {number} step
+     *
      * @returns {bool}
      */
     const canCompleteQuestStep = (quest, step) => {
@@ -1547,17 +1567,21 @@
         return false;
       }
 
-      if (questStep.requirements.items.filter((i) => getInventoryItem(i.item_id) < i.value).length) {
+      if (
+        questStep.requirements.items.filter(
+          (i) => getInventoryItem(i.item_id) < i.value,
+        ).length
+      ) {
         console.log('do not meet item reqs');
         return false;
       }
 
       return true;
-    }
+    };
 
     /**
-     * @param {Quest} quest 
-     * @param {number} step 
+     * @param {Quest} quest
+     * @param {number} step
      */
     const completeQuestStep = (quest, step) => {
       console.log(quest.id, step);
@@ -1590,44 +1614,52 @@
 
       // Technically a double render from the above else
       render();
-    }
+    };
 
     /**
-     * @param {Quest} quest 
+     * @param {Quest} quest
      */
     const populateQuestBox = (quest) => {
       const parent = document.querySelector('.quest-panel');
 
       parent.querySelector('.quest-title').innerText = `Title: ${quest.name}`;
-      parent.querySelector('.quest-desc').innerText = `Description: ${quest.description}`;
+      parent.querySelector('.quest-desc').innerText =
+        `Description: ${quest.description}`;
 
       for (const key in quest.requirements) {
         if (key === 'levels') {
           const levelReqs = document.querySelector('.level-reqs');
           levelReqs.innerHTML = null;
-          parent.querySelector('.quest-level-requirements').style.display = Object.keys(quest.requirements.levels).length ? null : 'none';
+          parent.querySelector('.quest-level-requirements').style.display =
+            Object.keys(quest.requirements.levels).length ? null : 'none';
 
           for (const lKey in quest.requirements.levels) {
             const li = document.createElement('li');
             const span = document.createElement('span');
 
             span.innerText = `${lKey}: ${quest.requirements.levels[lKey]}`;
-            span.style.color = state.levels[lKey] < quest.requirements.levels[lKey] ? 'red' : 'green';
-          
+            span.style.color =
+              state.levels[lKey] < quest.requirements.levels[lKey]
+                ? 'red'
+                : 'green';
+
             li.append(span);
             levelReqs.append(li);
           }
         } else if (key === 'quests') {
           const questReqs = document.querySelector('.quest-reqs');
           questReqs.innerHTML = null;
-          parent.querySelector('.quest-quest-requirements').style.display = quest.requirements.quests.length ? null : 'none';
+          parent.querySelector('.quest-quest-requirements').style.display =
+            quest.requirements.quests.length ? null : 'none';
 
           for (const qKey of quest.requirements.quests) {
             const li = document.createElement('li');
             const span = document.createElement('span');
 
             span.innerText = quests.find((q) => q.id === qKey)?.name;
-            span.style.color = state.quests_completed.includes(qKey) ? 'green' : 'red';
+            span.style.color = state.quests_completed.includes(qKey)
+              ? 'green'
+              : 'red';
 
             li.append(span);
             questReqs.append(li);
@@ -1641,18 +1673,18 @@
       for (const reward of quest.rewards) {
         const li = document.createElement('li');
 
-        if (reward.category === "experience") {
-          li.innerText = `${reward.value} ${reward.affects} xp`
-        } else if (reward.category === "item") {
+        if (reward.category === 'experience') {
+          li.innerText = `${reward.value} ${reward.affects} xp`;
+        } else if (reward.category === 'item') {
           const item = items.find((i) => i.item_id === reward.item_id);
 
           if (!item) {
             continue;
           }
 
-          li.innerText = `${reward.value} ${item.name}`
-        } else if (reward.category === "money") {
-          li.innerText = `${reward.value} gold`
+          li.innerText = `${reward.value} ${item.name}`;
+        } else if (reward.category === 'money') {
+          li.innerText = `${reward.value} gold`;
         }
 
         rewardsParent.append(li);
@@ -1666,29 +1698,31 @@
       startBtn.style.display = null;
 
       if (!state.quests_started.find((q) => q.quest_id === quest.id)) {
-        completeBtn.style.display = "none";
+        completeBtn.style.display = 'none';
       } else {
-        startBtn.style.display = "none";
+        startBtn.style.display = 'none';
       }
 
       startBtn.onclick = () => startQuest(quest);
       completeBtn.onclick = () => completeQuest(quest);
 
       if (!checkQuestRequirements(quest, state)) {
-        startBtn.setAttribute("disabled", true);
+        startBtn.setAttribute('disabled', true);
       } else {
-        startBtn.removeAttribute("disabled");
+        startBtn.removeAttribute('disabled');
       }
 
       parent.style.display = null;
     };
 
     /**
-     * @param {Quest} quest 
+     * @param {Quest} quest
      */
     const renderCurrentQuest = (quest) => {
       const parent = document.querySelector('.current-quest');
-      const currentQuest = state.quests_started.find((q) => q.quest_id === quest.id);
+      const currentQuest = state.quests_started.find(
+        (q) => q.quest_id === quest.id,
+      );
       const steps = quest.steps.filter((s) => s.id <= currentQuest.step);
       const stepList = parent.querySelector('.quest-steps');
       stepList.innerHTML = null;
@@ -1700,28 +1734,28 @@
         li.innerText = step.description;
 
         if (step.id < currentQuest.step) {
-          li.style.textDecoration = "line-through";
+          li.style.textDecoration = 'line-through';
         }
 
         stepList.append(li);
       }
 
       const stepBtn = parent.querySelector('.complete-step');
-      stepBtn.removeAttribute("disabled");
+      stepBtn.removeAttribute('disabled');
       stepBtn.onclick = () => completeQuestStep(quest, currentQuest.step);
 
       if (!canCompleteQuestStep(quest, currentQuest.step)) {
-        stepBtn.setAttribute("disabled", true);
+        stepBtn.setAttribute('disabled', true);
       } else {
-        stepBtn.removeAttribute("disabled");
+        stepBtn.removeAttribute('disabled');
       }
 
       parent.style.display = null;
     };
 
     /**
-     * @param {Quest} quest 
-     * 
+     * @param {Quest} quest
+     *
      * @returns {bool}
      */
     const startQuest = (quest) => {
@@ -1742,60 +1776,64 @@
     };
 
     /**
-     * @param {Quest} quest 
+     * @param {Quest} quest
      */
     const completeQuest = (quest) => {
       if (!canCompleteQuest(quest)) {
-        console.log(`unable to complete quest #${quest.id} - ${quest.name}`)
+        console.log(`unable to complete quest #${quest.id} - ${quest.name}`);
         return;
       }
 
-      state.quests_started = state.quests_started.filter((q) => q.quest_id !== quest.id);
+      state.quests_started = state.quests_started.filter(
+        (q) => q.quest_id !== quest.id,
+      );
       state.quests_completed.push(quest.id);
-      document.querySelector('.current-quest').style.display = "none";
+      document.querySelector('.current-quest').style.display = 'none';
 
       for (const reward of quest.rewards) {
         switch (reward.category) {
-          case "experience":
+          case 'experience':
             updateXp(reward.affects, reward.value);
-          break;
-          case "item":
+            break;
+          case 'item':
             updateInventory(reward.item_id, reward.value);
             break;
-          case "money":
+          case 'money':
             state.gold += reward.value;
             state.stats.lifetime_wealth += reward.value;
-          break;
+            break;
           default:
-            console.log("unknown reward category", reward);
+            console.log('unknown reward category', reward);
         }
       }
 
-      document.querySelector('.quest-panel').style.display = "none";
-      document.querySelector('.current-quest').style.display = "none";
+      document.querySelector('.quest-panel').style.display = 'none';
+      document.querySelector('.current-quest').style.display = 'none';
 
       // Ugh
       render();
     };
 
     const renderAvailableQuests = () => {
-        const parent = document.querySelector('.available-quests');
-        const available = quests.filter((q) => !state.quests_completed.includes(q.id));
-        // hehexd
-        parent.innerHTML = null;
+      const parent = document.querySelector('.available-quests');
+      const available = quests.filter(
+        (q) => !state.quests_completed.includes(q.id),
+      );
+      // hehexd
+      parent.innerHTML = null;
 
-        available.forEach((q) => {
-            const li = document.createElement('li');
-            const span = document.createElement('span');
-            const reqMet = checkQuestRequirements(q, state);
+      available.forEach((q) => {
+        const li = document.createElement('li');
+        const span = document.createElement('span');
+        const reqMet = checkQuestRequirements(q, state);
 
-            span.innerText = q.name;
-            span.style.color = reqMet ? 'black' : 'red';
-            li.onclick = () => populateQuestBox(q);
+        span.innerText = q.name;
+        span.style.color = reqMet ? 'black' : 'red';
+        li.onclick = () => populateQuestBox(q);
 
-            li.append(span);
-            parent.appendChild(li);
-        });
+        li.append(span);
+        parent.appendChild(li);
+      });
     };
 
     render();

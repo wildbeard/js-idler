@@ -1,0 +1,8 @@
+{
+    "semi": true,
+    "singleQuote": true,
+    "htmlWhitespaceSensitivity": "css",
+    "plugins": [],
+    "tabWidth": 2,
+    "overrides": []
+}
