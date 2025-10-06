@@ -261,6 +261,57 @@
           },
         ],
       },
+      {
+        item_id: 'steel_dagger',
+        level: 20,
+        skill: 'smithing',
+        name: 'Steel Dagger',
+        description: 'A dagger made of steel.',
+        success_chance: 1.0,
+        xp_given: 48,
+        categories: ['steel', 'weapons', 'dagger'],
+        value: 48,
+        ingredients: [
+          {
+            item_id: 'steel_bar',
+            quantity: 1,
+          },
+        ]
+      },
+      {
+        item_id: 'steel_sword',
+        level: 22,
+        skill: 'smithing',
+        name: 'Steel Sword',
+        description: 'A sword made of steel.',
+        success_chance: 1.0,
+        xp_given: 96,
+        categories: ['steel', 'weapons', 'swords'],
+        value: 102,
+        ingredients: [
+          {
+            item_id: 'steel_bar',
+            quantity: 2,
+          },
+        ]
+      },
+      {
+        item_id: 'steel_helmet',
+        level: 23,
+        skill: 'smithing',
+        name: 'Steel Helmet',
+        description: 'A helmet made of steel.',
+        success_chance: 1.0,
+        xp_given: 144,
+        categories: ['armor', 'steel', 'helmet'],
+        value: 156,
+        ingredients: [
+          {
+            item_id: 'steel_bar',
+            quantity: 4,
+          }
+        ]
+      }
     ];
     /** @type  Upgrade[] */
     const allUpgrades = [
@@ -586,7 +637,7 @@
         ],
       },
       {
-        id: 'sword_store',
+        id: 'bronze_sword_store',
         name: 'Shopfront: Bronze Weapon',
         description: "Automatically sells a random bronze weapon you've made.",
         cost: 250,
@@ -630,6 +681,22 @@
             level: 4,
             cost: 650,
             value: 1000,
+            requirements: {
+              smithing: 10,
+            },
+          },
+          {
+            level: 5,
+            cost: 750,
+            value: 750,
+            requirements: {
+              smithing: 10,
+            },
+          },
+          {
+            level: 6,
+            cost: 850,
+            value: 500,
             requirements: {
               smithing: 10,
             },
@@ -813,6 +880,246 @@
           },
         ],
       },
+      {
+        id: 'automine_iron',
+        name: 'Iron Autominer',
+        description: 'Automagically mines iron for you!',
+        value: 2000,
+        cost: 250,
+        affects: 'iron_ore',
+        category: 'autoer',
+        upgrades: [
+          {
+            level: 0,
+            cost: 250,
+            value: 2000,
+            requirements: {
+              mining: 10,
+            }
+          },
+          {
+            level: 1,
+            cost: 375,
+            value: 1750,
+            requirements: {
+              mining: 12,
+            }
+          },
+          {
+            level: 2,
+            cost: 500,
+            value: 1500,
+            requirements: {
+              mining: 14,
+            }
+          },
+          {
+            level: 3,
+            cost: 625,
+            value: 1250,
+            requirements: {
+              mining: 16,
+            }
+          },
+          {
+            level: 4,
+            cost: 750,
+            value: 1000,
+            requirements: {
+              mining: 18,
+            }
+          },
+          {
+            level: 5,
+            cost: 1000,
+            value: 750,
+            requirements: {
+              mining: 20,
+            }
+          }
+        ],
+        fn: () => userDidMine(items.find((i) => i.item_id === 'iron_ore')),
+      },
+      {
+        id: 'automine_coal',
+        name: 'Coal Autominer',
+        description: 'Automagically mines coal for you!',
+        value: 2000,
+        cost: 250,
+        affects: 'coal',
+        category: 'autoer',
+        upgrades: [
+          {
+            level: 0,
+            cost: 250,
+            value: 2000,
+            requirements: {
+              mining: 10,
+            }
+          },
+          {
+            level: 1,
+            cost: 375,
+            value: 1750,
+            requirements: {
+              mining: 12,
+            }
+          },
+          {
+            level: 2,
+            cost: 500,
+            value: 1500,
+            requirements: {
+              mining: 14,
+            }
+          },
+          {
+            level: 3,
+            cost: 625,
+            value: 1250,
+            requirements: {
+              mining: 16,
+            }
+          },
+          {
+            level: 4,
+            cost: 750,
+            value: 1000,
+            requirements: {
+              mining: 18,
+            }
+          },
+          {
+            level: 5,
+            cost: 1000,
+            value: 750,
+            requirements: {
+              mining: 20,
+            }
+          }
+        ],
+        fn: () => userDidMine(items.find((i) => i.item_id == 'coal')),
+      },
+      {
+        id: 'autosmelt_iron',
+        name: 'Iron Autosmelter',
+        description: 'It\'ll smelt those iron bars for ya!',
+        value: 2000,
+        cost: 250,
+        affects: 'iron_bar',
+        category: 'autoer',
+        upgrades: [
+          {
+            level: 0,
+            cost: 250,
+            value: 2000,
+            requirements: {
+              smithing: 10,
+            }
+          },
+          {
+            level: 1,
+            cost: 375,
+            value: 1750,
+            requirements: {
+              smithing: 12,
+            }
+          },
+          {
+            level: 2,
+            cost: 500,
+            value: 1500,
+            requirements: {
+              smithing: 14,
+            }
+          },
+          {
+            level: 3,
+            cost: 625,
+            value: 1250,
+            requirements: {
+              smithing: 16,
+            }
+          },
+          {
+            level: 4,
+            cost: 750,
+            value: 1000,
+            requirements: {
+              smithing: 18,
+            }
+          },
+          {
+            level: 5,
+            cost: 1000,
+            value: 750,
+            requirements: {
+              smithing: 20,
+            }
+          }
+        ],
+        fn: () => userDidSmith(items.find((i) => i.item_id == 'iron_bar')),
+      },
+      {
+        id: 'autosmelt_steel',
+        name: 'Steel Autosmelter',
+        description: 'It\'ll smelt those steel bars for ya!',
+        value: 2000,
+        cost: 500,
+        affects: 'steel_bar',
+        category: 'autoer',
+        upgrades: [
+          {
+            level: 0,
+            cost: 500,
+            value: 2000,
+            requirements: {
+              smithing: 20,
+            }
+          },
+          {
+            level: 1,
+            cost: 750,
+            value: 1750,
+            requirements: {
+              smithing: 22,
+            }
+          },
+          {
+            level: 2,
+            cost: 1000,
+            value: 1500,
+            requirements: {
+              smithing: 24,
+            }
+          },
+          {
+            level: 3,
+            cost: 1250,
+            value: 1250,
+            requirements: {
+              smithing: 26,
+            }
+          },
+          {
+            level: 4,
+            cost: 1350,
+            value: 1000,
+            requirements: {
+              smithing: 28,
+            }
+          },
+          {
+            level: 5,
+            cost: 1750,
+            value: 750,
+            requirements: {
+              smithing: 30,
+            }
+          }
+        ],
+        fn: () => userDidSmith(items.find((i) => i.item_id == 'steel_bar')),
+      }
     ];
 
     /** @type {Quest[]} */
