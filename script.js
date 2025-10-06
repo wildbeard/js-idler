@@ -248,6 +248,7 @@
         description: "It's like iron but better.",
         success_chance: 1.0,
         xp_given: 45,
+        value: 40,
         categories: ['steel', 'bars'],
         ingredients: [
           {
@@ -580,50 +581,6 @@
             cost: 1000,
             requirements: {
               mining: 15,
-            },
-          },
-        ],
-      },
-      {
-        id: 'iron_mining_mastery',
-        name: 'Mining: Iron Mastery',
-        description:
-          "You've swung a pickaxe enough times to know how to get ore more often.",
-        cost: 200,
-        value: 0.08,
-        affects: 'iron_ore',
-        category: 'mining_mastery',
-        upgrades: [
-          {
-            level: 0,
-            cost: 200,
-            value: 0.08,
-            requirements: {
-              mining: 12,
-            },
-          },
-          {
-            level: 1,
-            cost: 300,
-            value: 0.08,
-            requirements: {
-              mining: 14,
-            },
-          },
-          {
-            level: 2,
-            cost: 450,
-            value: 0.08,
-            requirements: {
-              mining: 16,
-            },
-          },
-          {
-            level: 3,
-            cost: 600,
-            value: 0.09,
-            requirements: {
-              mining: 18,
             },
           },
         ],
@@ -1065,17 +1022,13 @@
         .filter((u) => u.affects === item.id && u.category === 'mining_excess')
         .reduce((total, curr) => (total += curr.value), 0);
       const yield = rng < bonusYieldChance ? 2 : 1;
+      const currLvl = state.levels.mining;
 
-      if (baseSuccess === 1.0) {
-        console.log(rng, bonusYieldChance, yield);
+      if (baseSuccess === 1.0 || currLvl >= item.level * 2) {
         return yield;
       }
 
-      const bonusSuccess = state.upgrades
-        .filter((u) => u.affects === item.id && u.category === 'mining_mastery')
-        .reduce((total, curr) => (total += curr.value), 0);
-
-      return rng < baseSuccess + bonusSuccess ? yield : 0;
+      return rng < baseSuccess + (currLvl / (item.level * 2)) ? yield : 0;
     };
 
     /**
