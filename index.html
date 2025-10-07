@@ -35,6 +35,7 @@
                 border-radius: 0.25rem;
             }
         </style>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     </head>
 
     <body>
@@ -42,68 +43,156 @@
             <div id="sidebar">
                 <div>
                     <p>Levels</p>
-                    <ul class="levels"></ul>
+                    <div>
+                        <p>Mining {{ s.levels.mining }}</p>
+                        <progress :value="xpForSkill('mining')" max="100" />
+                    </div>
+
+                    <div>
+                        <p>Smithing {{ s.levels.smithing }}</p>
+                        <progress :value="xpForSkill('smithing')" max="100" />
+                    </div>
                 </div>
                 <div>
                     <p>Inventory</p>
-                    <ul class="inventory"></ul>
+                    <ul>
+                        <li>Gold {{ s.gold }}</li>
+                        <li v-for="invItem in s.inventory" :key="invItem">
+                            {{ getItem(invItem.item_id).name }} x{{ invItem.quantity }}
+                        </li>
+                    </ul>
                 </div>
 
                 <div>
                     <p>Mining</p>
-                    <ul class="ore-list"></ul>
+                    <ul class="ore-list">
+                        <li v-for="ore in availableOreList" :key="ore.item_id">
+                            <button type="button" @click="userDidMine(ore)">{{ ore.name }}</button>
+                            <button 
+                                type="button"
+                                @click="userDidSell(ore)"
+                                :disabled="!hasInventory(ore)">$</button>
+                        </li>
+                    </ul>
                 </div>
 
                 <div>
                     <p>Smithing</p>
-                    <ul class="smithing-list"></ul>
+                    <ul class="smithing-list">
+                        <li v-for="smithable in availabeSmithableList" :key="smithable.item_id">
+                            <button 
+                                type="button"
+                                @click="userDidSmith(smithable)"
+                                :disabled="!userCanCraft(smithable)">{{ smithable.name }}</button>
+                            <button 
+                                type="button"
+                                @click="userDidSell(smithable)"
+                                :disabled="!hasInventory(smithable)">$</button>
+                        </li>
+                    </ul>
                 </div>
 
                 <div>
                     <p>Upgrades</p>
-                    <ul class="available-upgrades"></ul>
+                    <ul class="available-upgrades">
+                        <li v-for="upgrade in availableUpgrades" :key="upgrade.id">
+                            <button 
+                                type="button"
+                                :title="upgrade.description ?? 'An upgrade'"
+                                @click="userPurchasedUpgrade(upgrade)"
+                                :disabled="!canUpgradeUpgrade(upgrade)">{{ getUpgradeText(upgrade) }}</button>
+                        </li>
+                    </ul>
                 </div>
                 <div>
                     <p>Quests</p>
-                    <ul class="available-quests"></ul>
-                    <ul class="quests-completed"></ul>
+                    <ul class="available-quests">
+                        <li 
+                            v-for="quest in availableQuests"
+                            :key="quest.id"
+                            @click="updateQuestPanel(quest)">
+                            <span :style="{ color: canStartQuest(quest) ? 'black' : 'red' }">{{ quest.name }}</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
             <div id="main">
-                <div class="quest-panel" style="display: none;">
-                    <p class="quest-title"></p>
-                    <p class="quest-desc"></p>
+                <div class="quest-panel" v-if="viewingQuest">
+                    <p class="quest-title">{{ viewingQuest.name }}</p>
+                    <p class="quest-desc">{{ viewingQuest.description }}</p>
 
                     <div class="requirements">
                         <div class="quest-level-requirements">
                             <p>Level Requirements</p>
-                            <ul class="level-reqs"></ul>
+                            <ul class="level-reqs">
+                                <li v-for="(value, levelKey) in viewingQuest.requirements.levels" :key="levelKey">
+                                    <span :style="{ color: s.levels[levelKey] >= value ? 'green' : 'red' }">
+                                        {{ `${levelKey}: ${value}` }}
+                                    </span>
+                                </li>
+                            </ul>
                         </div>
 
                         <div class="quest-quest-requirements">
                             <p>Quest Requirements</p>
-                            <ul class="quest-reqs"></ul>
+                            <ul 
+                                v-if="viewingQuest.requirements.quests.length"
+                                class="quest-reqs">
+                                <li 
+                                    v-for="questId in viewingQuest.requirements.quests"
+                                    :key="questId">
+                                    {{ getQuest(questId)?.name }}
+                                </li>
+                            </ul>
+                            <p v-else>None</p>
                         </div>
                     </div>
 
                     <div>
                         <p>Rewards</p>
-                        <ul class="quest-rewards"></ul>
+                        <ul class="quest-rewards">
+                            <li v-for="(reward, idx) in viewingQuest.rewards" :key="idx">
+                                <template v-if="reward.category === 'experience'">
+                                    {{ `${reward.value} ${reward.affects} xp` }}
+                                </template>
+                                <template v-else-if="reward.category === 'item' && getItem(reward.item_id)">
+                                    {{ `${reward.value}x ${getItem(reward.item_id).name}` }}
+                                </template>
+                                <template v-else-if="reward.category === 'money'">
+                                    {{ `${reward.value} gold` }}
+                                </template>
+                            </li>
+                        </ul>
                     </div>
 
                     <div>
-                        <button type="button" class="start-quest">Start</button>
-                        <button type="button" class="complete-quest">Complete</button>
+                        <button 
+                            v-if="!isQuestStarted(viewingQuest)"
+                            type="button"
+                            class="start-quest"
+                            @click="acceptQuest(viewingQuest)"
+                            :disabled="!canStartQuest(viewingQuest)">Start</button>
+                        <button 
+                            v-if="isQuestStarted(viewingQuest)"
+                            type="button"
+                            class="complete-quest"
+                            :disabled="!canCompleteQuest(viewingQuest)">Complete</button>
                     </div>
                 </div>
 
-                <div class="current-quest" style="display: none;">
-                    <p class="quest-title"></p>
+                <div v-if="currentQuest" class="current-quest">
+                    <p class="quest-title">{{ currentQuest.name }}</p>
                     <p class="quest-steps-title">Progress</p>
-                    <ul class="quest-steps"></ul>
+                    <ul class="quest-steps">
+                        <li 
+                            v-for="questStep in currentQuest.steps"
+                            :style="{}">
+                            {{ questStep.description }}
+                        </li>
+                    </ul>
 
                     <div>
-                        <button type="button" class="complete-step">Complete Step</button>
+                        <button type="button" class="complete-step" @click="completeQuestStep">Complete Step</button>
                     </div>
                 </div>
             </div>
@@ -112,4 +201,3 @@
         <script src="script.js"></script>
     </body>
 </html>
-
