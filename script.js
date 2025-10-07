@@ -702,15 +702,15 @@
             },
           },
         ],
-        fn: () => {
+        fn: (s) => {
           const availItems = items.filter(
             (i) =>
               i.categories.includes('weapons') &&
               i.categories.includes('bronze') &&
-              getInventoryItem(i.item_id) > 0,
+              getInventoryItem(s, i.item_id) > 0,
           );
           const rng = Math.floor(Math.random() * availItems.length);
-          sellItem(availItems[rng]);
+          sellItem(s, availItems[rng]);
         },
       },
       {
@@ -1322,14 +1322,14 @@
      *
      * @returns {number}
      */
-    const mine = (item) => {
+    const mine = (state, item) => {
       const baseSuccess = item.success_chance;
       const rng = Math.random();
-      const bonusYieldChance = state.upgrades
+      const bonusYieldChance = state.value.upgrades
         .filter((u) => u.affects === item.id && u.category === 'mining_excess')
         .reduce((total, curr) => (total += curr.value), 0);
       const yield = rng < bonusYieldChance ? 2 : 1;
-      const currLvl = state.levels.mining;
+      const currLvl = state.value.levels.mining;
 
       if (baseSuccess === 1.0 || currLvl >= item.level * 2) {
         return yield;
@@ -1342,7 +1342,7 @@
      * @param {Item} item
      */
     const userDidMine = (state, item) => {
-      const gathered = mine(item);
+      const gathered = mine(state, item);
 
       if (gathered > 0) {
         updateXp(state, 'mining', item.xp_given);
@@ -1492,7 +1492,7 @@
     const userPurchasedUpgrade = (toUpgrade, state) => {
       // @TODO: Find the upgrade level to purchase
       const currUpgrade = state.value.upgrades.find((u) => u.id === toUpgrade.id);
-      let cost = currUpgrade ? getUpgradeCost(toUpgrade) : toUpgrade.cost;
+      let cost = currUpgrade ? getUpgradeCost(toUpgrade, state) : toUpgrade.cost;
 
       if (currUpgrade) {
         upgrade(toUpgrade, currUpgrade.level + 1, state);
@@ -1512,7 +1512,7 @@
       let idx = state.value.inventory.findIndex((i) => i.item_id === key);
 
       if (idx === -1) {
-        state.value.inventory.push({ item_id: key, quantity: value });
+        state.value.inventory.push({ item_id: key, quantity: 0 });
         idx = state.value.inventory.length - 1;
       }
 
@@ -1682,7 +1682,7 @@
         (u) => u.level === (currLevel === 0 ? 0 : currLevel + 1),
       );
 
-      if (!nextLevel || nextLevel.cost > state.gold) {
+      if (!nextLevel || nextLevel.cost > state.value.gold) {
         return false;
       }
 
@@ -2127,7 +2127,7 @@
           /**
            * @param {Item} item 
            */
-          userDidSell: (item) => { console.log(item, s); userDidSell(s, item) },
+          userDidSell: (item) => userDidSell(s, item),
           /**
            * @param {Item} item 
            * @returns {bool}
@@ -2157,6 +2157,14 @@
            * @returns {bool}
            */
           canStartQuest: (quest) => checkQuestRequirements(quest, s),
+          /**
+           * @returns {number | null}
+           */
+          getCurrentQuestStep: () => s.value.quests_started.length ? s.value.quests_started[0].step : null,
+          canCompleteQuestStep: (quest) => {
+            const currentStep = s.value.quests_started[0].step;
+            return canCompleteQuestStep(quest, currentStep, s);
+          },
           canCompleteQuest: (quest) => canCompleteQuest(quest, s),
           completeQuestStep: () => {
             const currentStep = s.value.quests_started[0].step;
@@ -2170,6 +2178,7 @@
               viewingQuest.value = null;
             } else {
               s.value.quests_started[0].step = currentStep + 1;
+              s.value.quests_started[0].complete = false;
             }
           },
           /**

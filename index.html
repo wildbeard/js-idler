@@ -186,13 +186,19 @@
                     <ul class="quest-steps">
                         <li 
                             v-for="questStep in currentQuest.steps"
-                            :style="{}">
+                            :style="{
+                                textDecoration: getCurrentQuestStep() > questStep.id ? 'line-through' : 'none',
+                            }">
                             {{ questStep.description }}
                         </li>
                     </ul>
 
                     <div>
-                        <button type="button" class="complete-step" @click="completeQuestStep">Complete Step</button>
+                        <button 
+                            type="button"
+                            class="complete-step"
+                            @click="completeQuestStep"
+                            :disabled="!canCompleteQuestStep(currentQuest)">Complete Step</button>
                     </div>
                 </div>
             </div>
