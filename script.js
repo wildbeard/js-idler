@@ -365,7 +365,7 @@
             },
           },
         ],
-        fn: () => userDidMine(items.find((i) => i.item_id === 'copper_ore')),
+        fn: (s) => userDidMine(s, items.find((i) => i.item_id === 'copper_ore')),
       },
       {
         id: 'automine_tin',
@@ -417,7 +417,7 @@
             },
           },
         ],
-        fn: () => userDidMine(items.find((i) => i.item_id === 'tin_ore')),
+        fn: (s) => userDidMine(s, items.find((i) => i.item_id === 'tin_ore')),
       },
       {
         id: 'autosmelt_bronze',
@@ -434,7 +434,7 @@
             cost: 100,
             value: 2000,
             requirements: {
-              smithing: 3,
+              smithing: 1,
             },
           },
           {
@@ -470,7 +470,7 @@
             },
           },
         ],
-        fn: () => userDidSmith(items.find((i) => i.item_id === 'bronze_bar')),
+        fn: (s) => userDidSmith(s, items.find((i) => i.item_id === 'bronze_bar')),
       },
       {
         id: 'autoforge_bronze_sword',
@@ -523,7 +523,7 @@
             },
           },
         ],
-        fn: () => userDidSmith(items.find((i) => i.item_id === 'bronze_sword')),
+        fn: (s) => userDidSmith(s, items.find((i) => i.item_id === 'bronze_sword')),
       },
       {
         id: 'copper_mining_excess',
@@ -938,7 +938,7 @@
             }
           }
         ],
-        fn: () => userDidMine(items.find((i) => i.item_id === 'iron_ore')),
+        fn: (s) => userDidMine(s, items.find((i) => i.item_id === 'iron_ore')),
       },
       {
         id: 'automine_coal',
@@ -998,7 +998,7 @@
             }
           }
         ],
-        fn: () => userDidMine(items.find((i) => i.item_id == 'coal')),
+        fn: (s) => userDidMine(s, items.find((i) => i.item_id == 'coal')),
       },
       {
         id: 'autosmelt_iron',
@@ -1058,7 +1058,7 @@
             }
           }
         ],
-        fn: () => userDidSmith(items.find((i) => i.item_id == 'iron_bar')),
+        fn: (s) => userDidSmith(s, items.find((i) => i.item_id == 'iron_bar')),
       },
       {
         id: 'autosmelt_steel',
@@ -1118,7 +1118,7 @@
             }
           }
         ],
-        fn: () => userDidSmith(items.find((i) => i.item_id == 'steel_bar')),
+        fn: (s) => userDidSmith(s, items.find((i) => i.item_id == 'steel_bar')),
       }
     ];
 
@@ -1270,12 +1270,12 @@
      *
      * @returns {bool}
      */
-    const hasIngredientsFor = (item) => {
+    const hasIngredientsFor = (state, item) => {
       const ingredients = item.ingredients;
       let hasIngredients = true;
 
       ingredients.forEach((ingredient) => {
-        const item = state.inventory.find(
+        const item = state.value.inventory.find(
           (i) => i.item_id === ingredient.item_id,
         );
 
@@ -1301,19 +1301,19 @@
      * @param {string} key
      * @param {number} value
      */
-    const updateXp = (key, value) => {
+    const updateXp = (state, key, value) => {
       const nxtLvlKey = `${key}_next_level`;
-      state.xp[key] += value;
-      state.xp[`${key}_xp_level`] += value;
+      state.value.xp[key] += value;
+      state.value.xp[`${key}_xp_level`] += value;
 
-      let currXp = state.xp[key];
+      let currXp = state.value.xp[key];
 
-      while (currXp >= state.xp[nxtLvlKey]) {
-        state.levels[key] += 1;
-        state.xp[`${key}_xp_level`] = Math.abs(
-          state.xp[nxtLvlKey] - state.xp[key],
+      while (currXp >= state.value.xp[nxtLvlKey]) {
+        state.value.levels[key] += 1;
+        state.value.xp[`${key}_xp_level`] = Math.abs(
+          state.value.xp[nxtLvlKey] - state.value.xp[key],
         );
-        state.xp[nxtLvlKey] += getXpForLevel(state.levels[key] + 1);
+        state.value.xp[nxtLvlKey] += getXpForLevel(state.value.levels[key] + 1);
       }
     };
 
@@ -1341,17 +1341,15 @@
     /**
      * @param {Item} item
      */
-    const userDidMine = (item) => {
+    const userDidMine = (state, item) => {
       const gathered = mine(item);
 
       if (gathered > 0) {
-        updateXp('mining', item.xp_given);
-        updateInventory(item.item_id, gathered);
+        updateXp(state, 'mining', item.xp_given);
+        updateInventory(state, item.item_id, gathered);
       } else {
         // @TODO: Add some visual logs for the user!
       }
-
-      render();
     };
 
     /**
@@ -1379,35 +1377,35 @@
     /**
      * @param {object} item
      */
-    const userDidSmith = (item) => {
-      if (!hasIngredientsFor(item)) {
+    const userDidSmith = (state, item) => {
+      if (!hasIngredientsFor(state, item)) {
         return;
       }
 
       const result = smith(item);
 
       if (result.success) {
-        updateXp('smithing', item.xp_given);
+        updateXp(state, 'smithing', item.xp_given);
       }
 
       result.result.forEach((invUpdate) =>
-        updateInventory(invUpdate.item_id, invUpdate.quantity),
+        updateInventory(state, invUpdate.item_id, invUpdate.quantity),
       );
-      render();
+      // render();
     };
 
     /**
      * @param {Upgrade} upgrade
      * @param {{ id: string, const: number, level: number, value: number }} upgraded
      */
-    const upgradeAutoer = (upgrade, upgraded) => {
-      if (state.running_upgrades[upgrade.id]) {
-        upgrade.fn();
-        clearInterval(state.running_upgrades[upgrade.id]);
+    const upgradeAutoer = (upgrade, upgraded, state) => {
+      if (state.value.running_upgrades[upgrade.id]) {
+        upgrade.fn(state);
+        clearInterval(state.value.running_upgrades[upgrade.id]);
       }
 
-      state.running_upgrades[upgrade.id] = setInterval(() => {
-        upgrade.fn();
+      state.value.running_upgrades[upgrade.id] = setInterval(() => {
+        upgrade.fn(state);
       }, upgraded.value);
     };
 
@@ -1418,7 +1416,7 @@
      * @param {Upgrade} upgrade
      * @param {number} level
      */
-    const upgrade = (upgrade, level) => {
+    const upgrade = (upgrade, level, state) => {
       let up;
 
       if (level === 0) {
@@ -1438,14 +1436,14 @@
       }
 
       if (upgrade.category === 'autoer') {
-        upgradeAutoer(upgrade, up);
+        upgradeAutoer(upgrade, up, state);
       } else if (upgrade.id === 'money_is_time') {
         // @TODO: Finish all running autoers + update their intervals
         // Also create a function to do this rather than repeating code
       }
 
-      if (!state.upgrades.find((u) => u.id === upgrade.id)) {
-        state.upgrades.push({
+      if (!state.value.upgrades.find((u) => u.id === upgrade.id)) {
+        state.value.upgrades.push({
           id: upgrade.id,
           cost: up.cost,
           level: level,
@@ -1454,14 +1452,14 @@
         });
       }
 
-      const currIdx = state.upgrades.findIndex((u) => u.id === upgrade.id);
-      state.upgrades[currIdx] = {
+      const currIdx = state.value.upgrades.findIndex((u) => u.id === upgrade.id);
+      state.value.upgrades[currIdx] = {
         id: upgrade.id,
         cost: up.cost,
         level: up.level,
         value:
           level !== 0 && upgrade.category !== 'autoer'
-            ? up.value + state.upgrades[currIdx].value
+            ? up.value + state.value.upgrades[currIdx].value
             : up.value,
         category: upgrade.category,
       };
@@ -1472,8 +1470,8 @@
      *
      * @returns {number}
      */
-    const getUpgradeCost = (upgrade) => {
-      const currUpgrade = state.upgrades.find((u) => u.id === upgrade.id);
+    const getUpgradeCost = (upgrade, state) => {
+      const currUpgrade = state.value.upgrades.find((u) => u.id === upgrade.id);
 
       if (!currUpgrade) {
         return upgrade.cost;
@@ -1491,42 +1489,41 @@
     /**
      * @param {Upgrade} toUpgrade
      */
-    const userPurchasedUpgrade = (toUpgrade) => {
+    const userPurchasedUpgrade = (toUpgrade, state) => {
       // @TODO: Find the upgrade level to purchase
-      const currUpgrade = state.upgrades.find((u) => u.id === toUpgrade.id);
+      const currUpgrade = state.value.upgrades.find((u) => u.id === toUpgrade.id);
       let cost = currUpgrade ? getUpgradeCost(toUpgrade) : toUpgrade.cost;
 
       if (currUpgrade) {
-        upgrade(toUpgrade, currUpgrade.level + 1);
+        upgrade(toUpgrade, currUpgrade.level + 1, state);
       } else {
-        upgrade(toUpgrade, 0);
+        upgrade(toUpgrade, 0, state);
       }
 
-      state.gold -= cost;
-
-      render();
+      state.value.gold -= cost;
+      // render();
     };
 
     /**
      * @param {string} key
      * @param {number} value
      */
-    const updateInventory = (key, value) => {
-      let idx = state.inventory.findIndex((i) => i.item_id === key);
+    const updateInventory = (state, key, value) => {
+      let idx = state.value.inventory.findIndex((i) => i.item_id === key);
 
       if (idx === -1) {
-        state.inventory.push({ item_id: key, quantity: value });
-        idx = state.inventory.length - 1;
+        state.value.inventory.push({ item_id: key, quantity: value });
+        idx = state.value.inventory.length - 1;
       }
 
-      state.inventory[idx].quantity += value;
+      state.value.inventory[idx].quantity += value;
     };
 
     /**
      * @param {Item} item
      */
-    const sellItem = (item) => {
-      const bonusUpgrade = state.upgrades.find(
+    const sellItem = (state, item) => {
+      const bonusUpgrade = state.value.upgrades.find(
         (u) => u.category === 'gold_bonus',
       );
       let gold = item.value;
@@ -1536,14 +1533,13 @@
         gold += Math.ceil(gold * bonusUpgrade.value);
       }
 
-      state.gold += gold;
-      state.stats.lifetime_wealth += gold;
+      state.value.gold += gold;
+      state.value.stats.lifetime_wealth += gold;
     };
 
-    const userDidSell = (item) => {
-      sellItem(item);
-      updateInventory(item.item_id, -1);
-      render();
+    const userDidSell = (state, item) => {
+      sellItem(state, item);
+      updateInventory(state, item.item_id, -1);
     };
 
     /**
@@ -1551,8 +1547,8 @@
      *
      * @returns {number}
      */
-    const getInventoryItem = (key) => {
-      return state.inventory.find((i) => i.item_id === key)?.quantity ?? 0;
+    const getInventoryItem = (state, key) => {
+      return state.value.inventory.find((i) => i.item_id === key)?.quantity ?? 0;
     };
 
     const renderInventory = () => {
@@ -1579,21 +1575,23 @@
 
     // Currently acting as our entire renderer
     const render = () => {
-      console.log(state);
-      renderLevels();
-      renderInventory();
-      renderMineButtons();
-      renderSmithingButtons();
-      renderAvailableUpgrades();
-      renderAvailableQuests();
+      // console.log(state);
+      // renderLevels();
+      // renderInventory();
+      // renderMineButtons();
+      // renderSmithingButtons();
+      // renderAvailableUpgrades();
+      // renderAvailableQuests();
 
       // And this is where this render system starts to break down :)
+      /*
       if (state.quests_started.length) {
         const quest = quests.find(
           (q) => q.id === state.quests_started[0].quest_id,
         );
         renderCurrentQuest(quest);
       }
+      */
     };
 
     const renderLevels = () => {
@@ -1652,9 +1650,9 @@
      *
      * @returns {bool}
      */
-    const hasRequirementsForUpgrade = (upgrade) => {
+    const hasRequirementsForUpgrade = (upgrade, state) => {
       const currLevel =
-        state.upgrades.find((u) => u.id === upgrade.id)?.level ?? 0;
+        state.value.upgrades.find((u) => u.id === upgrade.id)?.level ?? 0;
       const nextLevel = upgrade.upgrades.find(
         (u) => u.level === (currLevel === 0 ? 0 : currLevel + 1),
       );
@@ -1664,7 +1662,7 @@
       }
 
       for (const reqKey in nextLevel.requirements) {
-        if (nextLevel.requirements[reqKey] > state.levels[reqKey]) {
+        if (nextLevel.requirements[reqKey] > state.value.levels[reqKey]) {
           return false;
         }
       }
@@ -1677,9 +1675,9 @@
      *
      * @returns {bool}
      */
-    const canUpgradeUpgrade = (upgrade) => {
+    const canUpgradeUpgrade = (upgrade, state) => {
       const currLevel =
-        state.upgrades.find((u) => u.id === upgrade.id)?.level ?? 0;
+        state.value.upgrades.find((u) => u.id === upgrade.id)?.level ?? 0;
       const nextLevel = upgrade.upgrades.find(
         (u) => u.level === (currLevel === 0 ? 0 : currLevel + 1),
       );
@@ -1688,7 +1686,7 @@
         return false;
       }
 
-      return hasRequirementsForUpgrade(upgrade);
+      return hasRequirementsForUpgrade(upgrade, state);
     };
 
     const renderAvailableUpgrades = () => {
@@ -1747,7 +1745,7 @@
       if (item.skill === 'smithing') {
         actionBtn.onclick = () => userDidSmith(item);
 
-        if (!hasIngredientsFor(item)) {
+        if (!hasIngredientsFor(state, item)) {
           actionBtn.setAttribute('disabled', true);
         }
       } else if (item.skill === 'mining') {
@@ -1771,8 +1769,8 @@
           // @TODO: Maybe we don't care about this
           continue;
         } else if (key === 'levels') {
-          for (const lKey in state.levels) {
-            if (quest.requirements.levels[lKey] > state.levels[lKey]) {
+          for (const lKey in state.value.levels) {
+            if (quest.requirements.levels[lKey] > state.value.levels[lKey]) {
               return false;
             }
           }
@@ -1781,7 +1779,7 @@
 
           if (requiredQuests.length !== 0) {
             hasRequirements =
-              requiredQuests.filter((q) => state.quests_completed.includes(q))
+              requiredQuests.filter((q) => state.value.quests_completed.includes(q))
                 .length === requiredQuests.length;
 
             if (!hasRequirements) {
@@ -1797,8 +1795,8 @@
     /**
      * @param {Quest} quest
      */
-    const canCompleteQuest = (quest) => {
-      const currStep = state.quests_started.find(
+    const canCompleteQuest = (quest, state) => {
+      const currStep = state.value.quests_started.find(
         (q) => q.quest_id === quest.id,
       );
 
@@ -1818,7 +1816,7 @@
      *
      * @returns {bool}
      */
-    const canCompleteQuestStep = (quest, step) => {
+    const canCompleteQuestStep = (quest, step, state) => {
       // I mean technically, we can just do quest.steps[step]; :)
       const questStep = quest.steps.find((s) => s.id === step);
 
@@ -1829,7 +1827,7 @@
 
       if (
         questStep.requirements.items.filter(
-          (i) => getInventoryItem(i.item_id) < i.value,
+          (i) => getInventoryItem(state, i.item_id) < i.value,
         ).length
       ) {
         console.log('do not meet item reqs');
@@ -1843,13 +1841,13 @@
      * @param {Quest} quest
      * @param {number} step
      */
-    const completeQuestStep = (quest, step) => {
+    const completeQuestStep = (quest, step, state) => {
       console.log(quest.id, step);
-      if (!canCompleteQuestStep(quest, step)) {
+      if (!canCompleteQuestStep(quest, step, state)) {
         return;
       }
 
-      const idx = state.quests_started.findIndex((q) => q.quest_id);
+      const idx = state.value.quests_started.findIndex((q) => q.quest_id);
 
       if (idx === -1) {
         console.log(`unable to find ${quest.id}`);
@@ -1857,23 +1855,25 @@
       }
 
       const currStep = quest.steps.find((s) => s.id === step);
-      state.quests_started[idx].complete = true;
+      state.value.quests_started[idx].complete = true;
 
       for (const qItemReq of currStep.requirements.items) {
-        updateInventory(qItemReq.item_id, qItemReq.value * -1);
+        updateInventory(state, qItemReq.item_id, qItemReq.value * -1);
       }
 
+      /*
       const hasMoreSteps = quest.steps.find((s) => s.id === step + 1);
 
       if (!!!hasMoreSteps) {
-        completeQuest(quest);
+        completeQuest(quest, state);
       } else {
-        state.quests_started[idx].step = step + 1;
-        renderCurrentQuest(quest);
+        state.value.quests_started[idx].step = step + 1;
+        // renderCurrentQuest(quest);
       }
+      */
 
       // Technically a double render from the above else
-      render();
+      // render();
     };
 
     /**
@@ -2018,60 +2018,58 @@
      *
      * @returns {bool}
      */
-    const startQuest = (quest) => {
-      if (state.quests_started.length) {
+    const startQuest = (state, quest) => {
+      if (state.value.quests_started.length) {
         console.log('cannot start quest. one is already in progress');
         return false;
       }
 
-      state.quests_started.push({
+      state.value.quests_started.push({
         quest_id: quest.id,
         step: quest.steps[0].id,
         complete: false,
       });
 
-      renderCurrentQuest(quest);
-      populateQuestBox(quest);
       return true;
     };
 
     /**
      * @param {Quest} quest
      */
-    const completeQuest = (quest) => {
-      if (!canCompleteQuest(quest)) {
+    const completeQuest = (quest, state) => {
+      if (!canCompleteQuest(quest, state)) {
         console.log(`unable to complete quest #${quest.id} - ${quest.name}`);
         return;
       }
 
-      state.quests_started = state.quests_started.filter(
+      state.value.quests_started = state.value.quests_started.filter(
         (q) => q.quest_id !== quest.id,
       );
-      state.quests_completed.push(quest.id);
-      document.querySelector('.current-quest').style.display = 'none';
+      state.value.quests_completed.push(quest.id);
+      // document.querySelector('.current-quest').style.display = 'none';
 
       for (const reward of quest.rewards) {
         switch (reward.category) {
           case 'experience':
-            updateXp(reward.affects, reward.value);
+            updateXp(state, reward.affects, reward.value);
             break;
           case 'item':
-            updateInventory(reward.item_id, reward.value);
+            updateInventory(state, reward.item_id, reward.value);
             break;
           case 'money':
-            state.gold += reward.value;
-            state.stats.lifetime_wealth += reward.value;
+            state.value.gold += reward.value;
+            state.value.stats.lifetime_wealth += reward.value;
             break;
           default:
             console.log('unknown reward category', reward);
         }
       }
 
-      document.querySelector('.quest-panel').style.display = 'none';
-      document.querySelector('.current-quest').style.display = 'none';
+      // document.querySelector('.quest-panel').style.display = 'none';
+      // document.querySelector('.current-quest').style.display = 'none';
 
       // Ugh
-      render();
+      // render();
     };
 
     const renderAvailableQuests = () => {
@@ -2096,6 +2094,132 @@
       });
     };
 
-    render();
+    // render();
+
+    const { createApp, ref, computed } = Vue;
+
+    createApp({
+      setup() {
+        const s = ref({ ...state });
+        const currentQuest = ref(null);
+        const viewingQuest = ref(null);
+        const availableOreList = computed(() => items.filter((i) => i.skill === 'mining' && i.level <= s.value.levels.mining));
+        const availabeSmithableList = computed(() => items.filter((i) => i.skill === 'smithing' && i.level <= s.value.levels.smithing));
+        const availableQuests = computed(() => quests.filter((q) => !s.value.quests_completed.includes(q.id)));
+        const availableUpgrades = computed(() => allUpgrades.filter((u) => hasRequirementsForUpgrade(u, s)));
+
+        return { 
+          s, 
+          availableOreList,
+          availabeSmithableList,
+          availableQuests,
+          availableUpgrades,
+          currentQuest,
+          viewingQuest,
+          /**
+           * @param {Item} item 
+           */
+          userDidMine: (item) => userDidMine(s, item),
+          /**
+           * @param {Item} item 
+           */
+          userDidSmith: (item) => userDidSmith(s, item),
+          /**
+           * @param {Item} item 
+           */
+          userDidSell: (item) => { console.log(item, s); userDidSell(s, item) },
+          /**
+           * @param {Item} item 
+           * @returns {bool}
+           */
+          hasInventory: (item) => !!s.value.inventory.find((i) => i.item_id === item.item_id && i.quantity > 0),
+          /**
+           * @param {Item} item 
+           * @returns {bool}
+           */
+          userCanCraft: (item) => hasIngredientsFor(s, item),
+          /**
+           * @param {Quest} quest 
+           */
+          updateQuestPanel: (quest) => {
+            viewingQuest.value = quest.id === viewingQuest.value?.id ? null : quest;
+          },
+          /**
+           * @param {Quest} quest 
+           */
+          acceptQuest: (quest) => {
+            if (startQuest(s, quest)) {
+              currentQuest.value = quest;
+            }
+          },
+          /**
+           * @param {Quest} quest 
+           * @returns {bool}
+           */
+          canStartQuest: (quest) => checkQuestRequirements(quest, s),
+          canCompleteQuest: (quest) => canCompleteQuest(quest, s),
+          completeQuestStep: () => {
+            const currentStep = s.value.quests_started[0].step;
+            const hasMoreSteps = currentQuest.value.steps.find((s) => s.id === currentStep + 1);
+
+            completeQuestStep(currentQuest.value, currentStep, s);
+
+            if (!!!hasMoreSteps) {
+              completeQuest(currentQuest.value, s);
+              currentQuest.value = null;
+              viewingQuest.value = null;
+            } else {
+              s.value.quests_started[0].step = currentStep + 1;
+            }
+          },
+          /**
+           * @param {Quest} quest 
+           * @returns {bool}
+           */
+          isQuestStarted: (quest) => !!s.value.quests_started.find((q) => q.quest_id === quest.id),
+          xpForSkill: (skill) => {
+            return Math.floor((s.value.xp[`${skill}_xp_level`] / getXpForLevel(s.value.levels[skill])) * 100);
+          },
+          /**
+           * @param {string} itemId 
+           * @returns {Item | undefined}
+           */
+          getItem: (itemId) => items.find((i) => i.item_id === itemId),
+          /**
+           * @param {string} questId 
+           * @returns {Quest | undefined}
+           */
+          getQuest: (questId) => quests.find((q) => q.id === questId),
+          /**
+           * @param {Upgrade} upgrade 
+           * @returns {string}
+           */
+          getUpgradeText: (upgrade) => {
+            const currUpgrade = s.value.upgrades.find((u) => u.id === upgrade.id);
+            const maxUpgrade = upgrade.upgrades.sort((a, b) => a.level <= b.level)[0];
+            let text = upgrade.name;
+
+            if (currUpgrade?.level === maxUpgrade.level) {
+              text += ' | Max Level';
+            } else {
+              text += ` | ${getUpgradeCost(upgrade, s)}gp`
+            }
+
+            return text;
+          },
+          /**
+           * @param {Upgrade} upgrade 
+           */
+          userPurchasedUpgrade: (upgrade) => userPurchasedUpgrade(upgrade, s),
+          /**
+           * @param {Upgrade} upgrade 
+           * @returns {bool}
+           */
+          canUpgradeUpgrade: (upgrade) => canUpgradeUpgrade(upgrade, s),
+        };
+      }
+    })
+      .mount('.wrapper');
   }
+
 )();
