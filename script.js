@@ -1418,7 +1418,6 @@
       result.result.forEach((invUpdate) =>
         updateInventory(state, invUpdate.item_id, invUpdate.quantity),
       );
-      // render();
     };
 
     /**
@@ -1528,7 +1527,6 @@
       }
 
       state.value.gold -= cost;
-      // render();
     };
 
     /**
@@ -1590,100 +1588,6 @@
       return state.value.inventory.find((i) => i.item_id === key)?.quantity ?? 0;
     };
 
-    const renderInventory = () => {
-      const parent = document.querySelector('.inventory');
-      // hehexdd
-      parent.innerHTML = '';
-
-      const goldLi = document.createElement('li');
-      goldLi.textContent = `Gold: ${state.gold}`;
-      parent.appendChild(goldLi);
-
-      for (const invItem of state.inventory) {
-        const item = items.find((i) => i.item_id === invItem.item_id);
-
-        if (!item || invItem.level > state.levels[invItem.skill]) {
-          continue;
-        }
-
-        const li = document.createElement('li');
-        li.textContent = `${item.name}: ${invItem.quantity}`;
-        parent.appendChild(li);
-      }
-    };
-
-    // Currently acting as our entire renderer
-    const render = () => {
-      // console.log(state);
-      // renderLevels();
-      // renderInventory();
-      // renderMineButtons();
-      // renderSmithingButtons();
-      // renderAvailableUpgrades();
-      // renderAvailableQuests();
-
-      // And this is where this render system starts to break down :)
-      /*
-      if (state.quests_started.length) {
-        const quest = quests.find(
-          (q) => q.id === state.quests_started[0].quest_id,
-        );
-        renderCurrentQuest(quest);
-      }
-      */
-    };
-
-    const renderLevels = () => {
-      const parent = document.querySelector('.levels');
-      parent.innerHTML = null;
-
-      for (const key in state.levels) {
-        const li = document.createElement('li');
-        const progBar = document.createElement('progress');
-        const curr = state.xp[`${key}_xp_level`];
-        const needed = getXpForLevel(state.levels[key]);
-
-        progBar.value = Math.floor((curr / needed) * 100);
-        progBar.max = 100;
-
-        li.innerHTML = `${key} (${state.levels[key]})<br>`;
-        li.appendChild(progBar);
-        parent.appendChild(li);
-      }
-    };
-
-    const renderMineButtons = () => {
-      const parent = document.querySelector('.ore-list');
-      parent.innerHTML = null;
-
-      for (const item of items) {
-        if (item.skill !== 'mining' || state.levels.mining < item.level) {
-          continue;
-        }
-
-        const li = document.createElement('li');
-        li.append(...createItemActionButtons(item));
-        parent.appendChild(li);
-      }
-    };
-
-    const renderSmithingButtons = () => {
-      const parent = document.querySelector('.smithing-list');
-      parent.innerHTML = null;
-
-      // @TODO: Do we just want to create a category system rather than iterating
-      // over _every_ item?
-      for (const item of items) {
-        if (item.skill !== 'smithing' || state.levels.smithing < item.level) {
-          continue;
-        }
-
-        const li = document.createElement('li');
-        li.append(...createItemActionButtons(item));
-        parent.appendChild(li);
-      }
-    };
-
     /**
      * @param {Upgrade} upgrade
      *
@@ -1726,72 +1630,6 @@
       }
 
       return hasRequirementsForUpgrade(upgrade, state);
-    };
-
-    const renderAvailableUpgrades = () => {
-      const parent = document.querySelector('.available-upgrades');
-      parent.innerHTML = null;
-
-      for (const upgrade of allUpgrades.filter((u) =>
-        hasRequirementsForUpgrade(u),
-      )) {
-        const li = document.createElement('li');
-        const btn = document.createElement('button');
-        const currUpgrade = state.upgrades.find((u) => u.id === upgrade.id);
-        const maxUpgrade = allUpgrades
-          .find((u) => u.id === upgrade.id)
-          .upgrades.sort((a, b) => a.level <= b.level)[0];
-        let btnText = upgrade.name;
-        let cost = upgrade.cost;
-
-        if (currUpgrade && currUpgrade.level === maxUpgrade.level) {
-          btnText += ' | Max Level';
-        } else {
-          cost = getUpgradeCost(upgrade);
-          btnText += ` | ${cost}gp`;
-        }
-
-        btn.innerText = btnText;
-        btn.title = upgrade.description ?? 'An upgrade';
-        btn.onclick = () => userPurchasedUpgrade(upgrade);
-
-        // @TODO: We also need to check if they've maxxed out the upgrade
-        if (!canUpgradeUpgrade(upgrade)) {
-          btn.setAttribute('disabled', true);
-        }
-
-        li.appendChild(btn);
-        parent.appendChild(li);
-      }
-    };
-
-    /**
-     * @param {Item} item
-     */
-    const createItemActionButtons = (item) => {
-      const actionBtn = document.createElement('button');
-      const sellBtn = document.createElement('button');
-
-      sellBtn.innerText = '$';
-      sellBtn.onclick = () => userDidSell(item);
-
-      if (getInventoryItem(item.item_id) <= 0) {
-        sellBtn.setAttribute('disabled', true);
-      }
-
-      actionBtn.innerText = item.name;
-
-      if (item.skill === 'smithing') {
-        actionBtn.onclick = () => userDidSmith(item);
-
-        if (!hasIngredientsFor(state, item)) {
-          actionBtn.setAttribute('disabled', true);
-        }
-      } else if (item.skill === 'mining') {
-        actionBtn.onclick = () => userDidMine(item);
-      }
-
-      return [actionBtn, sellBtn];
     };
 
     /**
@@ -1899,157 +1737,6 @@
       for (const qItemReq of currStep.requirements.items) {
         updateInventory(state, qItemReq.item_id, qItemReq.value * -1);
       }
-
-      /*
-      const hasMoreSteps = quest.steps.find((s) => s.id === step + 1);
-
-      if (!!!hasMoreSteps) {
-        completeQuest(quest, state);
-      } else {
-        state.value.quests_started[idx].step = step + 1;
-        // renderCurrentQuest(quest);
-      }
-      */
-
-      // Technically a double render from the above else
-      // render();
-    };
-
-    /**
-     * @param {Quest} quest
-     */
-    const populateQuestBox = (quest) => {
-      const parent = document.querySelector('.quest-panel');
-
-      parent.querySelector('.quest-title').innerText = `Title: ${quest.name}`;
-      parent.querySelector('.quest-desc').innerText =
-        `Description: ${quest.description}`;
-
-      for (const key in quest.requirements) {
-        if (key === 'levels') {
-          const levelReqs = document.querySelector('.level-reqs');
-          levelReqs.innerHTML = null;
-          parent.querySelector('.quest-level-requirements').style.display =
-            Object.keys(quest.requirements.levels).length ? null : 'none';
-
-          for (const lKey in quest.requirements.levels) {
-            const li = document.createElement('li');
-            const span = document.createElement('span');
-
-            span.innerText = `${lKey}: ${quest.requirements.levels[lKey]}`;
-            span.style.color =
-              state.levels[lKey] < quest.requirements.levels[lKey]
-                ? 'red'
-                : 'green';
-
-            li.append(span);
-            levelReqs.append(li);
-          }
-        } else if (key === 'quests') {
-          const questReqs = document.querySelector('.quest-reqs');
-          questReqs.innerHTML = null;
-          parent.querySelector('.quest-quest-requirements').style.display =
-            quest.requirements.quests.length ? null : 'none';
-
-          for (const qKey of quest.requirements.quests) {
-            const li = document.createElement('li');
-            const span = document.createElement('span');
-
-            span.innerText = quests.find((q) => q.id === qKey)?.name;
-            span.style.color = state.quests_completed.includes(qKey)
-              ? 'green'
-              : 'red';
-
-            li.append(span);
-            questReqs.append(li);
-          }
-        }
-      }
-
-      const rewardsParent = parent.querySelector('.quest-rewards');
-      rewardsParent.innerHTML = null;
-
-      for (const reward of quest.rewards) {
-        const li = document.createElement('li');
-
-        if (reward.category === 'experience') {
-          li.innerText = `${reward.value} ${reward.affects} xp`;
-        } else if (reward.category === 'item') {
-          const item = items.find((i) => i.item_id === reward.item_id);
-
-          if (!item) {
-            continue;
-          }
-
-          li.innerText = `${reward.value} ${item.name}`;
-        } else if (reward.category === 'money') {
-          li.innerText = `${reward.value} gold`;
-        }
-
-        rewardsParent.append(li);
-      }
-
-      // Buttons
-      const startBtn = parent.querySelector('.start-quest');
-      const completeBtn = parent.querySelector('.complete-quest');
-      // Ugh, reset because manual state management is a bitch
-      completeBtn.style.display = null;
-      startBtn.style.display = null;
-
-      if (!state.quests_started.find((q) => q.quest_id === quest.id)) {
-        completeBtn.style.display = 'none';
-      } else {
-        startBtn.style.display = 'none';
-      }
-
-      startBtn.onclick = () => startQuest(quest);
-      completeBtn.onclick = () => completeQuest(quest);
-
-      if (!checkQuestRequirements(quest, state)) {
-        startBtn.setAttribute('disabled', true);
-      } else {
-        startBtn.removeAttribute('disabled');
-      }
-
-      parent.style.display = null;
-    };
-
-    /**
-     * @param {Quest} quest
-     */
-    const renderCurrentQuest = (quest) => {
-      const parent = document.querySelector('.current-quest');
-      const currentQuest = state.quests_started.find(
-        (q) => q.quest_id === quest.id,
-      );
-      const steps = quest.steps.filter((s) => s.id <= currentQuest.step);
-      const stepList = parent.querySelector('.quest-steps');
-      stepList.innerHTML = null;
-
-      parent.querySelector('.quest-title').innerText = quest.name;
-
-      for (const step of steps) {
-        const li = document.createElement('li');
-        li.innerText = step.description;
-
-        if (step.id < currentQuest.step) {
-          li.style.textDecoration = 'line-through';
-        }
-
-        stepList.append(li);
-      }
-
-      const stepBtn = parent.querySelector('.complete-step');
-      stepBtn.removeAttribute('disabled');
-      stepBtn.onclick = () => completeQuestStep(quest, currentQuest.step);
-
-      if (!canCompleteQuestStep(quest, currentQuest.step)) {
-        stepBtn.setAttribute('disabled', true);
-      } else {
-        stepBtn.removeAttribute('disabled');
-      }
-
-      parent.style.display = null;
     };
 
     /**
@@ -2085,7 +1772,6 @@
         (q) => q.quest_id !== quest.id,
       );
       state.value.quests_completed.push(quest.id);
-      // document.querySelector('.current-quest').style.display = 'none';
 
       for (const reward of quest.rewards) {
         switch (reward.category) {
@@ -2103,37 +1789,7 @@
             console.log('unknown reward category', reward);
         }
       }
-
-      // document.querySelector('.quest-panel').style.display = 'none';
-      // document.querySelector('.current-quest').style.display = 'none';
-
-      // Ugh
-      // render();
     };
-
-    const renderAvailableQuests = () => {
-      const parent = document.querySelector('.available-quests');
-      const available = quests.filter(
-        (q) => !state.quests_completed.includes(q.id),
-      );
-      // hehexd
-      parent.innerHTML = null;
-
-      available.forEach((q) => {
-        const li = document.createElement('li');
-        const span = document.createElement('span');
-        const reqMet = checkQuestRequirements(q, state);
-
-        span.innerText = q.name;
-        span.style.color = reqMet ? 'black' : 'red';
-        li.onclick = () => populateQuestBox(q);
-
-        li.append(span);
-        parent.appendChild(li);
-      });
-    };
-
-    // render();
 
     const { createApp, ref, computed } = Vue;
 
