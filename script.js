@@ -65,6 +65,38 @@
  */
 
 /**
+ * @typedef Assistant
+ * @type {object}
+ * 
+ * @property {string} id
+ * @property {string} name
+ * @property {string} description
+ * @property {{
+ *  level: number,
+ *  cost: number,
+ *  value: number,
+ *  requirements: {
+ *    mining: number?,
+ *    smithing: number?,
+ *  }
+ * }[]} upgrades
+ */
+
+/**
+ * @typedef PurchasedAssitant
+ * @type {object}
+ *
+ * @property {string} id
+ * @property {string} name
+ * @property {number} level 
+ * @property {{
+ *  mining: string[],
+ *  smithing: string[],
+ *  selling: string[],
+ * }} config
+ */
+
+/**
  * @typedef PurchasedUpgrade
  * @type {object}
  *
@@ -78,13 +110,19 @@
  * @type {object}
  *
  * @property {number} gold
- * @property {{ lifetime_wealth: number }} stats
+ * @property {{ 
+ *  lifetime_wealth: number,
+ *  crafts: { item_id: string, value: number }[],
+ *  sales: { item_id: string, value: number }[],
+ *  gathers: { item_id: string, value: number }[],
+ * }} stats
  * @property {{mining: number, smithing: number}} levels
  * @property {{mining: number, mining_next_leve: number; smithing_next_level: number, smithing: number}} xp
  * @property {PurchasedUpgrade[]} upgrades
  * @property {{item_id: string, quantity: number}[]} inventory
  * @property {{ quest_id: number, step: number, complete: bool, }[]} quests_started
  * @property {string[]} quests_completed
+ * @property {PurchasedAssitant[]} assistants
  */
 
 (
@@ -1226,6 +1264,57 @@
       },
     ];
 
+    /** @var {Assistant[]} */
+    const assistants = [
+      {
+        id: 'mining_assistant',
+        name: 'Mining Assistant',
+        description: 'This guy right here? He\'ll mine for ya.',
+        upgrades: [
+          {
+            level: 0,
+            cost: 150,
+            value: 2500,
+            requirements: {
+              mining: 1,
+            }
+          },
+          {
+            level: 1,
+            cost: 300,
+            value: 1750,
+            requirements: {
+              mining: 5,
+            }
+          },
+          {
+            level: 3,
+            cost: 600,
+            value: 1450,
+            requirements: {
+              mining: 10,
+            }
+          },
+          {
+            level: 4,
+            cost: 1200,
+            value: 950,
+            requirements: {
+              mining: 15,
+            }
+          },
+          {
+            level: 5,
+            cost: 1750,
+            value: 850,
+            requirements: {
+              mining: 25,
+            }
+          }
+        ],
+      }
+    ];
+
     /** @type {State} */
     const state = {
       // @TODO: Shit like total bronze swords sold (count + value)
@@ -1233,7 +1322,7 @@
         lifetime_wealth: 500,
         sales: [],
         crafts: [],
-        gathered: [],
+        gathers: [],
       },
       gold: 500,
       levels: {
@@ -1249,6 +1338,7 @@
         smithing_next_level: 83,
       },
       upgrades: [],
+      assistants: [],
       inventory: [
         {
           item_id: 'copper_ore',
@@ -1269,6 +1359,7 @@
     };
 
     /**
+     * @param {{ value: State }} state
      * @param {Item} item
      *
      * @returns {bool}
@@ -1321,6 +1412,7 @@
     };
 
     /**
+     * @param {{ value: State }} state 
      * @param {Item} item
      *
      * @returns {number}
@@ -1342,6 +1434,7 @@
     };
 
     /**
+     * @param {{ value: State }} state
      * @param {Item} item
      */
     const userDidMine = (state, item) => {
@@ -1351,23 +1444,24 @@
         updateXp(state, 'mining', item.xp_given);
         updateInventory(state, item.item_id, gathered);
 
-        let idx = state.value.stats.gathered.findIndex((i) => i.item_id === item.item_id);
+        let idx = state.value.stats.gathers.findIndex((i) => i.item_id === item.item_id);
 
         if (idx === -1) {
-          state.value.stats.gathered.push({
+          state.value.stats.gathers.push({
             item_id: item.item_id,
             value: 0,
           });
-          idx = state.value.stats.gathered.length - 1;
+          idx = state.value.stats.gathers.length - 1;
         }
 
-        state.value.stats.gathered[idx].value += gathered;
+        state.value.stats.gathers[idx].value += gathered;
       } else {
         // @TODO: Add some visual logs for the user!
       }
     };
 
     /**
+     * @param {{ value: State }} state
      * @param {Item} item
      *
      * @returns {{ success: bool, result: {item_id: string, quantity: number}[]}}
@@ -1391,6 +1485,7 @@
     };
 
     /**
+     * @param {{ value: State }} state
      * @param {object} item
      */
     const userDidSmith = (state, item) => {
@@ -1423,6 +1518,7 @@
     /**
      * @param {Upgrade} upgrade
      * @param {{ id: string, const: number, level: number, value: number }} upgraded
+     * @param {{ value: State }} state 
      */
     const upgradeAutoer = (upgrade, upgraded, state) => {
       if (state.value.running_upgrades[upgrade.id]) {
@@ -1441,6 +1537,7 @@
      *
      * @param {Upgrade} upgrade
      * @param {number} level
+     * @param {{ value: State }} state 
      */
     const upgrade = (upgrade, level, state) => {
       let up;
@@ -1493,6 +1590,7 @@
 
     /**
      * @param {Upgrade} upgrade
+     * @param {{ value: State }} state 
      *
      * @returns {number}
      */
@@ -1514,6 +1612,7 @@
 
     /**
      * @param {Upgrade} toUpgrade
+     * @param {{ value: State }} state 
      */
     const userPurchasedUpgrade = (toUpgrade, state) => {
       // @TODO: Find the upgrade level to purchase
@@ -1530,6 +1629,7 @@
     };
 
     /**
+     * @param {{ value: State }} state
      * @param {string} key
      * @param {number} value
      */
@@ -1545,6 +1645,7 @@
     };
 
     /**
+     * @param {{ value: State }} state
      * @param {Item} item
      */
     const sellItem = (state, item) => {
@@ -1574,12 +1675,17 @@
       state.value.stats.sales[statIdx].value += gold;
     };
 
+    /**
+     * @param {{ value: State }} state 
+     * @param {Item} item 
+     */
     const userDidSell = (state, item) => {
       sellItem(state, item);
       updateInventory(state, item.item_id, -1);
     };
 
     /**
+     * @param {{ value: State }} state 
      * @param {string} key
      *
      * @returns {number}
@@ -1740,6 +1846,7 @@
     };
 
     /**
+     * @param {{ value: State }} state 
      * @param {Quest} quest
      *
      * @returns {bool}

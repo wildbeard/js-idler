@@ -50,7 +50,7 @@
                 <p>Gathered Material</p>
                 <ul>
                     <li
-                        v-for="gather in s.stats.gathered"
+                        v-for="gather in s.stats.gathers"
                         :key="gather.item_id">
                         {{ `${getItem(gather.item_id)?.name}: ${gather.value}` }}
                     </li>
