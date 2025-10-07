@@ -1231,6 +1231,9 @@
       // @TODO: Shit like total bronze swords sold (count + value)
       stats: {
         lifetime_wealth: 500,
+        sales: [],
+        crafts: [],
+        gathered: [],
       },
       gold: 500,
       levels: {
@@ -1347,6 +1350,18 @@
       if (gathered > 0) {
         updateXp(state, 'mining', item.xp_given);
         updateInventory(state, item.item_id, gathered);
+
+        let idx = state.value.stats.gathered.findIndex((i) => i.item_id === item.item_id);
+
+        if (idx === -1) {
+          state.value.stats.gathered.push({
+            item_id: item.item_id,
+            value: 0,
+          });
+          idx = state.value.stats.gathered.length - 1;
+        }
+
+        state.value.stats.gathered[idx].value += gathered;
       } else {
         // @TODO: Add some visual logs for the user!
       }
@@ -1357,8 +1372,9 @@
      *
      * @returns {{ success: bool, result: {item_id: string, quantity: number}[]}}
      */
-    const smith = (item) => {
+    const smith = (state, item) => {
       // @TODO: Do some fancy maths to get % chance success
+      // @TODO: Do some fancy maths to get % chance to create extra
       const result = {
         success: true,
         result: [{ item_id: item.item_id, quantity: 1 }],
@@ -1382,10 +1398,21 @@
         return;
       }
 
-      const result = smith(item);
+      const result = smith(state, item);
 
       if (result.success) {
         updateXp(state, 'smithing', item.xp_given);
+        let idx = state.value.stats.crafts.findIndex((i) => i.item_id === item.item_id);
+
+        if (idx === -1) {
+          state.value.stats.crafts.push({
+            item_id: item.item_id,
+            value: 0,
+          });
+          idx = state.value.stats.crafts.length - 1;
+        }
+
+        state.value.stats.crafts[idx].value += result.result[0].quantity;
       }
 
       result.result.forEach((invUpdate) =>
@@ -1535,6 +1562,18 @@
 
       state.value.gold += gold;
       state.value.stats.lifetime_wealth += gold;
+
+      let statIdx = state.value.stats.sales.findIndex((i) => i.item_id === item.item_id);
+
+      if (statIdx === -1) {
+        state.value.stats.sales.push({
+          item_id: item.item_id,
+          value: 0,
+        });
+        statIdx = state.value.stats.sales.length - 1;
+      }
+
+      state.value.stats.sales[statIdx].value += gold;
     };
 
     const userDidSell = (state, item) => {
@@ -2101,21 +2140,28 @@
     createApp({
       setup() {
         const s = ref({ ...state });
+        const statsShown = ref(false);
         const currentQuest = ref(null);
         const viewingQuest = ref(null);
         const availableOreList = computed(() => items.filter((i) => i.skill === 'mining' && i.level <= s.value.levels.mining));
         const availabeSmithableList = computed(() => items.filter((i) => i.skill === 'smithing' && i.level <= s.value.levels.smithing));
         const availableQuests = computed(() => quests.filter((q) => !s.value.quests_completed.includes(q.id)));
         const availableUpgrades = computed(() => allUpgrades.filter((u) => hasRequirementsForUpgrade(u, s)));
+        // hehexdd
+        window.toggleStats = () => {
+          statsShown.value = !statsShown.value;
+        };
 
         return { 
           s, 
+          statsShown,
           availableOreList,
           availabeSmithableList,
           availableQuests,
           availableUpgrades,
           currentQuest,
           viewingQuest,
+          toggleStats: () => toggleStats,
           /**
            * @param {Item} item 
            */

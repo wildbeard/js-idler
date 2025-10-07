@@ -12,6 +12,7 @@
 
             .wrapper {
                 display: flex;
+                flex-wrap: wrap;
                 padding: 0 15px;
             }
 
@@ -40,6 +41,40 @@
 
     <body>
         <div class="wrapper">
+            <div 
+                v-if="statsShown"
+                class="stats"
+                style="flex: 1 0 100%;">
+                <p>Lifetime Gold: {{ s.stats.lifetime_wealth }}</p>
+
+                <p>Gathered Material</p>
+                <ul>
+                    <li
+                        v-for="gather in s.stats.gathered"
+                        :key="gather.item_id">
+                        {{ `${getItem(gather.item_id)?.name}: ${gather.value}` }}
+                    </li>
+                </ul>
+
+                <p>Crafted Items</p>
+                <ul>
+                    <li
+                        v-for="craft in s.stats.crafts"
+                        :key="craft.item_id">
+                        {{ `${getItem(craft.item_id)?.name}: ${craft.value}` }}
+                    </li>
+                </ul>
+
+                <p>Gold from Selling</p>
+                <ul>
+                    <li
+                        v-for="sale in s.stats.sales"
+                        :key="sale.item_id">
+                        {{ `${getItem(sale.item_id)?.name}: ${sale.value}gp` }}
+                    </li>
+                </ul>
+            </div>
+
             <div id="sidebar">
                 <div>
                     <p>Levels</p>
