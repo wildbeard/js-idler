@@ -1,8 +1,11 @@
 ### Why This Looks Like Shit
 
 Okay so I am writing this code on a computer that I can't use JS runtimes like Node on.
-Everything is in one single file because of this as using `fetch` on local filesystems is now considered CORS and I honestly just can't be bothered to care about dealing with that.
-Could I create multiple script files, bind variables to the window, and access them that way? Absolutely. Will I? No.
+
+Everything is in one single file because using `fetch` on local filesystems is now considered CORS and I honestly just can't be bothered to care about dealing with that.
+
+Could I create multiple script files, bind variables to the window, and access them that way? Absolutely.
+Will I? No.
 
 ### Why Am I Doing This?
 
