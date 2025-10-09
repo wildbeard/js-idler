@@ -1946,7 +1946,6 @@
 
       state.value.assistants.push(hiredAssistant);
       updateAssistantJobs(hiredAssistant.id, state);
-      configuringAssistant.value = state.value.assistants[state.value.assistants.length - 1];
     };
 
     /**
@@ -2215,20 +2214,20 @@
            */
           canUpgradeUpgrade: (upgrade) => canUpgradeUpgrade(upgrade, s),
           canHireAssistant: (assistant) => canHireAssistant(assistant, s),
-          hireAssistant: (assistant) => hireAssistant(assistant, s),
+          hireAssistant: (assistant) => {
+            hireAssistant(assistant, s);
+            configuringAssistant.value = s.value.assistants[s.value.assistants.length - 1];
+          },
           /**
            * @param {PurchasedAssistant} purchasedAssistant 
            */
           editAssistant: (purchasedAssistant) => {
             configuringAssistant.value = purchasedAssistant;
-            // References :)
-            configuringAssistantConfig.value = JSON.parse(JSON.stringify(purchasedAssistant.config));
           },
           /**
            * @param {PurchasedAssistant} purchasedAssistant 
-           * @param {PurchasedAssistant['config']} config 
            */
-          saveAssistantConfig: (purchasedAssistant, config) => {
+          saveAssistantConfig: (purchasedAssistant) => {
             const idx = s.value.assistants.findIndex((a) => a.id === purchasedAssistant.id);
 
             if (idx === -1) {
@@ -2238,7 +2237,6 @@
 
             s.value.assistants[idx] = JSON.parse(JSON.stringify(purchasedAssistant));
             configuringAssistant.value = null;
-            configuringAssistantConfig.value = null;
 
             updateAssistantJobs(s.value.assistants[idx].id, s);
           },
