@@ -174,7 +174,7 @@
                             v-for="assistant in s.assistants"
                             :key="assistant.id">
                             {{ assistant.name }} <br>
-                            Assistant Speed: {{ assistant.interval / 1000 }}s<br>
+                            Assistant Speed: {{ (assistant.interval / 1000).toFixed(2) }}s<br>
                             Assistant is: {{ getAssistantJob(assistant) }}<br>
                             <button
                                 type="button"

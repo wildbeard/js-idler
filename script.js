@@ -1275,7 +1275,7 @@
     ];
 
     /** @type {Assistant[]} */
-    const assistants = [
+    let assistants = [
       /*
       {
         id: 'mining_assistant',
@@ -1984,6 +1984,10 @@
         hiredAssistant.config[skill] = avail.map((i) => i.item_id);
       }
 
+      if (assistant.perk.affects === 'interval') {
+        hiredAssistant.interval -= hiredAssistant.interval * assistant.perk.value;
+      }
+
       state.value.assistants.push(hiredAssistant);
       updateAssistantJobs(hiredAssistant.id, state);
     };
@@ -2245,6 +2249,11 @@
           statsShown.value = !statsShown.value;
         };
 
+        // Every 3 minutes give the user a new assistant to hire
+        setInterval(() => {
+          assistants.push(generateRandomAssistant(s));
+        }, 180000);
+
         return { 
           s, 
           items,
@@ -2384,6 +2393,7 @@
           },
           hireAssistant: (assistant) => {
             hireAssistant(assistant, s);
+            assistants = [];
             configuringAssistant.value = s.value.assistants[s.value.assistants.length - 1];
           },
           /**
@@ -2417,7 +2427,7 @@
            * @returns {string}
            */
           getAssistantJob: (purchasedAssistant) => {
-            return assistants.find((a) => a.id === purchasedAssistant.assistant_id)?.skills.join(',') ?? 'N/A';
+            return s.value.assistants.find((a) => a.id === purchasedAssistant.id)?.skills.join(',') ?? 'N/A';
           },
           /**
            * @param {PurchasedAssistant} purchasedAssistant 
