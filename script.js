@@ -73,6 +73,13 @@
  * @property {string} description
  * @property {string[]} skills
  * @property {{
+*   skill: 'mining' | 'smithing' | 'selling',
+*   affects: 'xp' | 'yield' | 'interval',
+*   value: number,
+*   name: string,
+*   description: string,
+ * }} perk
+ * @property {{
  *  level: number,
  *  cost: number,
  *  value: number,
@@ -1269,8 +1276,9 @@
       },
     ];
 
-    /** @var {Assistant[]} */
+    /** @type {Assistant[]} */
     const assistants = [
+      /*
       {
         id: 'mining_assistant',
         name: 'Mining Assistant',
@@ -1318,13 +1326,10 @@
             }
           }
         ],
-        /**
-         * @param {{mining: string[], smithing: string[], selling: string[] }} config 
-         * @param {{ value: State }} state 
-         */
         fn: (config, state) => {
         }
       }
+      */
     ];
 
     /** @type {State} */
@@ -1916,9 +1921,7 @@
      */
     const hireAssistant = (assistant, state) => {
       const id = Math.floor(Math.random() * 1000);
-      /**
-       * @var {PurchasedAssistant} hiredAssistant
-       */
+      /** @type {PurchasedAssistant} hiredAssistant */
       const hiredAssistant = {
         id: id,
         assistant_id: assistant.id,
@@ -2071,12 +2074,122 @@
       return true;
     }
 
+    /**
+     * @param {'mining' | 'smithing' | 'selling'} skill
+     * @param {{ value: State }} state 
+     * @returns {{
+     *  skill: 'mining' | 'smithing' | 'selling',
+     *  affects: 'xp' | 'yield' | 'interval',
+     *  value: number,
+     *  name: string,
+     *  description: string,
+     * }}
+     */
+    const generateAssistantPerk = (skill, state) => {
+      const opt = ['xp', 'yield', 'selling', 'interval']
+        .sort(() => Math.floor(Math.random() * 3) - Math.floor(Math.random() * 3))[0]
+      // @TODO: Weighted value based on the player's current skill level
+      const rngAmount = Math.random();
+      const percent = Math.floor(rngAmount * 100);
+      let name = '';
+      let desc = '';
+
+      if (opt === 'selling') {
+        name = 'Bonus Gold';
+        desc = `Increase gold from sales by ${percent}%`;
+      } else if (opt === 'interval') {
+        name = 'Faster Assistant Speed';
+        desc = `Assistant works ${percent}% faster`;
+      } else if (opt === 'xp') {
+        name = 'Bonus Experience';
+        desc = `Assistant yields ${percent}% more experience`;
+      } else if (opt === 'yield') {
+        name = 'Bonus Yield';
+        desc = `Assistant yields ${percent}% more items`;
+      }
+
+      return {
+        skill,
+        name,
+        affects: opt,
+        value: rngAmount,
+        description: desc,
+      };
+    };
+
+    /**
+     * @param {'mining' | 'smithing' | 'selling'} skill 
+     * @param {{
+     *  skill: 'mining' | 'smithing' | 'selling',
+     *  affects: 'xp' | 'yield' | 'interval',
+     *  value: number,
+     *  name: string,
+     *  description: string,
+     * }} perk
+     * @param {{ value: State }} state 
+     * @returns {}
+     */
+    const generateAssistantLevels = (skill, perk, state) => {
+      const baseValues = [
+        2500,
+        1750,
+        1450,
+        950,
+        850,
+      ];
+      const levels = [];
+
+      for (let i = 0; i < 5; i++) {
+        // @TODO: Implement selling "store owner" skill
+        const currLvl = skill === 'selling' ? 1 : state.value.levels[skill];
+        const s = skill === 'selling' ? 'mining' : skill;
+        let value = baseValues[i];
+
+        if (perk.affects === 'interval' ) {
+          value -= value * perk.value;
+        }
+
+        levels.push({
+          value,
+          level: i,
+          cost: Math.ceil(350 + 75 * Math.pow(i, 2) + 175 * i),
+          requirements: {
+            [perk.skill]:  Math.ceil(currLvl + 0.75 * Math.pow(i, 2) + 1.5 * i),
+          }
+        });
+      }
+
+      return levels;
+    };
+
+    /**
+     * @param {{ value: State }} state 
+     * @returns {Assistant}
+     */
+    const generateRandomAssistant = (state) => {
+      const skills = ['mining', 'smithing', 'selling'];
+      const skill = skills.sort(() => Math.floor(Math.random() * 3) - Math.floor(Math.random() * 3))[0];
+      const perk = generateAssistantPerk(skill, state);
+      const id = Math.floor(Math.random() * 100000);
+      /** @type {Assistant} */
+      const assistant = {
+        id,
+        name: `Conehead ${id}`,
+        skills: [skill],
+        perk: perk,
+        upgrades: generateAssistantLevels(perk, skill, state),
+      };
+
+      return assistant;
+    };
+
     const { createApp, ref, computed } = Vue;
 
     createApp({
       setup() {
-        /** @var {{ value: State }} s */
+        /** @type {{ value: State }} s */
         const s = ref({ ...state });
+        assistants.push(generateRandomAssistant(s));
         const statsShown = ref(false);
         const currentQuest = ref(null);
         const viewingQuest = ref(null);

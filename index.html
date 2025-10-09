@@ -207,6 +207,7 @@
                         <li v-for="assistant in availableAssistants" :key="assistant.id">
                             Name: {{ assistant.name }} <br>
                             Skills: {{ assistant.skills.join(',') }} <br>
+                            Perk: {{ assistant.perk.description }} <br>
                             <button
                                 type="button"
                                 :disabled="!canHireAssistant(assistant)"
