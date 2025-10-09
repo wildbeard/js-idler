@@ -92,15 +92,13 @@
  */
 
 /**
+ * @TODO Figure out why this doesn't work
  * @typedef PurchasedAssistant
- * @type {object}
+ * @extends Assistant
  *
- * @property {string} id ID unique to this assistant
- * @property {string} assistant_id The parent ID
+ * @property {number} level 
  * @property {number} interval_id
  * @property {number} interval
- * @property {string} name
- * @property {number} level 
  * @property {{
  *  mining: string[],
  *  smithing: string[],
@@ -1460,21 +1458,37 @@
       if (gathered > 0) {
         updateXp(state, 'mining', item.xp_given);
         updateInventory(state, item.item_id, gathered);
-
-        let idx = state.value.stats.gathers.findIndex((i) => i.item_id === item.item_id);
-
-        if (idx === -1) {
-          state.value.stats.gathers.push({
-            item_id: item.item_id,
-            value: 0,
-          });
-          idx = state.value.stats.gathers.length - 1;
-        }
-
-        state.value.stats.gathers[idx].value += gathered;
+        updateStats(state, 'gathers', item, gathered);
       } else {
         // @TODO: Add some visual logs for the user!
       }
+    };
+
+    /**
+     * @param {{ value: State }} state 
+     * @param {PurchasedAssistant} assistant 
+     * @param {Item} item 
+     */
+    const assistantDidMine = (state, assistant, item) => {
+      let gathered = mine(state, item);
+      let xp = item.xp_given;
+
+      if (gathered === 0) {
+        return;
+      }
+
+      if (assistant.perk.affects === 'xp') {
+        xp = item.xp_given + Math.floor((item.xp_given * assistant.perk.value));
+      } else if (assistant.perk.affects === 'yield') {
+        // Okay but like 1 + 25%, rounded down, is still only 1. Jesus. I am good at game design.
+        // Fuck it, give em a random amount between 0-3
+        // I could make it +% chance to get additional items between 0-3 but fuck it I already wrote this.
+        gathered += Math.floor(Math.random() * (3 - 0 + 1) + 0);
+      }
+
+      updateXp(state, 'mining', xp);
+      updateInventory(state, item.item_id, gathered);
+      updateStats(state, 'gathers', item, gathered);
     };
 
     /**
@@ -1643,6 +1657,32 @@
       }
 
       state.value.gold -= cost;
+    };
+
+    /**
+     * 
+     * @param {{ value: State }} state 
+     * @param {'sales' | 'crafts' | 'gathers'} stat 
+     * @param {Item?} item 
+     * @param {number} value 
+     */
+    const updateStats = (state, stat, item, value) => {
+      if (stat === 'sales') {
+        state.value.stats.lifetime_wealth += value;
+        return;
+      }
+
+      let idx = state.value.stats[stat].findIndex((i) => i.item_id === item.item_id);
+
+      if (idx === -1) {
+        state.value.stats[stat].push({
+          item_id: item.item_id,
+          value: 0,
+        });
+        idx = state.value.stats[stat].length - 1;
+      }
+
+      state.value.stats[stat][idx].value += value;
     };
 
     /**
@@ -1920,14 +1960,11 @@
      * @param {{ value: State }} state 
      */
     const hireAssistant = (assistant, state) => {
-      const id = Math.floor(Math.random() * 1000);
       /** @type {PurchasedAssistant} hiredAssistant */
       const hiredAssistant = {
-        id: id,
-        assistant_id: assistant.id,
+        ...assistant,
         interval_id: null,
         interval: assistant.upgrades[0].value,
-        name: `Conehead #${id}`,
         level: 0,
         config: {
           mining: [],
@@ -2007,7 +2044,7 @@
 
         switch (key) {
           case 'mining':
-            actionFn = userDidMine;
+            actionFn = assistantDidMine;
             actionableItems = items.filter((i) => i.skill === 'mining' && assistant.config[key].includes(i.item_id));
           break;
 
@@ -2031,7 +2068,11 @@
             const rngB = Math.floor(Math.random() * actionableItems.length);
             const actionItem = actionableItems.sort(() => rngA - rngB)[0];
 
-            actionFn(state, actionItem);
+            if (actionFn === assistantDidMine) {
+              actionFn(state, assistant, actionItem);
+            } else {
+              actionFn(state, actionItem);
+            }
           });
         }
       }
@@ -2079,7 +2120,7 @@
      * @param {{ value: State }} state 
      * @returns {{
      *  skill: 'mining' | 'smithing' | 'selling',
-     *  affects: 'xp' | 'yield' | 'interval',
+     *  affects: 'xp' | 'selling' | 'yield' | 'interval',
      *  value: number,
      *  name: string,
      *  description: string,
@@ -2327,6 +2368,20 @@
            */
           canUpgradeUpgrade: (upgrade) => canUpgradeUpgrade(upgrade, s),
           canHireAssistant: (assistant) => canHireAssistant(assistant, s),
+          /**
+           * @param {Assistant} assistant 
+           * @returns {number}
+           */
+          getAssistantCost: (assistant) => {
+            const hired = s.value.assistants.find((a) => a.id === assistant.id);
+
+            if (!hired) {
+              return assistant.upgrades[0].cost;
+            }
+
+            const lvl = hired.level + 1;
+            return hired.upgrades.find((u) => u.level === lvl)?.cost;
+          },
           hireAssistant: (assistant) => {
             hireAssistant(assistant, s);
             configuringAssistant.value = s.value.assistants[s.value.assistants.length - 1];
