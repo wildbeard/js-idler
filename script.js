@@ -1480,10 +1480,9 @@
       if (assistant.perk.affects === 'xp') {
         xp = item.xp_given + Math.floor((item.xp_given * assistant.perk.value));
       } else if (assistant.perk.affects === 'yield') {
-        // Okay but like 1 + 25%, rounded down, is still only 1. Jesus. I am good at game design.
-        // Fuck it, give em a random amount between 0-3
-        // I could make it +% chance to get additional items between 0-3 but fuck it I already wrote this.
-        gathered += Math.floor(Math.random() * (3 - 0 + 1) + 0);
+        if (Math.random() < assistant.perk.value) {
+          gathered += Math.floor(Math.random() * (3 - 1 + 1) + 1);
+        }
       }
 
       updateXp(state, 'mining', xp);
@@ -1544,6 +1543,46 @@
       result.result.forEach((invUpdate) =>
         updateInventory(state, invUpdate.item_id, invUpdate.quantity),
       );
+    };
+
+    /**
+     * @param {{ value: State }} state 
+     * @param {PurchasedAssistant} assistant 
+     * @param {Item} item 
+     */
+    const assistantDidSmith = (state, assistant, item) => {
+      if (!hasIngredientsFor(state, item)) {
+        return;
+      }
+
+      const result = smith(state, item);
+
+      if (result.success) {
+        let xp = item.xp_given;
+
+        if (assistant.perk.affects === 'xp') {
+          xp = item.xp_given + Math.floor((item.xp_given * assistant.perk.value));
+        } else if (assistant.perk.affects === 'yield') {
+          if (Math.random() < assistant.perk.value) {
+            const extra = Math.floor(Math.random() * (3 - 1 + 1) + 1);
+            let total = extra;
+
+            result.result.forEach((i) => {
+              if (i.item_id === item.item_id) {
+                total += i.quantity;
+                i.quantity += extra;
+              }
+            });
+          
+            updateStats(state, 'crafts', item, total);
+          }
+        }
+      
+        updateXp(state, 'smithing', xp);
+        result.result.forEach((invUpdate) => 
+          updateInventory(state, invUpdate.item_id, invUpdate.quantity)
+        );
+      }
     };
 
     /**
@@ -1738,6 +1777,29 @@
      */
     const userDidSell = (state, item) => {
       sellItem(state, item);
+      updateInventory(state, item.item_id, -1);
+    };
+
+    /**
+     * @param {{ value: State }} state 
+     * @param {PurchasedAssistant} assistant 
+     * @param {Item} item 
+     */
+    const assistantDidSell = (state, assistant, item) => {
+      // @TODO: Figure out why getAssistantJobFunctions isn't handling this!!
+      if (!state.value.inventory.find((i) => i.item_id === item.item_id && i.quantity > 0)) {
+        console.log(`Not enough inventory for assistant to sell ${item.name}`);
+        return;
+      }
+
+      let gold = item.value;
+
+      if (assistant.perk.affects === 'selling') {
+        gold += Math.ceil((gold * assistant.perk.value));
+      }
+
+      state.value.gold += gold;
+      updateStats(state, 'sales', null, gold);
       updateInventory(state, item.item_id, -1);
     };
 
@@ -2053,12 +2115,12 @@
           break;
 
           case 'smithing':
-            actionFn = userDidSmith;
+            actionFn = assistantDidSmith;
             actionableItems = items.filter((i) => i.skill === 'smithing' && assistant.config[key].includes(i.item_id));
           break;
 
           case 'selling':
-            actionFn = userDidSell;
+            actionFn = assistantDidSell;
             actionableItems = items.filter((i) => 
               state.value.inventory.find((ii) => ii.item_id === i.item_id && ii.quantity > 0)
               && assistant.config[key].includes(i.item_id)
@@ -2072,10 +2134,8 @@
             const rngB = Math.floor(Math.random() * actionableItems.length);
             const actionItem = actionableItems.sort(() => rngA - rngB)[0];
 
-            if (actionFn === assistantDidMine) {
+            if (actionFn && actionItem) {
               actionFn(state, assistant, actionItem);
-            } else {
-              actionFn(state, actionItem);
             }
           });
         }
@@ -2131,9 +2191,18 @@
      * }}
      */
     const generateAssistantPerk = (skill, state) => {
-      const opt = ['xp', 'yield', 'selling', 'interval']
-        .sort(() => Math.floor(Math.random() * 3) - Math.floor(Math.random() * 3))[0]
+      let opts = [];
+      
+      // @TODO: Perk of saving items during sales & crafting
+      if (skill === 'mining' || skill === 'smithing') {
+        opts = ['xp', 'yield', 'interval'];
+      } else {
+        opts = ['selling', 'interval'];
+      }
+
+      const opt = opts.sort(() => Math.floor(Math.random() * 3) - Math.floor(Math.random() * 3))[0];
       // @TODO: Weighted value based on the player's current skill level
+      // @TODO: We don't want to randomly pick selling if the assistant can't sell
       const rngAmount = Math.random();
       const percent = Math.floor(rngAmount * 100);
       let name = '';
@@ -2150,7 +2219,7 @@
         desc = `Assistant yields ${percent}% more experience`;
       } else if (opt === 'yield') {
         name = 'Bonus Yield';
-        desc = `Assistant yields ${percent}% more items`;
+        desc = `Assistant has a ${percent}% to yield more items`;
       }
 
       return {
