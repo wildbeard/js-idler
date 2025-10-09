@@ -1924,7 +1924,7 @@
         assistant_id: assistant.id,
         interval_id: null,
         interval: assistant.upgrades[0].value,
-        name: `Generic Assistant ${id}`,
+        name: `Conehead #${id}`,
         level: 0,
         config: {
           mining: [],
