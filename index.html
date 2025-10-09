@@ -212,7 +212,7 @@
                                 type="button"
                                 :disabled="!canHireAssistant(assistant)"
                                 @click="hireAssistant(assistant)">
-                                Hire
+                                Hire for {{ getAssistantCost(assistant) }}
                             </button>
                         </li>
                     </ul>
