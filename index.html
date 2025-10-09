@@ -35,12 +35,52 @@
                 border: 1px solid black;
                 border-radius: 0.25rem;
             }
+
+            .assistant-config {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 450px;
+                height: 450px;
+                padding: 15px;
+                background: white;
+                border: 1px solid black;
+                border-radius: 0.5rem;;
+                transform: translate(-50%, -50%);
+            }
         </style>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     </head>
 
     <body>
         <div class="wrapper">
+            <div 
+                v-if="configuringAssistant"
+                class="assistant-config">
+                <p>{{ configuringAssistant.name }}</p>
+                <p>{{ configuringAssistant.name }} will randomly perform one of the following tasks:</p>
+            
+                <!-- Hard coding this for now -->
+                Mining
+                <ul>
+                    <li v-for="item in items.filter((i) => i.skill === 'mining' && i.level <= s.levels.mining)">
+                        <label>
+                            <input 
+                                type="checkbox" 
+                                :checked="configuringAssistant.config.mining.includes(item.item_id)"
+                                @click="toggleAssistantJob(configuringAssistant, 'mining', item.item_id)">
+                            {{ getItem(item.item_id)?.name }}
+                        </label>
+                    </li>
+                </ul>
+
+                <div style="text-align: right;">
+                    <button
+                        style="margin-right: 15px;"
+                        @click="saveAssistantConfig(configuringAssistant)">Save</button>
+                    <button @click="() => {configuringAssistant = null}">Cancel</button>
+                </div>
+            </div>
             <div 
                 v-if="statsShown"
                 class="stats"
@@ -128,6 +168,25 @@
                 </div>
 
                 <div>
+                    <p>Hired Assistants</p>
+                    <ul>
+                        <li
+                            v-for="assistant in s.assistants"
+                            :key="assistant.id">
+                            {{ assistant.name }} <br>
+                            Assistant Speed: {{ assistant.interval / 1000 }}s<br>
+                            Assistant is: {{ getAssistantJob(assistant) }}<br>
+                            <button
+                                type="button"
+                                @click="upgradeAssistant(assistant)">Train</button>
+                            <button
+                                type="button"
+                                @click="editAssistant(assistant)">Edit Job</button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
                     <p>Upgrades</p>
                     <ul class="available-upgrades">
                         <li v-for="upgrade in availableUpgrades" :key="upgrade.id">
@@ -139,6 +198,26 @@
                         </li>
                     </ul>
                 </div>
+
+                <div>
+                    <p>Available Assistants</p>
+                    <ul 
+                        v-if="availableAssistants"
+                        class="available-assistants">
+                        <li v-for="assistant in availableAssistants" :key="assistant.id">
+                            Name: {{ assistant.name }} <br>
+                            Skills: {{ assistant.skills.join(',') }} <br>
+                            <button
+                                type="button"
+                                :disabled="!canHireAssistant(assistant)"
+                                @click="hireAssistant(assistant)">
+                                Hire
+                            </button>
+                        </li>
+                    </ul>
+                    <p v-else>None Available</p>
+                </div>
+
                 <div>
                     <p>Quests</p>
                     <ul class="available-quests">

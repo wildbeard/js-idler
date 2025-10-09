@@ -71,6 +71,7 @@
  * @property {string} id
  * @property {string} name
  * @property {string} description
+ * @property {string[]} skills
  * @property {{
  *  level: number,
  *  cost: number,
@@ -80,13 +81,17 @@
  *    smithing: number?,
  *  }
  * }[]} upgrades
+ * @property {function} fn
  */
 
 /**
- * @typedef PurchasedAssitant
+ * @typedef PurchasedAssistant
  * @type {object}
  *
- * @property {string} id
+ * @property {string} id ID unique to this assistant
+ * @property {string} assistant_id The parent ID
+ * @property {number} interval_id
+ * @property {number} interval
  * @property {string} name
  * @property {number} level 
  * @property {{
@@ -122,7 +127,7 @@
  * @property {{item_id: string, quantity: number}[]} inventory
  * @property {{ quest_id: number, step: number, complete: bool, }[]} quests_started
  * @property {string[]} quests_completed
- * @property {PurchasedAssitant[]} assistants
+ * @property {PurchasedAssistant[]} assistants
  */
 
 (
@@ -1270,6 +1275,7 @@
         id: 'mining_assistant',
         name: 'Mining Assistant',
         description: 'This guy right here? He\'ll mine for ya.',
+        skills: ['mining'],
         upgrades: [
           {
             level: 0,
@@ -1312,6 +1318,12 @@
             }
           }
         ],
+        /**
+         * @param {{mining: string[], smithing: string[], selling: string[] }} config 
+         * @param {{ value: State }} state 
+         */
+        fn: (config, state) => {
+        }
       }
     ];
 
@@ -1898,18 +1910,183 @@
       }
     };
 
+    /**
+     * @param {Assistant} assistant 
+     * @param {{ value: State }} state 
+     */
+    const hireAssistant = (assistant, state) => {
+      const id = Math.floor(Math.random() * 1000);
+      /**
+       * @var {PurchasedAssistant} hiredAssistant
+       */
+      const hiredAssistant = {
+        id: id,
+        assistant_id: assistant.id,
+        interval_id: null,
+        interval: assistant.upgrades[0].value,
+        name: `Generic Assistant ${id}`,
+        level: 0,
+        config: {
+          mining: [],
+          smithing: [],
+          selling: [],
+        },
+      };
+      
+      for (const skill of assistant.skills) {
+        let avail = [];
+
+        // Default to doing nothing for selling for now
+        if (skill !== 'selling') {
+          avail = items.filter((i) => i.skill === skill && i.level <= state.value.levels[skill]);
+        }
+
+        hiredAssistant.config[skill] = avail.map((i) => i.item_id);
+      }
+
+      state.value.assistants.push(hiredAssistant);
+      updateAssistantJobs(hiredAssistant.id, state);
+      configuringAssistant.value = state.value.assistants[state.value.assistants.length - 1];
+    };
+
+    /**
+     * @param {string} assistantId 
+     * @param {{ mining: string[], smithing: string[], selling: string[] }} newConfig 
+     * @param {{ value: State }} state 
+     */
+    const updateAssistantConfig = (assistantId, newConfig, state) => {
+      const idx = state.value.assistants.find((a) => a.id === assistantId);
+
+      if (idx === -1) {
+        return;
+      }
+
+      for (const key in newConfig) {
+        state.value.assistants[idx].config[key] = newConfig[string]
+      }
+    };
+
+    /**
+     * @param {string} assistantId 
+     * @param {{ value: State }} state 
+     */
+    const updateAssistantJobs = (assistantId, state) => {
+      const idx = state.value.assistants.findIndex((a) => a.id === assistantId);
+
+      if (idx === -1) {
+        console.log(`assistant (${assistantId}) not found`);
+        return;
+      }
+
+      const assistant = state.value.assistants[idx];
+      const jobs = getAssistantJobFunctions(assistant, state);
+
+      clearInterval(assistant.interval_id);
+      assistant.interval_id = setInterval(() => {
+        for (const job of jobs) {
+          job();
+        }
+      }, assistant.interval);
+    };
+
+    /**
+     * @TODO Okay so technically this gives the PLAYER xp for the action of the assistant.
+     * 
+     * @param {PurchasedAssistant} assistantId 
+     * @param {{ value: State }} state 
+     * @returns {function[]}
+     */
+    const getAssistantJobFunctions = (assistant, state) => {
+      const jobs = [];
+
+      for (const key in assistant.config) {
+        let actionFn;
+        let actionableItems;
+
+        switch (key) {
+          case 'mining':
+            actionFn = userDidMine;
+            actionableItems = items.filter((i) => i.skill === 'mining' && assistant.config[key].includes(i.item_id));
+          break;
+
+          case 'smithing':
+            actionFn = userDidSmith;
+            actionableItems = items.filter((i) => i.skill === 'smithing' && assistant.config[key].includes(i.item_id));
+          break;
+
+          case 'selling':
+            actionFn = userDidSell;
+            actionableItems = items.filter((i) => 
+              state.value.inventory.find((ii) => ii.item_id === i.item_id && ii.quantity > 0)
+              && assistant.config[key].includes(i.item_id)
+            );
+          break;
+        }
+
+        if (actionFn && actionableItems.length) {
+          jobs.push(() => {
+            const rngA = Math.floor(Math.random() * actionableItems.length);
+            const rngB = Math.floor(Math.random() * actionableItems.length);
+            const actionItem = actionableItems.sort(() => rngA - rngB)[0];
+
+            actionFn(state, actionItem);
+          });
+        }
+      }
+
+      return jobs;
+    }
+
+    /**
+     * @TODO I should honestly standardize upgrades, including assistants, so
+     * I don't have to keep re-doing this logic.
+     * 
+     * @param {Assistant} assistant 
+     * @param {{ value: State }} state 
+     * @returns {bool}
+     */
+    const canHireAssistant = (assistant, state) => {
+      const currLvl = state.value.assistants.find((a) => a.assistant_id === assistant.id);
+      const nextLvl = currLvl ? currLvl.level + 1 : 0;
+      const requirements = assistant.upgrades.find((u) => u.level === nextLvl);
+      
+      return state.value.gold > requirements.cost && hasRequirementsForAssistant(assistant, state);
+    };
+
+    /**
+     * @param {Assistant} assistant 
+     * @param {{ value: State }} state 
+     * @returns {bool}
+     */
+    const hasRequirementsForAssistant = (assistant, state) => {
+      const currLvl = state.value.assistants.find((a) => a.assistant_id === assistant.id);
+      const nextLvl = currLvl ? currLvl.level + 1 : 0;
+      const requirements = assistant.upgrades.find((u) => u.level === nextLvl);
+
+      for (const key in requirements.requirements) {
+        if (state.value.levels[key] < requirements.requirements[key]) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
     const { createApp, ref, computed } = Vue;
 
     createApp({
       setup() {
+        /** @var {{ value: State }} s */
         const s = ref({ ...state });
         const statsShown = ref(false);
         const currentQuest = ref(null);
         const viewingQuest = ref(null);
+        const configuringAssistant = ref(null);
         const availableOreList = computed(() => items.filter((i) => i.skill === 'mining' && i.level <= s.value.levels.mining));
         const availabeSmithableList = computed(() => items.filter((i) => i.skill === 'smithing' && i.level <= s.value.levels.smithing));
         const availableQuests = computed(() => quests.filter((q) => !s.value.quests_completed.includes(q.id)));
         const availableUpgrades = computed(() => allUpgrades.filter((u) => hasRequirementsForUpgrade(u, s)));
+        const availableAssistants = computed(() => assistants.filter((a) => hasRequirementsForAssistant(a, s)));
         // hehexdd
         window.toggleStats = () => {
           statsShown.value = !statsShown.value;
@@ -1917,13 +2094,16 @@
 
         return { 
           s, 
+          items,
           statsShown,
           availableOreList,
           availabeSmithableList,
           availableQuests,
           availableUpgrades,
+          availableAssistants,
           currentQuest,
           viewingQuest,
+          configuringAssistant,
           toggleStats: () => toggleStats,
           /**
            * @param {Item} item 
@@ -2034,6 +2214,57 @@
            * @returns {bool}
            */
           canUpgradeUpgrade: (upgrade) => canUpgradeUpgrade(upgrade, s),
+          canHireAssistant: (assistant) => canHireAssistant(assistant, s),
+          hireAssistant: (assistant) => hireAssistant(assistant, s),
+          /**
+           * @param {PurchasedAssistant} purchasedAssistant 
+           */
+          editAssistant: (purchasedAssistant) => {
+            configuringAssistant.value = purchasedAssistant;
+            // References :)
+            configuringAssistantConfig.value = JSON.parse(JSON.stringify(purchasedAssistant.config));
+          },
+          /**
+           * @param {PurchasedAssistant} purchasedAssistant 
+           * @param {PurchasedAssistant['config']} config 
+           */
+          saveAssistantConfig: (purchasedAssistant, config) => {
+            const idx = s.value.assistants.findIndex((a) => a.id === purchasedAssistant.id);
+
+            if (idx === -1) {
+              console.log(`unable to update ${purchasedAssistant.id}`);
+              return;
+            }
+
+            s.value.assistants[idx] = JSON.parse(JSON.stringify(purchasedAssistant));
+            configuringAssistant.value = null;
+            configuringAssistantConfig.value = null;
+
+            updateAssistantJobs(s.value.assistants[idx].id, s);
+          },
+          /**
+           * @param {PurchasedAssistant} purchasedAssistant 
+           */
+          upgradeAssistant: (purchasedAssistant) => {},
+          /**
+           * @param {PurchasedAssistant} purchasedAssistant 
+           * @returns {string}
+           */
+          getAssistantJob: (purchasedAssistant) => {
+            return assistants.find((a) => a.id === purchasedAssistant.assistant_id)?.skills.join(',') ?? 'N/A';
+          },
+          /**
+           * @param {PurchasedAssistant} purchasedAssistant 
+           * @param {'mining' | 'smithing' | 'selling'} jobType
+           * @param {string} itemId 
+           */
+          toggleAssistantJob: (purchasedAssistant, jobType, itemId) => {
+            if (purchasedAssistant.config[jobType].includes(itemId)) {
+              purchasedAssistant.config[jobType] = purchasedAssistant.config[jobType].filter((i) => i !== itemId);
+            } else {
+              purchasedAssistant.config[jobType].push(itemId);
+            }
+          }
         };
       }
     })
