@@ -21,7 +21,7 @@ No.
 
 ### Why Are You Using JS and Not TS?
 
-No.
+I am very limited in what tools I can use at the moment. And besides, JSDoc is the OG and should be given more respect.
 
 ### A Final Note
 
