@@ -126,6 +126,11 @@
  *  sales: { item_id: string, value: number }[],
  *  gathers: { item_id: string, value: number }[],
  * }} stats
+ * @property {{
+ *  max_assistants: number,
+ *  max_available_assistants: number,
+ *  assistant_refresh_rate: number,
+ * }} global_variables
  * @property {{mining: number, smithing: number}} levels
  * @property {{mining: number, mining_next_leve: number; smithing_next_level: number, smithing: number}} xp
  * @property {PurchasedUpgrade[]} upgrades
@@ -1275,7 +1280,7 @@
     ];
 
     /** @type {Assistant[]} */
-    let assistants = [
+    const ass = [
       /*
       {
         id: 'mining_assistant',
@@ -1351,6 +1356,11 @@
         smithing_xp_level: 0,
         smithing: 0,
         smithing_next_level: 83,
+      },
+      global_variables: {
+        max_assistants: 3,
+        max_available_assistants: 2,
+        assistant_refresh_rate: 180000,
       },
       upgrades: [],
       assistants: [],
@@ -2303,7 +2313,8 @@
       setup() {
         /** @type {{ value: State }} s */
         const s = ref({ ...state });
-        assistants.push(generateRandomAssistant(s));
+        /** @type {{ value: Assistant[] }} */
+        const assistants = ref([generateRandomAssistant(s)]);
         const statsShown = ref(false);
         const currentQuest = ref(null);
         const viewingQuest = ref(null);
@@ -2312,7 +2323,7 @@
         const availabeSmithableList = computed(() => items.filter((i) => i.skill === 'smithing' && i.level <= s.value.levels.smithing));
         const availableQuests = computed(() => quests.filter((q) => !s.value.quests_completed.includes(q.id)));
         const availableUpgrades = computed(() => allUpgrades.filter((u) => hasRequirementsForUpgrade(u, s)));
-        const availableAssistants = computed(() => assistants.filter((a) => hasRequirementsForAssistant(a, s)));
+        const availableAssistants = computed(() => assistants.value.filter((a) => hasRequirementsForAssistant(a, s)));
         // hehexdd
         window.toggleStats = () => {
           statsShown.value = !statsShown.value;
@@ -2320,8 +2331,11 @@
 
         // Every 3 minutes give the user a new assistant to hire
         setInterval(() => {
-          assistants.push(generateRandomAssistant(s));
-        }, 180000);
+          if (s.value.assistants.length < s.value.global_variables.max_available_assistants) {
+            console.log('getting a new assistant');
+            assistants.value.push(generateRandomAssistant(s));
+          }
+        }, s.value.global_variables.assistant_refresh_rate);
 
         return { 
           s, 
@@ -2462,7 +2476,7 @@
           },
           hireAssistant: (assistant) => {
             hireAssistant(assistant, s);
-            assistants = [];
+            assistants.value = assistants.value.filter((a) => a.id !== assistant.value);
             configuringAssistant.value = s.value.assistants[s.value.assistants.length - 1];
           },
           /**
