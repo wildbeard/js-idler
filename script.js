@@ -424,7 +424,7 @@
             },
           },
         ],
-        fn: (s) => userDidMine(s, items.find((i) => i.item_id === 'copper_ore')),
+        fn: (s) => autoerAction(s, items.find((i) => i.item_id === 'copper_ore'), 'mining'),
       },
       {
         id: 'automine_tin',
@@ -476,7 +476,7 @@
             },
           },
         ],
-        fn: (s) => userDidMine(s, items.find((i) => i.item_id === 'tin_ore')),
+        fn: (s) => autoerAction(s, items.find((i) => i.item_id === 'tin_ore'), 'mining'),
       },
       {
         id: 'autosmelt_bronze',
@@ -529,7 +529,7 @@
             },
           },
         ],
-        fn: (s) => userDidSmith(s, items.find((i) => i.item_id === 'bronze_bar')),
+        fn: (s) => autoerAction(s, items.find((i) => i.item_id === 'bronze_bar'), 'smithing'),
       },
       {
         id: 'autoforge_bronze_sword',
@@ -582,7 +582,7 @@
             },
           },
         ],
-        fn: (s) => userDidSmith(s, items.find((i) => i.item_id === 'bronze_sword')),
+        fn: (s) => autoerAction(s, items.find((i) => i.item_id === 'bronze_sword'), 'smithing'),
       },
       {
         id: 'copper_mining_excess',
@@ -769,7 +769,7 @@
               getInventoryItem(s, i.item_id) > 0,
           );
           const rng = Math.floor(Math.random() * availItems.length);
-          sellItem(s, availItems[rng]);
+          autoerAction(s, availItems[rng], 'selling');
         },
       },
       {
@@ -997,7 +997,7 @@
             }
           }
         ],
-        fn: (s) => userDidMine(s, items.find((i) => i.item_id === 'iron_ore')),
+        fn: (s) => autoerAction(s, items.find((i) => i.item_id === 'iron_ore'), 'mining'),
       },
       {
         id: 'automine_coal',
@@ -1057,7 +1057,7 @@
             }
           }
         ],
-        fn: (s) => userDidMine(s, items.find((i) => i.item_id == 'coal')),
+        fn: (s) => autoerAction(s, items.find((i) => i.item_id == 'coal'), 'mining'),
       },
       {
         id: 'autosmelt_iron',
@@ -1117,7 +1117,7 @@
             }
           }
         ],
-        fn: (s) => userDidSmith(s, items.find((i) => i.item_id == 'iron_bar')),
+        fn: (s) => autoerAction(s, items.find((i) => i.item_id == 'iron_bar'), 'smithing'),
       },
       {
         id: 'autosmelt_steel',
@@ -1177,7 +1177,7 @@
             }
           }
         ],
-        fn: (s) => userDidSmith(s, items.find((i) => i.item_id == 'steel_bar')),
+        fn: (s) => autoerAction(s, items.find((i) => i.item_id == 'steel_bar'), 'smithing'),
       }
     ];
 
@@ -1470,6 +1470,41 @@
         updateStats(state, 'gathers', item, gathered);
       } else {
         // @TODO: Add some visual logs for the user!
+      }
+    };
+
+    /**
+     * @param {{ value: State }} state 
+     * @param {Item} item 
+     * @param {'mining' | 'smithing' | 'selling'} action 
+     */
+    const autoerAction = (state, item, action) => {
+      let xp = 0;
+      let yield = 0;
+
+      switch (action) {
+        case 'mining':
+          yield = mine(state, item);
+        break;
+
+        case 'smithing':
+          const result = smith(state, item);
+          yield = result.success ? result.result[0].quantity : 0;
+        break;
+
+        case 'selling':
+          sellItem(state, item);
+        break;
+      }
+
+      if (xp > 0 && action !== 'selling') {
+        updateXp(state, action, xp);
+      }
+
+      if (yield > 0 && action === 'selling') {
+        updateStats(state, 'sales', null, yield);
+      } else if (yield > 0) {
+        updateStats(state, action === 'mining' ? 'gathers' : 'crafts', item, yield);
       }
     };
 
@@ -2036,7 +2071,6 @@
      * @param {{ value: State }} state 
      */
     const hireAssistant = (assistant, state) => {
-      console.log(assistant);
       /** @type {PurchasedAssistant} hiredAssistant */
       const hiredAssistant = {
         ...assistant,
