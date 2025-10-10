@@ -77,13 +77,14 @@
  * @property {string} id
  * @property {string} name
  * @property {string} description
+ * @property {number} cost_per_action
  * @property {string[]} skills
  * @property {{
-*   skill: 'mining' | 'smithing' | 'selling',
-*   affects: 'xp' | 'yield' | 'interval',
-*   value: number,
-*   name: string,
-*   description: string,
+ *   skill: 'mining' | 'smithing' | 'selling',
+ *   affects: 'xp' | 'yield' | 'interval',
+ *   value: number,
+ *   name: string,
+ *   description: string,
  * }} perk
  * @property {{
  *  level: number,
@@ -105,6 +106,7 @@
  * @property {string} id
  * @property {string} name
  * @property {string} description
+ * @property {number} cost_per_action
  * @property {string[]} skills
  * @property {{
  *   skill: 'mining' | 'smithing' | 'selling',
@@ -2167,7 +2169,7 @@
     /**
      * @TODO Okay so technically this gives the PLAYER xp for the action of the assistant.
      * 
-     * @param {PurchasedAssistant} assistantId 
+     * @param {PurchasedAssistant} assistant 
      * @param {{ value: State }} state 
      * @returns {function[]}
      */
@@ -2203,8 +2205,11 @@
             const rngA = Math.floor(Math.random() * actionableItems.length);
             const rngB = Math.floor(Math.random() * actionableItems.length);
             const actionItem = actionableItems.sort(() => rngA - rngB)[0];
+            // @TODO: Is this the best place for this?
+            const canAfford = state.value.gold >= assistant.cost_per_action;
 
-            if (actionFn && actionItem) {
+            if (actionFn && actionItem && canAfford) {
+              state.value.gold -= assistant.cost_per_action;
               actionFn(state, assistant, actionItem);
             }
           });
@@ -2320,6 +2325,8 @@
       const assistant = {
         id,
         name: `Conehead ${id}`,
+        // @TODO Add scaling for cost per action
+        cost_per_action: Math.floor(Math.random() * 10),
         skills: [skill],
         perk: perk,
         upgrades: generateAssistantLevels(perk, skill, state),

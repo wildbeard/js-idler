@@ -222,6 +222,7 @@
                             :key="assistant.id">
                             {{ assistant.name }} <br>
                             Assistant Speed: {{ (assistant.interval / 1000).toFixed(2) }}s<br>
+                            Assistant Wages: {{ assistant.cost_per_action }}gp<br>
                             Assistant is: {{ getAssistantJob(assistant) }}<br>
                             Assistant Perk: {{ assistant.perk.description }}<br>
                             <button
@@ -259,6 +260,7 @@
                             Name: {{ assistant.name }} <br>
                             Skills: {{ assistant.skills.join(',') }} <br>
                             Perk: {{ assistant.perk.description }} <br>
+                            Wages: {{ assistant.cost_per_action }}gp <br>
                             <button
                                 type="button"
                                 :disabled="!canHireAssistant(assistant)"
