@@ -1384,6 +1384,79 @@
     };
 
     /**
+     * @typedef PerkData
+     * @type {object}
+     * @property {string} id
+     * @property {string} name
+     * @property {string} description_template
+     * @property {string[]} skills
+     * @property {'xp' | 'selling' | 'yield' | 'interval' } affects
+     * 
+     * @typedef Perk
+     * @type {object}
+     * @property {string} id
+     * @property {string} name
+     * @property {string} description
+     * @property {number} value
+     * @property {string[]} skills
+     * @property {'xp' | 'selling' | 'yield' | 'interval' } affects
+     */
+    
+    /**
+     * @type {PerkData[]}
+     */
+    const perksData = [
+      {
+        id: 'bonus_experience',
+        name: 'Bonus Experience',
+        description_template: 'Assistant yields &% more experience.',
+        skills: ['mining', 'smithing'],
+        affects: 'xp',
+      },
+      {
+        id: 'bonus_yield',
+        name: 'Bonus Yield',
+        description_template: 'Assistant has a &% chance to yield more items.',
+        skills: ['mining', 'smithing'],
+        affects: 'xp',
+      },
+      {
+        id: 'bonus_gold',
+        name: 'Bonus Gold',
+        description_template: 'Assistant\'s gains &% more gold from sales.',
+        skills: ['selling'],
+        affects: 'selling',
+      },
+      {
+        id: 'faster_interval',
+        name: 'Faster Assistant Speed',
+        description_template: 'Assistant works &% faster.',
+        skills: ['mining', 'smithing', 'selling'],
+        affects: 'interval',
+      }
+    ];
+
+    /**
+     * @param {PerkData} data 
+     * @param {{ value: State }} state 
+     * 
+     * @returns {Perk}
+     */
+    const createPerkFromData = (data, state) => {
+      // @TODO: Weight and scale this value based on the player's levels
+      const value = Math.random();
+
+      return {
+        value,
+        id: data.id,
+        name: data.name,
+        description: data.description_template.replace('&', Math.floor(value * 100)),
+        skills: data.skills,
+        affects: data.affects,
+      };
+    }
+
+    /**
      * @param {{ value: State }} state
      * @param {Item} item
      *
@@ -2192,53 +2265,14 @@
     /**
      * @param {'mining' | 'smithing' | 'selling'} skill
      * @param {{ value: State }} state 
-     * @returns {{
-     *  skill: 'mining' | 'smithing' | 'selling',
-     *  affects: 'xp' | 'selling' | 'yield' | 'interval',
-     *  value: number,
-     *  name: string,
-     *  description: string,
-     * }}
+     * @returns {Perk}
      */
     const generateAssistantPerk = (skill, state) => {
-      let opts = [];
-      
-      // @TODO: Perk of saving items during sales & crafting
-      if (skill === 'mining' || skill === 'smithing') {
-        opts = ['xp', 'yield', 'interval'];
-      } else {
-        opts = ['selling', 'interval'];
-      }
-
-      const opt = opts.sort(() => Math.floor(Math.random() * 3) - Math.floor(Math.random() * 3))[0];
-      // @TODO: Weighted value based on the player's current skill level
-      // @TODO: We don't want to randomly pick selling if the assistant can't sell
-      const rngAmount = Math.random();
-      const percent = Math.floor(rngAmount * 100);
-      let name = '';
-      let desc = '';
-
-      if (opt === 'selling') {
-        name = 'Bonus Gold';
-        desc = `Increase gold from sales by ${percent}%`;
-      } else if (opt === 'interval') {
-        name = 'Faster Assistant Speed';
-        desc = `Assistant works ${percent}% faster`;
-      } else if (opt === 'xp') {
-        name = 'Bonus Experience';
-        desc = `Assistant yields ${percent}% more experience`;
-      } else if (opt === 'yield') {
-        name = 'Bonus Yield';
-        desc = `Assistant has a ${percent}% to yield more items`;
-      }
-
-      return {
-        skill,
-        name,
-        affects: opt,
-        value: rngAmount,
-        description: desc,
-      };
+      const available = perksData.filter((p) => p.skills.includes(skill));
+      const perkData = available.sort(() => 
+        Math.random() * available.length - Math.random() * available.length
+      )[0];
+      return createPerkFromData(perkData, state);
     };
 
     /**
@@ -2266,7 +2300,6 @@
       for (let i = 0; i < 5; i++) {
         // @TODO: Implement selling "store owner" skill
         const currLvl = skill === 'selling' ? 1 : state.value.levels[skill];
-        const s = skill === 'selling' ? 'mining' : skill;
         let value = baseValues[i];
 
         if (perk.affects === 'interval' ) {
@@ -2331,10 +2364,14 @@
 
         // Every 3 minutes give the user a new assistant to hire
         setInterval(() => {
-          if (s.value.assistants.length < s.value.global_variables.max_available_assistants) {
-            console.log('getting a new assistant');
-            assistants.value.push(generateRandomAssistant(s));
+          console.log('getting a new assistant');
+          const assistant = generateRandomAssistant(s);
+
+          if (assistants.value.length > s.value.global_variables.max_available_assistants) {
+            assistants.value.shift();
           }
+
+          assistants.value.push(assistant);
         }, s.value.global_variables.assistant_refresh_rate);
 
         return { 
