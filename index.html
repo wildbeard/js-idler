@@ -313,6 +313,9 @@
                                 <template v-else-if="reward.category === 'money'">
                                     {{ `${reward.value} gold` }}
                                 </template>
+                                <template v-else-if="reward.category === 'assistant'">
+                                    A {{ reward.affects }} assistant
+                                </template>
                             </li>
                         </ul>
                     </div>

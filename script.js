@@ -29,7 +29,7 @@
  * }} requirements
  * @property {{
  *  item_id: string,
- *  category: ('money'|'item'|'experience')
+ *  category: ('money' | 'item' | 'experience' | 'assistant')
  *  affects: string,
  *  value: number,
  * }[]} rewards
@@ -37,7 +37,13 @@
  *  id: number,
  *  name: string,
  *  description: string,
- *  requirements: { items: { item_id: string, value: number }[] }
+ *  requirements: { 
+ *    items: { 
+ *      item_id: string,
+ *      value: number,
+ *      consumed: bool,
+ *    }[]
+ *  }
  * }[]} steps
  */
 
@@ -1178,9 +1184,9 @@
     /** @type {Quest[]} */
     const quests = [
       {
-        id: 'test',
-        name: 'Test Quest',
-        description: 'Description',
+        id: 'getting_started',
+        name: 'Introduction: Mining & Smithing',
+        description: 'Uh, sure',
         requirements: {
           stats: {
             lifetime_wealth: 0,
@@ -1210,129 +1216,49 @@
             affects: 'smithing',
             value: 250,
           },
-        ],
-        steps: [
           {
-            id: 0,
-            name: 'Do the thing',
-            description: 'I need to deliver 10 bronze bars.',
-            requirements: {
-              items: [{ item_id: 'bronze_bar', value: 10 }],
-            },
-          },
-        ],
-      },
-      {
-        id: 'test_two',
-        name: 'Test Quest but Harder',
-        description: 'Description',
-        requirements: {
-          stats: {
-            lifetime_wealth: 0,
-          },
-          levels: {
-            mining: 10,
-            smithing: 10,
-          },
-          quests: ['test'],
-        },
-        rewards: [
-          {
-            item_id: 'money',
-            category: 'money',
-            affects: 'gold',
-            value: 375,
-          },
-          {
-            item_id: 'exp',
-            category: 'experience',
+            item_id: 'assistant',
+            category: 'assistant',
             affects: 'mining',
-            value: 500,
-          },
-          {
-            item_id: 'exp',
-            category: 'experience',
-            affects: 'smithing',
-            value: 500,
-          },
+            value: 1,
+          }
         ],
         steps: [
           {
             id: 0,
-            name: 'Iron Bars',
-            description:
-              'The bum down the street wants 10 iron bars. Go figured.',
+            name: 'Mine some Copper',
+            description: 'Mining is easy. But prove you can do it. Mine 10 copper and tin.',
             requirements: {
-              items: [{ item_id: 'iron_bar', value: 10 }],
-            },
+              items: [
+                { 
+                  item_id: 'copper_ore',
+                  value: 10,
+                  consumed: false,
+                },
+                { 
+                  item_id: 'tin_ore',
+                  value: 10,
+                  consumed: false,
+                },
+              ]
+            }
           },
           {
             id: 1,
-            name: 'Steel Bars',
-            description:
-              "Well wouldn't ya know it? That damn bum wants 15 steel bars now. What's up with this guy?",
+            name: 'Bronze Bars',
+            description: 'See? Not hard. Not turn those ores into 10 bronze bars.',
             requirements: {
-              items: [{ item_id: 'steel_bar', value: 15 }],
+              items: [
+                { 
+                  item_id: 'bronze_bar', 
+                  value: 10,
+                  consumed: true,
+                },
+              ],
             },
           },
         ],
-      },
-    ];
-
-    /** @type {Assistant[]} */
-    const ass = [
-      /*
-      {
-        id: 'mining_assistant',
-        name: 'Mining Assistant',
-        description: 'This guy right here? He\'ll mine for ya.',
-        skills: ['mining'],
-        upgrades: [
-          {
-            level: 0,
-            cost: 150,
-            value: 2500,
-            requirements: {
-              mining: 1,
-            }
-          },
-          {
-            level: 1,
-            cost: 300,
-            value: 1750,
-            requirements: {
-              mining: 5,
-            }
-          },
-          {
-            level: 3,
-            cost: 600,
-            value: 1450,
-            requirements: {
-              mining: 10,
-            }
-          },
-          {
-            level: 4,
-            cost: 1200,
-            value: 950,
-            requirements: {
-              mining: 15,
-            }
-          },
-          {
-            level: 5,
-            cost: 1750,
-            value: 850,
-            requirements: {
-              mining: 25,
-            }
-          }
-        ],
-        fn: (config, state) => {
-        }
-      }
-      */
+      }, 
     ];
 
     /** @type {State} */
@@ -2042,7 +1968,7 @@
       const currStep = quest.steps.find((s) => s.id === step);
       state.value.quests_started[idx].complete = true;
 
-      for (const qItemReq of currStep.requirements.items) {
+      for (const qItemReq of currStep.requirements.items.filter((i) => i.consumed)) {
         updateInventory(state, qItemReq.item_id, qItemReq.value * -1);
       }
     };
@@ -2070,6 +1996,7 @@
 
     /**
      * @param {Quest} quest
+     * @param {{ value: State }} state
      */
     const completeQuest = (quest, state) => {
       if (!canCompleteQuest(quest, state)) {
@@ -2094,6 +2021,10 @@
             state.value.gold += reward.value;
             state.value.stats.lifetime_wealth += reward.value;
             break;
+          case 'assistant':
+            const assistant = generateRandomAssistant(state, reward.affects);
+            hireAssistant(assistant, state);
+          break;
           default:
             console.log('unknown reward category', reward);
         }
@@ -2105,6 +2036,7 @@
      * @param {{ value: State }} state 
      */
     const hireAssistant = (assistant, state) => {
+      console.log(assistant);
       /** @type {PurchasedAssistant} hiredAssistant */
       const hiredAssistant = {
         ...assistant,
@@ -2321,11 +2253,12 @@
 
     /**
      * @param {{ value: State }} state 
+     * @param {('mining' | 'smithing' | 'selling')?} preferredSkill
      * @returns {Assistant}
      */
-    const generateRandomAssistant = (state) => {
+    const generateRandomAssistant = (state, preferredSkill) => {
       const skills = ['mining', 'smithing', 'selling'];
-      const skill = skills.sort(() => Math.floor(Math.random() * 3) - Math.floor(Math.random() * 3))[0];
+      const skill = preferredSkill ?? skills.sort(() => Math.floor(Math.random() * 3) - Math.floor(Math.random() * 3))[0];
       const perk = generateAssistantPerk(skill, state);
       const id = Math.floor(Math.random() * 100000);
       /** @type {Assistant} */
