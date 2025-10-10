@@ -54,6 +54,17 @@
 
     <body>
         <div class="wrapper">
+            <div
+                v-if="firingAssistant"
+                class="assistant-config">
+                <p>Are you sure you want to fire {{ firingAssistant.name }}? This action cannot be undone!</p>
+
+                <div style="text-align: center;">
+                    <button style="margin-right: 15px;" @click="fireAssistant(firingAssistant)">Fire</button>
+                    <button @click="cancelFiring()">Cancel</button>
+                </div>
+            </div>
+
             <div 
                 v-if="configuringAssistant"
                 class="assistant-config">
@@ -219,6 +230,9 @@
                             <button
                                 type="button"
                                 @click="editAssistant(assistant)">Edit Job</button>
+                            <button
+                                type="button"
+                                @click="confirmFireAssistant(assistant)">Fire Assistant</button>
                         </li>
                     </ul>
                 </div>

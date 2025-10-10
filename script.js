@@ -98,10 +98,31 @@
  */
 
 /**
- * @TODO Figure out why this doesn't work
+ * @TODO Figure out why I can't use extends
  * @typedef PurchasedAssistant
- * @extends Assistant
+ * @type {object}
  *
+ * @property {string} id
+ * @property {string} name
+ * @property {string} description
+ * @property {string[]} skills
+ * @property {{
+ *   skill: 'mining' | 'smithing' | 'selling',
+ *   affects: 'xp' | 'yield' | 'interval',
+ *   value: number,
+ *   name: string,
+ *   description: string,
+ * }} perk
+ * @property {{
+ *  level: number,
+ *  cost: number,
+ *  value: number,
+ *  requirements: {
+ *    mining: number?,
+ *    smithing: number?,
+ *  }
+ * }[]} upgrades
+ * @property {function} fn
  * @property {number} level 
  * @property {number} interval_id
  * @property {number} interval
@@ -2319,6 +2340,8 @@
         const currentQuest = ref(null);
         const viewingQuest = ref(null);
         const configuringAssistant = ref(null);
+        /** @type {{ value: PurchasedAssistant }} */
+        const firingAssistant = ref(null);
         const availableOreList = computed(() => items.filter((i) => i.skill === 'mining' && i.level <= s.value.levels.mining));
         const availabeSmithableList = computed(() => items.filter((i) => i.skill === 'smithing' && i.level <= s.value.levels.smithing));
         const availableQuests = computed(() => quests.filter((q) => !s.value.quests_completed.includes(q.id)));
@@ -2353,6 +2376,7 @@
           currentQuest,
           viewingQuest,
           configuringAssistant,
+          firingAssistant,
           toggleStats: () => toggleStats,
           /**
            * @param {Item} item 
@@ -2478,10 +2502,30 @@
             const lvl = hired.level + 1;
             return hired.upgrades.find((u) => u.level === lvl)?.cost;
           },
+          /**
+           * @param {PurchasedAssistant} assistant 
+           */
           hireAssistant: (assistant) => {
             hireAssistant(assistant, s);
             assistants.value = assistants.value.filter((a) => a.id !== assistant.value);
             configuringAssistant.value = s.value.assistants[s.value.assistants.length - 1];
+          },
+          /**
+           * @param {PurchasedAssistant} assistant 
+           */
+          confirmFireAssistant: (assistant) => {
+            firingAssistant.value = assistant;
+          },
+          cancelFiring: () => {
+            firingAssistant.value = null;
+          },
+          /**
+           * @param {PurchasedAssistant} assistant 
+           */
+          fireAssistant: (assistant) => {
+            clearInterval(firingAssistant.value.interval_id);
+            s.value.assistants = s.value.assistants.filter((a) => a.id !== assistant.id);
+            firingAssistant.value = null;
           },
           /**
            * @param {PurchasedAssistant} purchasedAssistant 
