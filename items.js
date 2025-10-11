@@ -1,3 +1,21 @@
+/**
+ * @typedef Item
+ * @type {object}
+ *
+ * @property {string} item_id
+ * @property {string} name
+ * @property {string} description
+ * @property {string} skill
+ * @property {number} level
+ * @property {number} value
+ * @property {number} xp_given
+ * @property {number} success_chance
+ * @property {boolean} sellable
+ * @property {{item_id: string, quantity: number}[]?} ingredients
+ * @property {string[]} categories
+ */
+
+/** @type {Item[]} */
 window.items = [
   {
     item_id: 'copper_ore',
@@ -43,13 +61,29 @@ window.items = [
     ],
   },
   {
+    item_id: 'bronze_dagger',
+    level: 1,
+    value: 8,
+    name: 'Bronze Dagger',
+    skill: 'smithing',
+    success_chance: 1.0,
+    xp_given: 8,
+    categories: ['daggers', 'weapons', 'bronze'],
+    ingredients: [
+      {
+        item_id: 'bronze_bar',
+        quantity: 1,
+      },
+    ],
+  },
+  {
     item_id: 'bronze_sword',
     level: 3,
     value: 24,
     skill: 'smithing',
     name: 'Bronze Sword',
     success_change: 1.0,
-    xp_given: 10,
+    xp_given: 12,
     sellable: true,
     categories: ['swords', 'weapons', 'bronze'],
     ingredients: [

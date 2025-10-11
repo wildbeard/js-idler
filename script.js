@@ -43,6 +43,11 @@
  *      value: number,
  *      consumed: bool,
  *    }[]
+ *    upgrades: {
+ *      upgrade_id: string,
+ *      value: number,
+ *      consumed: false,
+ *    }[],
  *  }
  * }[]} steps
  */
@@ -1749,6 +1754,7 @@
     /**
      * @param {Quest} quest
      * @param {number} step
+     * @param {{ value: State }} state
      *
      * @returns {bool}
      */
@@ -1762,11 +1768,21 @@
       }
 
       if (
-        questStep.requirements.items.filter(
+        questStep.requirements.items?.filter(
           (i) => getInventoryItem(state, i.item_id) < i.value,
         ).length
       ) {
-        console.log('do not meet item reqs');
+        return false;
+      }
+
+      if (
+        questStep.requirements.upgrades?.length &&
+        state.value.upgrades.filter((u) =>
+          questStep.requirements.upgrades.find(
+            (uu) => uu.upgrade_id === u.id && uu.value > u.level,
+          ),
+        ).length < questStep.requirements.upgrades.length
+      ) {
         return false;
       }
 
@@ -1778,7 +1794,6 @@
      * @param {number} step
      */
     const completeQuestStep = (quest, step, state) => {
-      console.log(quest.id, step);
       if (!canCompleteQuestStep(quest, step, state)) {
         return;
       }
@@ -2488,4 +2503,3 @@
     }).mount('.wrapper');
   }
 )();
-
