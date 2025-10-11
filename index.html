@@ -227,7 +227,11 @@
                             Assistant Perk: {{ assistant.perk.description }}<br>
                             <button
                                 type="button"
-                                @click="upgradeAssistant(assistant)">Train</button>
+                                @click="upgradeAssistant(assistant)"
+                                :title="getAssistantUpgradeTitle(assistant)"
+                                :disabled="canHireAssistant(assistant)">
+                                Train {{ getAssistantUpgradeCost(assistant) }}gp
+                            </button>
                             <button
                                 type="button"
                                 @click="editAssistant(assistant)">Edit Job</button>

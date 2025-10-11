@@ -2427,6 +2427,7 @@
         upgrades: generateAssistantLevels(skill, perk, state),
       };
 
+      console.log(assistant);
       return assistant;
     };
 
@@ -2698,7 +2699,67 @@
           /**
            * @param {PurchasedAssistant} purchasedAssistant
            */
-          upgradeAssistant: (purchasedAssistant) => {},
+          upgradeAssistant: (purchasedAssistant) => {
+            const nxtLvl = purchasedAssistant.upgrades.find(
+              (u) => u.level === purchasedAssistant.level + 1,
+            );
+
+            if (!nxtLvl) {
+              return;
+            }
+
+            const { cost } = nxtLvl;
+
+            if (cost > s.value.gold) {
+              return;
+            }
+
+            if (!hasRequirementsForAssistant(purchasedAssistant, s)) {
+              return;
+            }
+
+            s.value.gold -= cost;
+            // @TODO: Make upgrading also increase the value of perks
+            purchasedAssistant.level = nxtLvl.level;
+            purchasedAssistant.interval = nxtLvl.value;
+            updateAssistantJobs(purchasedAssistant.id, s);
+          },
+          /**
+           * @param {PurchasedAssistant} purchasedAssistant
+           * @returns {number}
+           */
+          getAssistantUpgradeCost: (purchasedAssistant) => {
+            const nxtLvl = purchasedAssistant.upgrades.find(
+              (u) => u.level === purchasedAssistant.level + 1,
+            );
+
+            if (!nxtLvl) {
+              return 0;
+            }
+
+            return nxtLvl.cost;
+          },
+          /**
+           * @param {PurchasedAssistant} assistant
+           * @returns {string}
+           */
+          getAssistantUpgradeTitle: (assistant) => {
+            const nxtLvl = assistant.upgrades.find(
+              (u) => u.level === assistant.level + 1,
+            );
+
+            if (!nxtLvl) {
+              return 'Max';
+            }
+
+            let str = 'Requires';
+
+            for (const skillKey in nxtLvl.requirements) {
+              str += ` ${skillKey}: ${s.value.levels[skillKey]}`;
+            }
+
+            return str;
+          },
           /**
            * @param {PurchasedAssistant} purchasedAssistant
            * @returns {string}
