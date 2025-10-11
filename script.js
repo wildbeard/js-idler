@@ -37,8 +37,8 @@
  *  id: number,
  *  name: string,
  *  description: string,
- *  requirements: { 
- *    items: { 
+ *  requirements: {
+ *    items: {
  *      item_id: string,
  *      value: number,
  *      consumed: bool,
@@ -73,7 +73,7 @@
 /**
  * @typedef Assistant
  * @type {object}
- * 
+ *
  * @property {string} id
  * @property {string} name
  * @property {string} description
@@ -125,7 +125,7 @@
  *  }
  * }[]} upgrades
  * @property {function} fn
- * @property {number} level 
+ * @property {number} level
  * @property {number} interval_id
  * @property {number} interval
  * @property {{
@@ -149,7 +149,7 @@
  * @type {object}
  *
  * @property {number} gold
- * @property {{ 
+ * @property {{
  *  lifetime_wealth: number,
  *  crafts: { item_id: string, value: number }[],
  *  sales: { item_id: string, value: number }[],
@@ -358,7 +358,7 @@
             item_id: 'steel_bar',
             quantity: 1,
           },
-        ]
+        ],
       },
       {
         item_id: 'steel_sword',
@@ -375,7 +375,7 @@
             item_id: 'steel_bar',
             quantity: 2,
           },
-        ]
+        ],
       },
       {
         item_id: 'steel_helmet',
@@ -391,9 +391,9 @@
           {
             item_id: 'steel_bar',
             quantity: 4,
-          }
-        ]
-      }
+          },
+        ],
+      },
     ];
     /** @type  Upgrade[] */
     const allUpgrades = [
@@ -447,7 +447,12 @@
             },
           },
         ],
-        fn: (s) => autoerAction(s, items.find((i) => i.item_id === 'copper_ore'), 'mining'),
+        fn: (s) =>
+          autoerAction(
+            s,
+            items.find((i) => i.item_id === 'copper_ore'),
+            'mining',
+          ),
       },
       {
         id: 'automine_tin',
@@ -499,7 +504,12 @@
             },
           },
         ],
-        fn: (s) => autoerAction(s, items.find((i) => i.item_id === 'tin_ore'), 'mining'),
+        fn: (s) =>
+          autoerAction(
+            s,
+            items.find((i) => i.item_id === 'tin_ore'),
+            'mining',
+          ),
       },
       {
         id: 'autosmelt_bronze',
@@ -552,7 +562,12 @@
             },
           },
         ],
-        fn: (s) => autoerAction(s, items.find((i) => i.item_id === 'bronze_bar'), 'smithing'),
+        fn: (s) =>
+          autoerAction(
+            s,
+            items.find((i) => i.item_id === 'bronze_bar'),
+            'smithing',
+          ),
       },
       {
         id: 'autoforge_bronze_sword',
@@ -605,7 +620,12 @@
             },
           },
         ],
-        fn: (s) => autoerAction(s, items.find((i) => i.item_id === 'bronze_sword'), 'smithing'),
+        fn: (s) =>
+          autoerAction(
+            s,
+            items.find((i) => i.item_id === 'bronze_sword'),
+            'smithing',
+          ),
       },
       {
         id: 'copper_mining_excess',
@@ -977,7 +997,7 @@
             value: 2000,
             requirements: {
               mining: 10,
-            }
+            },
           },
           {
             level: 1,
@@ -985,7 +1005,7 @@
             value: 1750,
             requirements: {
               mining: 12,
-            }
+            },
           },
           {
             level: 2,
@@ -993,7 +1013,7 @@
             value: 1500,
             requirements: {
               mining: 14,
-            }
+            },
           },
           {
             level: 3,
@@ -1001,7 +1021,7 @@
             value: 1250,
             requirements: {
               mining: 16,
-            }
+            },
           },
           {
             level: 4,
@@ -1009,7 +1029,7 @@
             value: 1000,
             requirements: {
               mining: 18,
-            }
+            },
           },
           {
             level: 5,
@@ -1017,10 +1037,15 @@
             value: 750,
             requirements: {
               mining: 20,
-            }
-          }
+            },
+          },
         ],
-        fn: (s) => autoerAction(s, items.find((i) => i.item_id === 'iron_ore'), 'mining'),
+        fn: (s) =>
+          autoerAction(
+            s,
+            items.find((i) => i.item_id === 'iron_ore'),
+            'mining',
+          ),
       },
       {
         id: 'automine_coal',
@@ -1037,7 +1062,7 @@
             value: 2000,
             requirements: {
               mining: 10,
-            }
+            },
           },
           {
             level: 1,
@@ -1045,7 +1070,7 @@
             value: 1750,
             requirements: {
               mining: 12,
-            }
+            },
           },
           {
             level: 2,
@@ -1053,7 +1078,7 @@
             value: 1500,
             requirements: {
               mining: 14,
-            }
+            },
           },
           {
             level: 3,
@@ -1061,7 +1086,7 @@
             value: 1250,
             requirements: {
               mining: 16,
-            }
+            },
           },
           {
             level: 4,
@@ -1069,7 +1094,7 @@
             value: 1000,
             requirements: {
               mining: 18,
-            }
+            },
           },
           {
             level: 5,
@@ -1077,15 +1102,20 @@
             value: 750,
             requirements: {
               mining: 20,
-            }
-          }
+            },
+          },
         ],
-        fn: (s) => autoerAction(s, items.find((i) => i.item_id == 'coal'), 'mining'),
+        fn: (s) =>
+          autoerAction(
+            s,
+            items.find((i) => i.item_id == 'coal'),
+            'mining',
+          ),
       },
       {
         id: 'autosmelt_iron',
         name: 'Iron Autosmelter',
-        description: 'It\'ll smelt those iron bars for ya!',
+        description: "It'll smelt those iron bars for ya!",
         value: 2000,
         cost: 250,
         affects: 'iron_bar',
@@ -1097,7 +1127,7 @@
             value: 2000,
             requirements: {
               smithing: 10,
-            }
+            },
           },
           {
             level: 1,
@@ -1105,7 +1135,7 @@
             value: 1750,
             requirements: {
               smithing: 12,
-            }
+            },
           },
           {
             level: 2,
@@ -1113,7 +1143,7 @@
             value: 1500,
             requirements: {
               smithing: 14,
-            }
+            },
           },
           {
             level: 3,
@@ -1121,7 +1151,7 @@
             value: 1250,
             requirements: {
               smithing: 16,
-            }
+            },
           },
           {
             level: 4,
@@ -1129,7 +1159,7 @@
             value: 1000,
             requirements: {
               smithing: 18,
-            }
+            },
           },
           {
             level: 5,
@@ -1137,15 +1167,20 @@
             value: 750,
             requirements: {
               smithing: 20,
-            }
-          }
+            },
+          },
         ],
-        fn: (s) => autoerAction(s, items.find((i) => i.item_id == 'iron_bar'), 'smithing'),
+        fn: (s) =>
+          autoerAction(
+            s,
+            items.find((i) => i.item_id == 'iron_bar'),
+            'smithing',
+          ),
       },
       {
         id: 'autosmelt_steel',
         name: 'Steel Autosmelter',
-        description: 'It\'ll smelt those steel bars for ya!',
+        description: "It'll smelt those steel bars for ya!",
         value: 2000,
         cost: 500,
         affects: 'steel_bar',
@@ -1157,7 +1192,7 @@
             value: 2000,
             requirements: {
               smithing: 20,
-            }
+            },
           },
           {
             level: 1,
@@ -1165,7 +1200,7 @@
             value: 1750,
             requirements: {
               smithing: 22,
-            }
+            },
           },
           {
             level: 2,
@@ -1173,7 +1208,7 @@
             value: 1500,
             requirements: {
               smithing: 24,
-            }
+            },
           },
           {
             level: 3,
@@ -1181,7 +1216,7 @@
             value: 1250,
             requirements: {
               smithing: 26,
-            }
+            },
           },
           {
             level: 4,
@@ -1189,7 +1224,7 @@
             value: 1000,
             requirements: {
               smithing: 28,
-            }
+            },
           },
           {
             level: 5,
@@ -1197,11 +1232,16 @@
             value: 750,
             requirements: {
               smithing: 30,
-            }
-          }
+            },
+          },
         ],
-        fn: (s) => autoerAction(s, items.find((i) => i.item_id == 'steel_bar'), 'smithing'),
-      }
+        fn: (s) =>
+          autoerAction(
+            s,
+            items.find((i) => i.item_id == 'steel_bar'),
+            'smithing',
+          ),
+      },
     ];
 
     /** @type {Quest[]} */
@@ -1244,36 +1284,38 @@
             category: 'assistant',
             affects: 'mining',
             value: 1,
-          }
+          },
         ],
         steps: [
           {
             id: 0,
             name: 'Mine some Copper',
-            description: 'Mining is easy. But prove you can do it. Mine 10 copper and tin.',
+            description:
+              'Mining is easy. But prove you can do it. Mine 10 copper and tin.',
             requirements: {
               items: [
-                { 
+                {
                   item_id: 'copper_ore',
                   value: 10,
                   consumed: false,
                 },
-                { 
+                {
                   item_id: 'tin_ore',
                   value: 10,
                   consumed: false,
                 },
-              ]
-            }
+              ],
+            },
           },
           {
             id: 1,
             name: 'Bronze Bars',
-            description: 'See? Not hard. Not turn those ores into 10 bronze bars.',
+            description:
+              'See? Not hard. Not turn those ores into 10 bronze bars.',
             requirements: {
               items: [
-                { 
-                  item_id: 'bronze_bar', 
+                {
+                  item_id: 'bronze_bar',
                   value: 10,
                   consumed: true,
                 },
@@ -1281,7 +1323,7 @@
             },
           },
         ],
-      }, 
+      },
     ];
 
     /** @type {State} */
@@ -1340,7 +1382,7 @@
      * @property {string} description_template
      * @property {string[]} skills
      * @property {'xp' | 'selling' | 'yield' | 'interval' } affects
-     * 
+     *
      * @typedef Perk
      * @type {object}
      * @property {string} id
@@ -1350,7 +1392,7 @@
      * @property {string[]} skills
      * @property {'xp' | 'selling' | 'yield' | 'interval' } affects
      */
-    
+
     /**
      * @type {PerkData[]}
      */
@@ -1372,7 +1414,7 @@
       {
         id: 'bonus_gold',
         name: 'Bonus Gold',
-        description_template: 'Assistant\'s gains &% more gold from sales.',
+        description_template: "Assistant's gains &% more gold from sales.",
         skills: ['selling'],
         affects: 'selling',
       },
@@ -1382,13 +1424,13 @@
         description_template: 'Assistant works &% faster.',
         skills: ['mining', 'smithing', 'selling'],
         affects: 'interval',
-      }
+      },
     ];
 
     /**
-     * @param {PerkData} data 
-     * @param {{ value: State }} state 
-     * 
+     * @param {PerkData} data
+     * @param {{ value: State }} state
+     *
      * @returns {Perk}
      */
     const createPerkFromData = (data, state) => {
@@ -1399,11 +1441,14 @@
         value,
         id: data.id,
         name: data.name,
-        description: data.description_template.replace('&', Math.floor(value * 100)),
+        description: data.description_template.replace(
+          '&',
+          Math.floor(value * 100),
+        ),
         skills: data.skills,
         affects: data.affects,
       };
-    }
+    };
 
     /**
      * @param {{ value: State }} state
@@ -1459,7 +1504,7 @@
     };
 
     /**
-     * @param {{ value: State }} state 
+     * @param {{ value: State }} state
      * @param {Item} item
      *
      * @returns {number}
@@ -1477,7 +1522,7 @@
         return yield;
       }
 
-      return rng < baseSuccess + (currLvl / (item.level * 2)) ? yield : 0;
+      return rng < baseSuccess + currLvl / (item.level * 2) ? yield : 0;
     };
 
     /**
@@ -1497,9 +1542,9 @@
     };
 
     /**
-     * @param {{ value: State }} state 
-     * @param {Item} item 
-     * @param {'mining' | 'smithing' | 'selling'} action 
+     * @param {{ value: State }} state
+     * @param {Item} item
+     * @param {'mining' | 'smithing' | 'selling'} action
      */
     const autoerAction = (state, item, action) => {
       let xp = 0;
@@ -1508,16 +1553,16 @@
       switch (action) {
         case 'mining':
           yield = mine(state, item);
-        break;
+          break;
 
         case 'smithing':
           const result = smith(state, item);
           yield = result.success ? result.result[0].quantity : 0;
-        break;
+          break;
 
         case 'selling':
           sellItem(state, item);
-        break;
+          break;
       }
 
       if (xp > 0 && action !== 'selling') {
@@ -1527,14 +1572,19 @@
       if (yield > 0 && action === 'selling') {
         updateStats(state, 'sales', null, yield);
       } else if (yield > 0) {
-        updateStats(state, action === 'mining' ? 'gathers' : 'crafts', item, yield);
+        updateStats(
+          state,
+          action === 'mining' ? 'gathers' : 'crafts',
+          item,
+          yield,
+        );
       }
     };
 
     /**
-     * @param {{ value: State }} state 
-     * @param {PurchasedAssistant} assistant 
-     * @param {Item} item 
+     * @param {{ value: State }} state
+     * @param {PurchasedAssistant} assistant
+     * @param {Item} item
      */
     const assistantDidMine = (state, assistant, item) => {
       let gathered = mine(state, item);
@@ -1545,7 +1595,7 @@
       }
 
       if (assistant.perk.affects === 'xp') {
-        xp = item.xp_given + Math.floor((item.xp_given * assistant.perk.value));
+        xp = item.xp_given + Math.floor(item.xp_given * assistant.perk.value);
       } else if (assistant.perk.affects === 'yield') {
         if (Math.random() < assistant.perk.value) {
           gathered += Math.floor(Math.random() * (3 - 1 + 1) + 1);
@@ -1594,7 +1644,9 @@
 
       if (result.success) {
         updateXp(state, 'smithing', item.xp_given);
-        let idx = state.value.stats.crafts.findIndex((i) => i.item_id === item.item_id);
+        let idx = state.value.stats.crafts.findIndex(
+          (i) => i.item_id === item.item_id,
+        );
 
         if (idx === -1) {
           state.value.stats.crafts.push({
@@ -1613,9 +1665,9 @@
     };
 
     /**
-     * @param {{ value: State }} state 
-     * @param {PurchasedAssistant} assistant 
-     * @param {Item} item 
+     * @param {{ value: State }} state
+     * @param {PurchasedAssistant} assistant
+     * @param {Item} item
      */
     const assistantDidSmith = (state, assistant, item) => {
       if (!hasIngredientsFor(state, item)) {
@@ -1628,7 +1680,7 @@
         let xp = item.xp_given;
 
         if (assistant.perk.affects === 'xp') {
-          xp = item.xp_given + Math.floor((item.xp_given * assistant.perk.value));
+          xp = item.xp_given + Math.floor(item.xp_given * assistant.perk.value);
         } else if (assistant.perk.affects === 'yield') {
           if (Math.random() < assistant.perk.value) {
             const extra = Math.floor(Math.random() * (3 - 1 + 1) + 1);
@@ -1640,14 +1692,14 @@
                 i.quantity += extra;
               }
             });
-          
+
             updateStats(state, 'crafts', item, total);
           }
         }
-      
+
         updateXp(state, 'smithing', xp);
-        result.result.forEach((invUpdate) => 
-          updateInventory(state, invUpdate.item_id, invUpdate.quantity)
+        result.result.forEach((invUpdate) =>
+          updateInventory(state, invUpdate.item_id, invUpdate.quantity),
         );
       }
     };
@@ -1655,7 +1707,7 @@
     /**
      * @param {Upgrade} upgrade
      * @param {{ id: string, const: number, level: number, value: number }} upgraded
-     * @param {{ value: State }} state 
+     * @param {{ value: State }} state
      */
     const upgradeAutoer = (upgrade, upgraded, state) => {
       if (state.value.running_upgrades[upgrade.id]) {
@@ -1674,7 +1726,7 @@
      *
      * @param {Upgrade} upgrade
      * @param {number} level
-     * @param {{ value: State }} state 
+     * @param {{ value: State }} state
      */
     const upgrade = (upgrade, level, state) => {
       let up;
@@ -1712,7 +1764,9 @@
         });
       }
 
-      const currIdx = state.value.upgrades.findIndex((u) => u.id === upgrade.id);
+      const currIdx = state.value.upgrades.findIndex(
+        (u) => u.id === upgrade.id,
+      );
       state.value.upgrades[currIdx] = {
         id: upgrade.id,
         cost: up.cost,
@@ -1727,7 +1781,7 @@
 
     /**
      * @param {Upgrade} upgrade
-     * @param {{ value: State }} state 
+     * @param {{ value: State }} state
      *
      * @returns {number}
      */
@@ -1749,12 +1803,16 @@
 
     /**
      * @param {Upgrade} toUpgrade
-     * @param {{ value: State }} state 
+     * @param {{ value: State }} state
      */
     const userPurchasedUpgrade = (toUpgrade, state) => {
       // @TODO: Find the upgrade level to purchase
-      const currUpgrade = state.value.upgrades.find((u) => u.id === toUpgrade.id);
-      let cost = currUpgrade ? getUpgradeCost(toUpgrade, state) : toUpgrade.cost;
+      const currUpgrade = state.value.upgrades.find(
+        (u) => u.id === toUpgrade.id,
+      );
+      let cost = currUpgrade
+        ? getUpgradeCost(toUpgrade, state)
+        : toUpgrade.cost;
 
       if (currUpgrade) {
         upgrade(toUpgrade, currUpgrade.level + 1, state);
@@ -1766,11 +1824,11 @@
     };
 
     /**
-     * 
-     * @param {{ value: State }} state 
-     * @param {'sales' | 'crafts' | 'gathers'} stat 
-     * @param {Item?} item 
-     * @param {number} value 
+     *
+     * @param {{ value: State }} state
+     * @param {'sales' | 'crafts' | 'gathers'} stat
+     * @param {Item?} item
+     * @param {number} value
      */
     const updateStats = (state, stat, item, value) => {
       if (stat === 'sales') {
@@ -1778,7 +1836,9 @@
         return;
       }
 
-      let idx = state.value.stats[stat].findIndex((i) => i.item_id === item.item_id);
+      let idx = state.value.stats[stat].findIndex(
+        (i) => i.item_id === item.item_id,
+      );
 
       if (idx === -1) {
         state.value.stats[stat].push({
@@ -1825,7 +1885,9 @@
       state.value.gold += gold;
       state.value.stats.lifetime_wealth += gold;
 
-      let statIdx = state.value.stats.sales.findIndex((i) => i.item_id === item.item_id);
+      let statIdx = state.value.stats.sales.findIndex(
+        (i) => i.item_id === item.item_id,
+      );
 
       if (statIdx === -1) {
         state.value.stats.sales.push({
@@ -1839,8 +1901,8 @@
     };
 
     /**
-     * @param {{ value: State }} state 
-     * @param {Item} item 
+     * @param {{ value: State }} state
+     * @param {Item} item
      */
     const userDidSell = (state, item) => {
       sellItem(state, item);
@@ -1848,13 +1910,17 @@
     };
 
     /**
-     * @param {{ value: State }} state 
-     * @param {PurchasedAssistant} assistant 
-     * @param {Item} item 
+     * @param {{ value: State }} state
+     * @param {PurchasedAssistant} assistant
+     * @param {Item} item
      */
     const assistantDidSell = (state, assistant, item) => {
       // @TODO: Figure out why getAssistantJobFunctions isn't handling this!!
-      if (!state.value.inventory.find((i) => i.item_id === item.item_id && i.quantity > 0)) {
+      if (
+        !state.value.inventory.find(
+          (i) => i.item_id === item.item_id && i.quantity > 0,
+        )
+      ) {
         console.log(`Not enough inventory for assistant to sell ${item.name}`);
         return;
       }
@@ -1862,7 +1928,7 @@
       let gold = item.value;
 
       if (assistant.perk.affects === 'selling') {
-        gold += Math.ceil((gold * assistant.perk.value));
+        gold += Math.ceil(gold * assistant.perk.value);
       }
 
       state.value.gold += gold;
@@ -1871,13 +1937,15 @@
     };
 
     /**
-     * @param {{ value: State }} state 
+     * @param {{ value: State }} state
      * @param {string} key
      *
      * @returns {number}
      */
     const getInventoryItem = (state, key) => {
-      return state.value.inventory.find((i) => i.item_id === key)?.quantity ?? 0;
+      return (
+        state.value.inventory.find((i) => i.item_id === key)?.quantity ?? 0
+      );
     };
 
     /**
@@ -1948,8 +2016,9 @@
 
           if (requiredQuests.length !== 0) {
             hasRequirements =
-              requiredQuests.filter((q) => state.value.quests_completed.includes(q))
-                .length === requiredQuests.length;
+              requiredQuests.filter((q) =>
+                state.value.quests_completed.includes(q),
+              ).length === requiredQuests.length;
 
             if (!hasRequirements) {
               return false;
@@ -2026,13 +2095,15 @@
       const currStep = quest.steps.find((s) => s.id === step);
       state.value.quests_started[idx].complete = true;
 
-      for (const qItemReq of currStep.requirements.items.filter((i) => i.consumed)) {
+      for (const qItemReq of currStep.requirements.items.filter(
+        (i) => i.consumed,
+      )) {
         updateInventory(state, qItemReq.item_id, qItemReq.value * -1);
       }
     };
 
     /**
-     * @param {{ value: State }} state 
+     * @param {{ value: State }} state
      * @param {Quest} quest
      *
      * @returns {bool}
@@ -2082,7 +2153,7 @@
           case 'assistant':
             const assistant = generateRandomAssistant(state, reward.affects);
             hireAssistant(assistant, state);
-          break;
+            break;
           default:
             console.log('unknown reward category', reward);
         }
@@ -2090,8 +2161,8 @@
     };
 
     /**
-     * @param {Assistant} assistant 
-     * @param {{ value: State }} state 
+     * @param {Assistant} assistant
+     * @param {{ value: State }} state
      */
     const hireAssistant = (assistant, state) => {
       /** @type {PurchasedAssistant} hiredAssistant */
@@ -2106,20 +2177,23 @@
           selling: [],
         },
       };
-      
+
       for (const skill of assistant.skills) {
         let avail = [];
 
         // Default to doing nothing for selling for now
         if (skill !== 'selling') {
-          avail = items.filter((i) => i.skill === skill && i.level <= state.value.levels[skill]);
+          avail = items.filter(
+            (i) => i.skill === skill && i.level <= state.value.levels[skill],
+          );
         }
 
         hiredAssistant.config[skill] = avail.map((i) => i.item_id);
       }
 
       if (assistant.perk.affects === 'interval') {
-        hiredAssistant.interval -= hiredAssistant.interval * assistant.perk.value;
+        hiredAssistant.interval -=
+          hiredAssistant.interval * assistant.perk.value;
       }
 
       state.value.assistants.push(hiredAssistant);
@@ -2127,9 +2201,9 @@
     };
 
     /**
-     * @param {string} assistantId 
-     * @param {{ mining: string[], smithing: string[], selling: string[] }} newConfig 
-     * @param {{ value: State }} state 
+     * @param {string} assistantId
+     * @param {{ mining: string[], smithing: string[], selling: string[] }} newConfig
+     * @param {{ value: State }} state
      */
     const updateAssistantConfig = (assistantId, newConfig, state) => {
       const idx = state.value.assistants.find((a) => a.id === assistantId);
@@ -2139,13 +2213,13 @@
       }
 
       for (const key in newConfig) {
-        state.value.assistants[idx].config[key] = newConfig[string]
+        state.value.assistants[idx].config[key] = newConfig[string];
       }
     };
 
     /**
-     * @param {string} assistantId 
-     * @param {{ value: State }} state 
+     * @param {string} assistantId
+     * @param {{ value: State }} state
      */
     const updateAssistantJobs = (assistantId, state) => {
       const idx = state.value.assistants.findIndex((a) => a.id === assistantId);
@@ -2168,9 +2242,9 @@
 
     /**
      * @TODO Okay so technically this gives the PLAYER xp for the action of the assistant.
-     * 
-     * @param {PurchasedAssistant} assistant 
-     * @param {{ value: State }} state 
+     *
+     * @param {PurchasedAssistant} assistant
+     * @param {{ value: State }} state
      * @returns {function[]}
      */
     const getAssistantJobFunctions = (assistant, state) => {
@@ -2183,21 +2257,31 @@
         switch (key) {
           case 'mining':
             actionFn = assistantDidMine;
-            actionableItems = items.filter((i) => i.skill === 'mining' && assistant.config[key].includes(i.item_id));
-          break;
+            actionableItems = items.filter(
+              (i) =>
+                i.skill === 'mining' &&
+                assistant.config[key].includes(i.item_id),
+            );
+            break;
 
           case 'smithing':
             actionFn = assistantDidSmith;
-            actionableItems = items.filter((i) => i.skill === 'smithing' && assistant.config[key].includes(i.item_id));
-          break;
+            actionableItems = items.filter(
+              (i) =>
+                i.skill === 'smithing' &&
+                assistant.config[key].includes(i.item_id),
+            );
+            break;
 
           case 'selling':
             actionFn = assistantDidSell;
-            actionableItems = items.filter((i) => 
-              state.value.inventory.find((ii) => ii.item_id === i.item_id && ii.quantity > 0)
-              && assistant.config[key].includes(i.item_id)
+            actionableItems = items.filter(
+              (i) =>
+                state.value.inventory.find(
+                  (ii) => ii.item_id === i.item_id && ii.quantity > 0,
+                ) && assistant.config[key].includes(i.item_id),
             );
-          break;
+            break;
         }
 
         if (actionFn && actionableItems.length) {
@@ -2217,31 +2301,38 @@
       }
 
       return jobs;
-    }
+    };
 
     /**
      * @TODO I should honestly standardize upgrades, including assistants, so
      * I don't have to keep re-doing this logic.
-     * 
-     * @param {Assistant} assistant 
-     * @param {{ value: State }} state 
+     *
+     * @param {Assistant} assistant
+     * @param {{ value: State }} state
      * @returns {bool}
      */
     const canHireAssistant = (assistant, state) => {
-      const currLvl = state.value.assistants.find((a) => a.assistant_id === assistant.id);
+      const currLvl = state.value.assistants.find(
+        (a) => a.assistant_id === assistant.id,
+      );
       const nextLvl = currLvl ? currLvl.level + 1 : 0;
       const requirements = assistant.upgrades.find((u) => u.level === nextLvl);
-      
-      return state.value.gold > requirements.cost && hasRequirementsForAssistant(assistant, state);
+
+      return (
+        state.value.gold > requirements.cost &&
+        hasRequirementsForAssistant(assistant, state)
+      );
     };
 
     /**
-     * @param {Assistant} assistant 
-     * @param {{ value: State }} state 
+     * @param {Assistant} assistant
+     * @param {{ value: State }} state
      * @returns {bool}
      */
     const hasRequirementsForAssistant = (assistant, state) => {
-      const currLvl = state.value.assistants.find((a) => a.assistant_id === assistant.id);
+      const currLvl = state.value.assistants.find(
+        (a) => a.assistant_id === assistant.id,
+      );
       const nextLvl = currLvl ? currLvl.level + 1 : 0;
       const requirements = assistant.upgrades.find((u) => u.level === nextLvl);
 
@@ -2252,23 +2343,24 @@
       }
 
       return true;
-    }
+    };
 
     /**
      * @param {'mining' | 'smithing' | 'selling'} skill
-     * @param {{ value: State }} state 
+     * @param {{ value: State }} state
      * @returns {Perk}
      */
     const generateAssistantPerk = (skill, state) => {
       const available = perksData.filter((p) => p.skills.includes(skill));
-      const perkData = available.sort(() => 
-        Math.random() * available.length - Math.random() * available.length
+      const perkData = available.sort(
+        () =>
+          Math.random() * available.length - Math.random() * available.length,
       )[0];
       return createPerkFromData(perkData, state);
     };
 
     /**
-     * @param {'mining' | 'smithing' | 'selling'} skill 
+     * @param {'mining' | 'smithing' | 'selling'} skill
      * @param {{
      *  skill: 'mining' | 'smithing' | 'selling',
      *  affects: 'xp' | 'yield' | 'interval',
@@ -2276,17 +2368,11 @@
      *  name: string,
      *  description: string,
      * }} perk
-     * @param {{ value: State }} state 
+     * @param {{ value: State }} state
      * @returns {}
      */
     const generateAssistantLevels = (skill, perk, state) => {
-      const baseValues = [
-        2500,
-        1750,
-        1450,
-        950,
-        850,
-      ];
+      const baseValues = [2500, 1750, 1450, 950, 850];
       const levels = [];
 
       for (let i = 0; i < 5; i++) {
@@ -2294,7 +2380,7 @@
         const currLvl = skill === 'selling' ? 1 : state.value.levels[skill];
         let value = baseValues[i];
 
-        if (perk.affects === 'interval' ) {
+        if (perk.affects === 'interval') {
           value -= value * perk.value;
         }
 
@@ -2303,8 +2389,8 @@
           level: i,
           cost: Math.ceil(350 + 75 * Math.pow(i, 2) + 175 * i),
           requirements: {
-            [perk.skill]:  Math.ceil(currLvl + 0.75 * Math.pow(i, 2) + 1.5 * i),
-          }
+            [perk.skill]: Math.ceil(currLvl + 0.75 * Math.pow(i, 2) + 1.5 * i),
+          },
         });
       }
 
@@ -2312,13 +2398,17 @@
     };
 
     /**
-     * @param {{ value: State }} state 
+     * @param {{ value: State }} state
      * @param {('mining' | 'smithing' | 'selling')?} preferredSkill
      * @returns {Assistant}
      */
     const generateRandomAssistant = (state, preferredSkill) => {
       const skills = ['mining', 'smithing', 'selling'];
-      const skill = preferredSkill ?? skills.sort(() => Math.floor(Math.random() * 3) - Math.floor(Math.random() * 3))[0];
+      const skill =
+        preferredSkill ??
+        skills.sort(
+          () => Math.floor(Math.random() * 3) - Math.floor(Math.random() * 3),
+        )[0];
       const perk = generateAssistantPerk(skill, state);
       const id = Math.floor(Math.random() * 100000);
       /** @type {Assistant} */
@@ -2349,11 +2439,25 @@
         const configuringAssistant = ref(null);
         /** @type {{ value: PurchasedAssistant }} */
         const firingAssistant = ref(null);
-        const availableOreList = computed(() => items.filter((i) => i.skill === 'mining' && i.level <= s.value.levels.mining));
-        const availabeSmithableList = computed(() => items.filter((i) => i.skill === 'smithing' && i.level <= s.value.levels.smithing));
-        const availableQuests = computed(() => quests.filter((q) => !s.value.quests_completed.includes(q.id)));
-        const availableUpgrades = computed(() => allUpgrades.filter((u) => hasRequirementsForUpgrade(u, s)));
-        const availableAssistants = computed(() => assistants.value.filter((a) => hasRequirementsForAssistant(a, s)));
+        const availableOreList = computed(() =>
+          items.filter(
+            (i) => i.skill === 'mining' && i.level <= s.value.levels.mining,
+          ),
+        );
+        const availabeSmithableList = computed(() =>
+          items.filter(
+            (i) => i.skill === 'smithing' && i.level <= s.value.levels.smithing,
+          ),
+        );
+        const availableQuests = computed(() =>
+          quests.filter((q) => !s.value.quests_completed.includes(q.id)),
+        );
+        const availableUpgrades = computed(() =>
+          allUpgrades.filter((u) => hasRequirementsForUpgrade(u, s)),
+        );
+        const availableAssistants = computed(() =>
+          assistants.value.filter((a) => hasRequirementsForAssistant(a, s)),
+        );
         // hehexdd
         window.toggleStats = () => {
           statsShown.value = !statsShown.value;
@@ -2364,15 +2468,18 @@
           console.log('getting a new assistant');
           const assistant = generateRandomAssistant(s);
 
-          if (assistants.value.length > s.value.global_variables.max_available_assistants) {
+          if (
+            assistants.value.length >
+            s.value.global_variables.max_available_assistants
+          ) {
             assistants.value.shift();
           }
 
           assistants.value.push(assistant);
         }, s.value.global_variables.assistant_refresh_rate);
 
-        return { 
-          s, 
+        return {
+          s,
           items,
           statsShown,
           availableOreList,
@@ -2386,35 +2493,39 @@
           firingAssistant,
           toggleStats: () => toggleStats,
           /**
-           * @param {Item} item 
+           * @param {Item} item
            */
           userDidMine: (item) => userDidMine(s, item),
           /**
-           * @param {Item} item 
+           * @param {Item} item
            */
           userDidSmith: (item) => userDidSmith(s, item),
           /**
-           * @param {Item} item 
+           * @param {Item} item
            */
           userDidSell: (item) => userDidSell(s, item),
           /**
-           * @param {Item} item 
+           * @param {Item} item
            * @returns {bool}
            */
-          hasInventory: (item) => !!s.value.inventory.find((i) => i.item_id === item.item_id && i.quantity > 0),
+          hasInventory: (item) =>
+            !!s.value.inventory.find(
+              (i) => i.item_id === item.item_id && i.quantity > 0,
+            ),
           /**
-           * @param {Item} item 
+           * @param {Item} item
            * @returns {bool}
            */
           userCanCraft: (item) => hasIngredientsFor(s, item),
           /**
-           * @param {Quest} quest 
+           * @param {Quest} quest
            */
           updateQuestPanel: (quest) => {
-            viewingQuest.value = quest.id === viewingQuest.value?.id ? null : quest;
+            viewingQuest.value =
+              quest.id === viewingQuest.value?.id ? null : quest;
           },
           /**
-           * @param {Quest} quest 
+           * @param {Quest} quest
            */
           acceptQuest: (quest) => {
             if (startQuest(s, quest)) {
@@ -2422,14 +2533,17 @@
             }
           },
           /**
-           * @param {Quest} quest 
+           * @param {Quest} quest
            * @returns {bool}
            */
           canStartQuest: (quest) => checkQuestRequirements(quest, s),
           /**
            * @returns {number | null}
            */
-          getCurrentQuestStep: () => s.value.quests_started.length ? s.value.quests_started[0].step : null,
+          getCurrentQuestStep: () =>
+            s.value.quests_started.length
+              ? s.value.quests_started[0].step
+              : null,
           canCompleteQuestStep: (quest) => {
             const currentStep = s.value.quests_started[0].step;
             return canCompleteQuestStep(quest, currentStep, s);
@@ -2437,7 +2551,9 @@
           canCompleteQuest: (quest) => canCompleteQuest(quest, s),
           completeQuestStep: () => {
             const currentStep = s.value.quests_started[0].step;
-            const hasMoreSteps = currentQuest.value.steps.find((s) => s.id === currentStep + 1);
+            const hasMoreSteps = currentQuest.value.steps.find(
+              (s) => s.id === currentStep + 1,
+            );
 
             completeQuestStep(currentQuest.value, currentStep, s);
 
@@ -2451,52 +2567,61 @@
             }
           },
           /**
-           * @param {Quest} quest 
+           * @param {Quest} quest
            * @returns {bool}
            */
-          isQuestStarted: (quest) => !!s.value.quests_started.find((q) => q.quest_id === quest.id),
+          isQuestStarted: (quest) =>
+            !!s.value.quests_started.find((q) => q.quest_id === quest.id),
           xpForSkill: (skill) => {
-            return Math.floor((s.value.xp[`${skill}_xp_level`] / getXpForLevel(s.value.levels[skill])) * 100);
+            return Math.floor(
+              (s.value.xp[`${skill}_xp_level`] /
+                getXpForLevel(s.value.levels[skill])) *
+                100,
+            );
           },
           /**
-           * @param {string} itemId 
+           * @param {string} itemId
            * @returns {Item | undefined}
            */
           getItem: (itemId) => items.find((i) => i.item_id === itemId),
           /**
-           * @param {string} questId 
+           * @param {string} questId
            * @returns {Quest | undefined}
            */
           getQuest: (questId) => quests.find((q) => q.id === questId),
           /**
-           * @param {Upgrade} upgrade 
+           * @param {Upgrade} upgrade
            * @returns {string}
            */
           getUpgradeText: (upgrade) => {
-            const currUpgrade = s.value.upgrades.find((u) => u.id === upgrade.id);
-            const maxUpgrade = upgrade.upgrades.sort((a, b) => a.level <= b.level)[0];
+            const currUpgrade = s.value.upgrades.find(
+              (u) => u.id === upgrade.id,
+            );
+            const maxUpgrade = upgrade.upgrades.sort(
+              (a, b) => a.level <= b.level,
+            )[0];
             let text = upgrade.name;
 
             if (currUpgrade?.level === maxUpgrade.level) {
               text += ' | Max Level';
             } else {
-              text += ` | ${getUpgradeCost(upgrade, s)}gp`
+              text += ` | ${getUpgradeCost(upgrade, s)}gp`;
             }
 
             return text;
           },
           /**
-           * @param {Upgrade} upgrade 
+           * @param {Upgrade} upgrade
            */
           userPurchasedUpgrade: (upgrade) => userPurchasedUpgrade(upgrade, s),
           /**
-           * @param {Upgrade} upgrade 
+           * @param {Upgrade} upgrade
            * @returns {bool}
            */
           canUpgradeUpgrade: (upgrade) => canUpgradeUpgrade(upgrade, s),
           canHireAssistant: (assistant) => canHireAssistant(assistant, s),
           /**
-           * @param {Assistant} assistant 
+           * @param {Assistant} assistant
            * @returns {number}
            */
           getAssistantCost: (assistant) => {
@@ -2510,15 +2635,18 @@
             return hired.upgrades.find((u) => u.level === lvl)?.cost;
           },
           /**
-           * @param {PurchasedAssistant} assistant 
+           * @param {PurchasedAssistant} assistant
            */
           hireAssistant: (assistant) => {
             hireAssistant(assistant, s);
-            assistants.value = assistants.value.filter((a) => a.id !== assistant.value);
-            configuringAssistant.value = s.value.assistants[s.value.assistants.length - 1];
+            assistants.value = assistants.value.filter(
+              (a) => a.id !== assistant.value,
+            );
+            configuringAssistant.value =
+              s.value.assistants[s.value.assistants.length - 1];
           },
           /**
-           * @param {PurchasedAssistant} assistant 
+           * @param {PurchasedAssistant} assistant
            */
           confirmFireAssistant: (assistant) => {
             firingAssistant.value = assistant;
@@ -2527,62 +2655,73 @@
             firingAssistant.value = null;
           },
           /**
-           * @param {PurchasedAssistant} assistant 
+           * @param {PurchasedAssistant} assistant
            */
           fireAssistant: (assistant) => {
             clearInterval(firingAssistant.value.interval_id);
-            s.value.assistants = s.value.assistants.filter((a) => a.id !== assistant.id);
+            s.value.assistants = s.value.assistants.filter(
+              (a) => a.id !== assistant.id,
+            );
             firingAssistant.value = null;
           },
           /**
-           * @param {PurchasedAssistant} purchasedAssistant 
+           * @param {PurchasedAssistant} purchasedAssistant
            */
           editAssistant: (purchasedAssistant) => {
             configuringAssistant.value = purchasedAssistant;
           },
           /**
-           * @param {PurchasedAssistant} purchasedAssistant 
+           * @param {PurchasedAssistant} purchasedAssistant
            */
           saveAssistantConfig: (purchasedAssistant) => {
-            const idx = s.value.assistants.findIndex((a) => a.id === purchasedAssistant.id);
+            const idx = s.value.assistants.findIndex(
+              (a) => a.id === purchasedAssistant.id,
+            );
 
             if (idx === -1) {
               console.log(`unable to update ${purchasedAssistant.id}`);
               return;
             }
 
-            s.value.assistants[idx] = JSON.parse(JSON.stringify(purchasedAssistant));
+            s.value.assistants[idx] = JSON.parse(
+              JSON.stringify(purchasedAssistant),
+            );
             configuringAssistant.value = null;
 
             updateAssistantJobs(s.value.assistants[idx].id, s);
           },
           /**
-           * @param {PurchasedAssistant} purchasedAssistant 
+           * @param {PurchasedAssistant} purchasedAssistant
            */
           upgradeAssistant: (purchasedAssistant) => {},
           /**
-           * @param {PurchasedAssistant} purchasedAssistant 
+           * @param {PurchasedAssistant} purchasedAssistant
            * @returns {string}
            */
           getAssistantJob: (purchasedAssistant) => {
-            return s.value.assistants.find((a) => a.id === purchasedAssistant.id)?.skills.join(',') ?? 'N/A';
+            return (
+              s.value.assistants
+                .find((a) => a.id === purchasedAssistant.id)
+                ?.skills.join(',') ?? 'N/A'
+            );
           },
           /**
-           * @param {PurchasedAssistant} purchasedAssistant 
+           * @param {PurchasedAssistant} purchasedAssistant
            * @param {'mining' | 'smithing' | 'selling'} jobType
-           * @param {string} itemId 
+           * @param {string} itemId
            */
           toggleAssistantJob: (purchasedAssistant, jobType, itemId) => {
             if (purchasedAssistant.config[jobType].includes(itemId)) {
-              purchasedAssistant.config[jobType] = purchasedAssistant.config[jobType].filter((i) => i !== itemId);
+              purchasedAssistant.config[jobType] = purchasedAssistant.config[
+                jobType
+              ].filter((i) => i !== itemId);
             } else {
               purchasedAssistant.config[jobType].push(itemId);
             }
-          }
+          },
         };
-      }
-    })
-      .mount('.wrapper');
+      },
+    }).mount('.wrapper');
   }
-
 )();
+
