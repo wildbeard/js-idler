@@ -2377,7 +2377,12 @@
 
       for (let i = 0; i < 5; i++) {
         // @TODO: Implement selling "store owner" skill
-        const currLvl = skill === 'selling' ? 1 : state.value.levels[skill];
+        // Yeah yeah overriding a param is bad. Sue me
+        if (skill === 'selling') {
+          skill = 'mining';
+        }
+
+        const currLvl = state.value.levels[skill];
         let value = baseValues[i];
 
         if (perk.affects === 'interval') {
@@ -2389,7 +2394,7 @@
           level: i,
           cost: Math.ceil(350 + 75 * Math.pow(i, 2) + 175 * i),
           requirements: {
-            [perk.skill]: Math.ceil(currLvl + 0.75 * Math.pow(i, 2) + 1.5 * i),
+            [skill]: Math.ceil(currLvl + 0.75 * Math.pow(i, 2) + 1.5 * i),
           },
         });
       }
@@ -2419,7 +2424,7 @@
         cost_per_action: Math.floor(Math.random() * 10),
         skills: [skill],
         perk: perk,
-        upgrades: generateAssistantLevels(perk, skill, state),
+        upgrades: generateAssistantLevels(skill, perk, state),
       };
 
       return assistant;
