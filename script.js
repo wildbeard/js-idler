@@ -1282,6 +1282,10 @@
           yield,
         );
       }
+
+      if (item) {
+        updateInventory(state, item.item_id, yield);
+      }
     };
 
     /**
