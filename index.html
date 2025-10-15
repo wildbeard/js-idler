@@ -215,7 +215,7 @@
                 </div>
 
                 <div>
-                    <p>Hired Assistants</p>
+                    <p>Hired Assistants ({{ `${s.assistants.length}/${s.global_variables.max_assistants}` }})</p>
                     <ul>
                         <li
                             v-for="assistant in s.assistants"
@@ -229,7 +229,7 @@
                                 type="button"
                                 @click="upgradeAssistant(assistant)"
                                 :title="getAssistantUpgradeTitle(assistant)"
-                                :disabled="canHireAssistant(assistant)">
+                                :disabled="!canHireAssistant(assistant)">
                                 Train {{ getAssistantUpgradeCost(assistant) }}gp
                             </button>
                             <button

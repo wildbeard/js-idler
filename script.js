@@ -2036,13 +2036,13 @@
      */
     const canHireAssistant = (assistant, state) => {
       const currLvl = state.value.assistants.find(
-        (a) => a.assistant_id === assistant.id,
+        (a) => a.id === assistant.id,
       );
       const nextLvl = currLvl ? currLvl.level + 1 : 0;
       const requirements = assistant.upgrades.find((u) => u.level === nextLvl);
 
       return (
-        state.value.gold > requirements.cost &&
+        state.value.gold >= requirements.cost &&
         hasRequirementsForAssistant(assistant, state)
       );
     };
@@ -2054,14 +2054,17 @@
      */
     const hasRequirementsForAssistant = (assistant, state) => {
       const currLvl = state.value.assistants.find(
-        (a) => a.assistant_id === assistant.id,
+        (a) => a.id === assistant.id,
       );
       const nextLvl = currLvl ? currLvl.level + 1 : 0;
       const requirements = assistant.upgrades.find((u) => u.level === nextLvl);
 
+      if (!requirements) {
+        return true;
+      }
+
       for (const key in requirements.requirements) {
-        if (state.value.levels[key] < requirements.requirements[key]) {
-          return false;
+        if (state.value.levels[key] < requirements.requirements[key]) { return false;
         }
       }
 
@@ -2478,7 +2481,7 @@
             let str = 'Requires';
 
             for (const skillKey in nxtLvl.requirements) {
-              str += ` ${skillKey}: ${s.value.levels[skillKey]}`;
+              str += ` ${skillKey}: ${nxtLvl.requirements[skillKey]}`;
             }
 
             return str;
