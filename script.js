@@ -2016,10 +2016,10 @@
           let actionItem = actionableItems[0];
 
           if (actionableItems.length > 1 ) {
-            actionItem = actionableItems[Math.random() * actionableItems.length];
+            actionItem = actionableItems[Math.floor(Math.random() * actionableItems.length)];
           }
 
-          if (actionFn === userDidSmith && !hasIngredientsFor(state, actionItem)) {
+          if (actionFn === assistantDidSmith && !hasIngredientsFor(state, actionItem)) {
             return;
           }
 
@@ -2175,7 +2175,7 @@
         /** @type {{ value: State }} s */
         const s = ref({ ...state });
         /** @type {{ value: Assistant[] }} */
-        const assistants = ref([generateRandomAssistant(s)]);
+        const assistants = ref([]);
         const statsShown = ref(false);
         const currentQuest = ref(null);
         const viewingQuest = ref(null);
@@ -2362,7 +2362,21 @@
            * @returns {bool}
            */
           canUpgradeUpgrade: (upgrade) => canUpgradeUpgrade(upgrade, s),
-          canHireAssistant: (assistant) => canHireAssistant(assistant, s),
+          /**
+           * @param {Assistant} assistant 
+           * @returns {bool}
+           */
+          canHireAssistant: (assistant) => {
+            return (
+              s.value.global_variables.max_assistants > s.value.assistants.length &&
+              canHireAssistant(assistant, s)
+            );
+          },
+          /**
+           * @param {PurchasedAssistant} assistant 
+           * @returns {bool}
+           */
+          canUpgradeAssistant: (assistant) => canHireAssistant(assistant, s),
           /**
            * @param {Assistant} assistant
            * @returns {number}

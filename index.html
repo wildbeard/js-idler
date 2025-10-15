@@ -229,7 +229,7 @@
                                 type="button"
                                 @click="upgradeAssistant(assistant)"
                                 :title="getAssistantUpgradeTitle(assistant)"
-                                :disabled="!canHireAssistant(assistant)">
+                                :disabled="!canUpgradeAssistant(assistant)">
                                 Train {{ getAssistantUpgradeCost(assistant) }}gp
                             </button>
                             <button
