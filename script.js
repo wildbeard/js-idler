@@ -1869,6 +1869,12 @@
             break;
           case 'assistant':
             const assistant = generateRandomAssistant(state, reward.affects);
+
+            if (reward.item_id !== 'assistant') {
+              // Kind of a placeholder
+              assistant.name = reward.item_id;
+            }
+
             hireAssistant(assistant, state);
             break;
           default:
