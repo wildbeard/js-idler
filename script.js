@@ -1977,50 +1977,61 @@
         let actionFn;
         let actionableItems;
 
-        switch (key) {
-          case 'mining':
-            actionFn = assistantDidMine;
-            actionableItems = items.filter(
-              (i) =>
-                i.skill === 'mining' &&
-                assistant.config[key].includes(i.item_id),
-            );
-            break;
+        jobs.push(() => {
+          switch (key) {
+            case 'mining':
+              actionFn = assistantDidMine;
+              actionableItems = items.filter(
+                (i) =>
+                  i.skill === 'mining' &&
+                  assistant.config[key].includes(i.item_id),
+              );
+              break;
 
-          case 'smithing':
-            actionFn = assistantDidSmith;
-            actionableItems = items.filter(
-              (i) =>
-                i.skill === 'smithing' &&
-                assistant.config[key].includes(i.item_id),
-            );
-            break;
+            case 'smithing':
+              actionFn = assistantDidSmith;
+              actionableItems = items.filter(
+                (i) =>
+                  i.skill === 'smithing' &&
+                  assistant.config[key].includes(i.item_id) &&
+                  hasIngredientsFor(state, i),
+              );
+              break;
 
-          case 'selling':
-            actionFn = assistantDidSell;
-            actionableItems = items.filter(
-              (i) =>
-                state.value.inventory.find(
-                  (ii) => ii.item_id === i.item_id && ii.quantity > 0,
-                ) && assistant.config[key].includes(i.item_id),
-            );
-            break;
-        }
+            case 'selling':
+              actionFn = assistantDidSell;
+              actionableItems = items.filter(
+                (i) =>
+                  state.value.inventory.find(
+                    (ii) => ii.item_id === i.item_id && ii.quantity > 0,
+                  ) && assistant.config[key].includes(i.item_id),
+              );
+              break;
+          }
+      
+          if (!actionableItems.length) {
+            return;
+          }
 
-        if (actionFn && actionableItems.length) {
-          jobs.push(() => {
-            const rngA = Math.floor(Math.random() * actionableItems.length);
-            const rngB = Math.floor(Math.random() * actionableItems.length);
-            const actionItem = actionableItems.sort(() => rngA - rngB)[0];
-            // @TODO: Is this the best place for this?
-            const canAfford = state.value.gold >= assistant.cost_per_action;
+          let actionItem = actionableItems[0];
 
-            if (actionFn && actionItem && canAfford) {
-              state.value.gold -= assistant.cost_per_action;
-              actionFn(state, assistant, actionItem);
-            }
-          });
-        }
+          if (actionableItems.length > 1 ) {
+            actionItem = actionableItems[Math.random() * actionableItems.length];
+          }
+
+          if (actionFn === userDidSmith && !hasIngredientsFor(state, actionItem)) {
+            return;
+          }
+
+          if (
+            actionFn && 
+            actionItem && 
+            state.value.gold >= assistant.cost_per_action
+          ) {
+            state.value.gold -= assistant.cost_per_action;
+            actionFn(state, assistant, actionItem);
+          }
+        });
       }
 
       return jobs;

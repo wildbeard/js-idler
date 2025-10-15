@@ -99,7 +99,7 @@
                                     type="checkbox"
                                     :checked="configuringAssistant.config.smithing.includes(item.item_id)"
                                     @click="toggleAssistantJob(configuringAssistant, 'smithing', item.item_id)">
-                                    {{ getItem(item.item_id)?.name }}
+                                    {{ item.name }}
                             </label>
                         </li>
                     </ul>
