@@ -76,6 +76,54 @@
  */
 
 /**
+ * @typedef Autoer
+ * @type {object}
+ *
+ * @property {string} id
+ * @property {string} name
+ * @property {string} description
+ * @property {number} interval
+ * @property {string} affects
+ * @property {number} cost
+ * @property {string} category
+ * @property {{
+ *  id: string,
+ *  level: number,
+ *  cost: number,
+ *  value: number,
+ *  requirements: {
+ *    smithing: number,
+ *    mining: number,
+ * }
+ * }[]} upgrades
+ */
+
+/**
+ * @typedef PurchasedAutoer
+ * @type {object}
+ *
+ * @property {string} id
+ * @property {string} name
+ * @property {string} description
+ * @property {number} interval
+ * @property {string} affects
+ * @property {number} cost
+ * @property {string} category
+ * @property {{
+ *  id: string,
+ *  level: number,
+ *  cost: number,
+ *  value: number,
+ *  requirements: {
+ *    smithing: number,
+ *    mining: number,
+ * }
+ * }[]} upgrades
+ * @property {number} interval_id
+ * @property {function} fn
+ */
+
+/**
  * @typedef Assistant
  * @type {object}
  *
@@ -167,6 +215,7 @@
  * }} global_variables
  * @property {{mining: number, smithing: number}} levels
  * @property {{mining: number, mining_next_leve: number; smithing_next_level: number, smithing: number}} xp
+ * @property {PurchasedAutoer[]} autoers
  * @property {PurchasedUpgrade[]} upgrades
  * @property {{item_id: string, quantity: number}[]} inventory
  * @property {{ quest_id: number, step: number, complete: bool, }[]} quests_started
@@ -178,892 +227,10 @@
   function () {
     /** @type Item[] */
     const items = window.items;
+    /** @type Autoer[] */
+    const autoers = _autoers;
     /** @type  Upgrade[] */
-    const allUpgrades = [
-      {
-        id: 'automine_copper',
-        name: 'Copper Autominer',
-        description: 'Automagically mines copper for you!',
-        value: 2000,
-        cost: 25,
-        affects: 'copper_ore',
-        category: 'autoer',
-        upgrades: [
-          {
-            level: 0,
-            cost: 25,
-            value: 2000,
-            requirements: {
-              mining: 1,
-            },
-          },
-          {
-            level: 1,
-            cost: 75,
-            value: 1750,
-            requirements: {
-              mining: 2,
-            },
-          },
-          {
-            level: 2,
-            cost: 125,
-            value: 1500,
-            requirements: {
-              mining: 4,
-            },
-          },
-          {
-            level: 3,
-            cost: 175,
-            value: 1250,
-            requirements: {
-              mining: 6,
-            },
-          },
-          {
-            level: 4,
-            cost: 225,
-            value: 1000,
-            requirements: {
-              mining: 6,
-            },
-          },
-        ],
-        fn: (s) =>
-          autoerAction(
-            s,
-            items.find((i) => i.item_id === 'copper_ore'),
-            'mining',
-          ),
-      },
-      {
-        id: 'automine_tin',
-        name: 'Tin Autominer',
-        description: 'Automagically mines tin for you!',
-        value: 2000,
-        cost: 25,
-        affects: 'copper_tin',
-        category: 'autoer',
-        upgrades: [
-          {
-            level: 0,
-            cost: 25,
-            value: 2000,
-            requirements: {
-              mining: 1,
-            },
-          },
-          {
-            level: 1,
-            cost: 75,
-            value: 1750,
-            requirements: {
-              mining: 2,
-            },
-          },
-          {
-            level: 2,
-            cost: 125,
-            value: 1500,
-            requirements: {
-              mining: 4,
-            },
-          },
-          {
-            level: 3,
-            cost: 175,
-            value: 1250,
-            requirements: {
-              mining: 6,
-            },
-          },
-          {
-            level: 4,
-            cost: 225,
-            value: 1000,
-            requirements: {
-              mining: 6,
-            },
-          },
-        ],
-        fn: (s) =>
-          autoerAction(
-            s,
-            items.find((i) => i.item_id === 'tin_ore'),
-            'mining',
-          ),
-      },
-      {
-        id: 'autosmelt_bronze',
-        name: 'Bronze Autosmelter',
-        description:
-          "Imagine having an apprentice smelting bronze for you. It's just like that.",
-        value: 2000,
-        cost: 100,
-        affects: 'bronze_bar',
-        category: 'autoer',
-        upgrades: [
-          {
-            level: 0,
-            cost: 100,
-            value: 2000,
-            requirements: {
-              smithing: 1,
-            },
-          },
-          {
-            level: 1,
-            cost: 200,
-            value: 1750,
-            requirements: {
-              smithing: 4,
-            },
-          },
-          {
-            level: 2,
-            cost: 350,
-            value: 1500,
-            requirements: {
-              smithing: 4,
-            },
-          },
-          {
-            level: 3,
-            cost: 500,
-            value: 1250,
-            requirements: {
-              smithing: 6,
-            },
-          },
-          {
-            level: 4,
-            cost: 1000,
-            value: 1000,
-            requirements: {
-              smithing: 6,
-            },
-          },
-        ],
-        fn: (s) =>
-          autoerAction(
-            s,
-            items.find((i) => i.item_id === 'bronze_bar'),
-            'smithing',
-          ),
-      },
-      {
-        id: 'autoforge_bronze_sword',
-        name: 'Bronze Sword Autohammer',
-        description:
-          "Remember your bronze bar apprentice? Well they're good enough to make swords now.",
-        value: 2000,
-        cost: 200,
-        affects: 'bronze_sword',
-        category: 'autoer',
-        upgrades: [
-          {
-            level: 0,
-            cost: 200,
-            value: 2000,
-            requirements: {
-              smithing: 2,
-            },
-          },
-          {
-            level: 1,
-            cost: 300,
-            value: 1750,
-            requirements: {
-              smithing: 3,
-            },
-          },
-          {
-            level: 2,
-            cost: 450,
-            value: 1500,
-            requirements: {
-              smithing: 5,
-            },
-          },
-          {
-            level: 3,
-            cost: 600,
-            value: 1250,
-            requirements: {
-              smithing: 6,
-            },
-          },
-          {
-            level: 4,
-            cost: 1200,
-            value: 1000,
-            requirements: {
-              smithing: 6,
-            },
-          },
-        ],
-        fn: (s) =>
-          autoerAction(
-            s,
-            items.find((i) => i.item_id === 'bronze_sword'),
-            'smithing',
-          ),
-      },
-      {
-        id: 'copper_mining_excess',
-        name: 'Mining: Excess Copper',
-        description: 'Lady luck is on your side but she prefers copper.',
-        cost: 100,
-        value: 0.1,
-        affects: 'copper_ore',
-        category: 'mining_excess',
-        upgrades: [
-          {
-            level: 0,
-            value: 0.1,
-            cost: 200,
-            requirements: {
-              mining: 8,
-            },
-          },
-          {
-            id: 'copper_mining_excess',
-            level: 1,
-            value: 0.15,
-            cost: 350,
-            requirements: {
-              mining: 9,
-            },
-          },
-          {
-            id: 'copper_mining_excess',
-            level: 2,
-            value: 0.25,
-            cost: 450,
-            requirements: {
-              mining: 11,
-            },
-          },
-          {
-            id: 'copper_mining_excess',
-            level: 3,
-            value: 0.75,
-            cost: 750,
-            requirements: {
-              mining: 13,
-            },
-          },
-          {
-            id: 'copper_mining_excess',
-            level: 4,
-            value: 1.0,
-            cost: 1000,
-            requirements: {
-              mining: 15,
-            },
-          },
-        ],
-      },
-      {
-        id: 'tin_mining_excess',
-        name: 'Mining: Excess Tin',
-        description:
-          'Lady luck is back, but this time she fancies tin. Or is it ten? Tin ten?',
-        cost: 100,
-        value: 0.1,
-        affects: 'tin_ore',
-        category: 'mining_excess',
-        upgrades: [
-          {
-            level: 0,
-            cost: 200,
-            value: 0.1,
-            requirements: {
-              mining: 8,
-            },
-          },
-          {
-            id: 'tin_mining_excess',
-            level: 1,
-            value: 0.15,
-            cost: 350,
-            requirements: {
-              mining: 9,
-            },
-          },
-          {
-            id: 'tin_mining_excess',
-            level: 2,
-            value: 0.25,
-            cost: 450,
-            requirements: {
-              mining: 11,
-            },
-          },
-          {
-            id: 'tin_mining_excess',
-            level: 3,
-            value: 0.75,
-            cost: 750,
-            requirements: {
-              mining: 13,
-            },
-          },
-          {
-            id: 'tin_mining_excess',
-            level: 4,
-            value: 1.0,
-            cost: 1000,
-            requirements: {
-              mining: 15,
-            },
-          },
-        ],
-      },
-      {
-        id: 'store_max_assistants',
-        name: 'Shop: Max Assistants',
-        description: 'Upgrading your shop allows you to hire more assistants.',
-        cost: 750,
-        affects: 'global_variables.max_assistants',
-        category: 'shop',
-        value: 2,
-        upgrades: [
-          {
-            level: 0,
-            cost: 750,
-            value: 2,
-            requirements: {
-              mining: 10,
-              smithing: 10,
-            },
-          },
-          {
-            level: 1,
-            cost: 1200,
-            value: 3,
-            requirements: {
-              mining: 22,
-              smithing: 22,
-            },
-          },
-          {
-            level: 2,
-            cost: 1800,
-            value: 4,
-            requirements: {
-              mining: 34,
-              smithing: 34,
-            },
-          },
-        ],
-      },
-      {
-        id: 'bronze_sword_store',
-        name: 'Shopfront: Bronze Weapon',
-        description: "Automatically sells a random bronze weapon you've made.",
-        cost: 250,
-        affects: 'weapons',
-        category: 'autoer',
-        value: 2000,
-        upgrades: [
-          {
-            level: 0,
-            cost: 250,
-            value: 2000,
-            requirements: {
-              smithing: 5,
-            },
-          },
-          {
-            level: 1,
-            cost: 350,
-            value: 1750,
-            requirements: {
-              smithing: 5,
-            },
-          },
-          {
-            level: 2,
-            cost: 450,
-            value: 1500,
-            requirements: {
-              smithing: 8,
-            },
-          },
-          {
-            level: 3,
-            cost: 550,
-            value: 1250,
-            requirements: {
-              smithing: 8,
-            },
-          },
-          {
-            level: 4,
-            cost: 650,
-            value: 1000,
-            requirements: {
-              smithing: 10,
-            },
-          },
-          {
-            level: 5,
-            cost: 750,
-            value: 750,
-            requirements: {
-              smithing: 10,
-            },
-          },
-          {
-            level: 6,
-            cost: 850,
-            value: 500,
-            requirements: {
-              smithing: 10,
-            },
-          },
-        ],
-        fn: (s) => {
-          const availItems = items.filter(
-            (i) =>
-              i.categories.includes('weapons') &&
-              i.categories.includes('bronze') &&
-              getInventoryItem(s, i.item_id) > 0,
-          );
-          const rng = Math.floor(Math.random() * availItems.length);
-          autoerAction(s, availItems[rng], 'selling');
-        },
-      },
-      {
-        id: 'time_is_money',
-        name: 'Time is Money',
-        description: 'Increase gold gained from sales.',
-        cost: 1000,
-        affects: 'sales',
-        value: 0.1,
-        category: 'gold_bonus',
-        upgrades: [
-          {
-            level: 0,
-            cost: 1000,
-            value: 0.1,
-            requirements: {
-              mining: 10,
-              smithing: 10,
-            },
-          },
-          {
-            level: 1,
-            cost: 2500,
-            value: 0.15,
-            requirements: {
-              mining: 20,
-              smithing: 20,
-            },
-          },
-          {
-            level: 2,
-            cost: 2750,
-            value: 0.25,
-            requirements: {
-              mining: 25,
-              smithing: 25,
-            },
-          },
-          {
-            level: 3,
-            cost: 3500,
-            value: 0.35,
-            requirements: {
-              mining: 30,
-              smithing: 30,
-            },
-          },
-          {
-            level: 4,
-            cost: 4000,
-            value: 0.45,
-            requirements: {
-              mining: 40,
-              smithing: 40,
-            },
-          },
-          {
-            level: 5,
-            cost: 4000,
-            value: 0.6,
-            requirements: {
-              mining: 50,
-              smithing: 50,
-            },
-          },
-          {
-            level: 6,
-            cost: 4000,
-            value: 0.8,
-            requirements: {
-              mining: 60,
-              smithing: 60,
-            },
-          },
-          {
-            level: 7,
-            cost: 4000,
-            value: 1.0,
-            requirements: {
-              mining: 70,
-              smithing: 70,
-            },
-          },
-        ],
-      },
-      {
-        id: 'money_is_time',
-        name: 'Money is Time',
-        description:
-          'Increases rate of all auto miners, smelters, forges, and sellers.',
-        cost: 1000,
-        affects: 'rates',
-        value: 0.1,
-        category: 'autoer_speed',
-        upgrades: [
-          {
-            level: 0,
-            cost: 1000,
-            value: 0.1,
-            requirements: {
-              mining: 10,
-              smithing: 10,
-            },
-          },
-          {
-            level: 1,
-            cost: 2500,
-            value: 0.15,
-            requirements: {
-              mining: 20,
-              smithing: 20,
-            },
-          },
-          {
-            level: 2,
-            cost: 2750,
-            value: 0.25,
-            requirements: {
-              mining: 25,
-              smithing: 25,
-            },
-          },
-          {
-            level: 3,
-            cost: 3500,
-            value: 0.35,
-            requirements: {
-              mining: 30,
-              smithing: 30,
-            },
-          },
-          {
-            level: 4,
-            cost: 4000,
-            value: 0.45,
-            requirements: {
-              mining: 40,
-              smithing: 40,
-            },
-          },
-          {
-            level: 5,
-            cost: 4000,
-            value: 0.6,
-            requirements: {
-              mining: 50,
-              smithing: 50,
-            },
-          },
-          {
-            level: 6,
-            cost: 4000,
-            value: 0.8,
-            requirements: {
-              mining: 60,
-              smithing: 60,
-            },
-          },
-          {
-            level: 7,
-            cost: 4000,
-            value: 1.0,
-            requirements: {
-              mining: 70,
-              smithing: 70,
-            },
-          },
-        ],
-      },
-      {
-        id: 'automine_iron',
-        name: 'Iron Autominer',
-        description: 'Automagically mines iron for you!',
-        value: 2000,
-        cost: 250,
-        affects: 'iron_ore',
-        category: 'autoer',
-        upgrades: [
-          {
-            level: 0,
-            cost: 250,
-            value: 2000,
-            requirements: {
-              mining: 10,
-            },
-          },
-          {
-            level: 1,
-            cost: 375,
-            value: 1750,
-            requirements: {
-              mining: 12,
-            },
-          },
-          {
-            level: 2,
-            cost: 500,
-            value: 1500,
-            requirements: {
-              mining: 14,
-            },
-          },
-          {
-            level: 3,
-            cost: 625,
-            value: 1250,
-            requirements: {
-              mining: 16,
-            },
-          },
-          {
-            level: 4,
-            cost: 750,
-            value: 1000,
-            requirements: {
-              mining: 18,
-            },
-          },
-          {
-            level: 5,
-            cost: 1000,
-            value: 750,
-            requirements: {
-              mining: 20,
-            },
-          },
-        ],
-        fn: (s) =>
-          autoerAction(
-            s,
-            items.find((i) => i.item_id === 'iron_ore'),
-            'mining',
-          ),
-      },
-      {
-        id: 'automine_coal',
-        name: 'Coal Autominer',
-        description: 'Automagically mines coal for you!',
-        value: 2000,
-        cost: 250,
-        affects: 'coal',
-        category: 'autoer',
-        upgrades: [
-          {
-            level: 0,
-            cost: 250,
-            value: 2000,
-            requirements: {
-              mining: 10,
-            },
-          },
-          {
-            level: 1,
-            cost: 375,
-            value: 1750,
-            requirements: {
-              mining: 12,
-            },
-          },
-          {
-            level: 2,
-            cost: 500,
-            value: 1500,
-            requirements: {
-              mining: 14,
-            },
-          },
-          {
-            level: 3,
-            cost: 625,
-            value: 1250,
-            requirements: {
-              mining: 16,
-            },
-          },
-          {
-            level: 4,
-            cost: 750,
-            value: 1000,
-            requirements: {
-              mining: 18,
-            },
-          },
-          {
-            level: 5,
-            cost: 1000,
-            value: 750,
-            requirements: {
-              mining: 20,
-            },
-          },
-        ],
-        fn: (s) =>
-          autoerAction(
-            s,
-            items.find((i) => i.item_id == 'coal'),
-            'mining',
-          ),
-      },
-      {
-        id: 'autosmelt_iron',
-        name: 'Iron Autosmelter',
-        description: "It'll smelt those iron bars for ya!",
-        value: 2000,
-        cost: 250,
-        affects: 'iron_bar',
-        category: 'autoer',
-        upgrades: [
-          {
-            level: 0,
-            cost: 250,
-            value: 2000,
-            requirements: {
-              smithing: 10,
-            },
-          },
-          {
-            level: 1,
-            cost: 375,
-            value: 1750,
-            requirements: {
-              smithing: 12,
-            },
-          },
-          {
-            level: 2,
-            cost: 500,
-            value: 1500,
-            requirements: {
-              smithing: 14,
-            },
-          },
-          {
-            level: 3,
-            cost: 625,
-            value: 1250,
-            requirements: {
-              smithing: 16,
-            },
-          },
-          {
-            level: 4,
-            cost: 750,
-            value: 1000,
-            requirements: {
-              smithing: 18,
-            },
-          },
-          {
-            level: 5,
-            cost: 1000,
-            value: 750,
-            requirements: {
-              smithing: 20,
-            },
-          },
-        ],
-        fn: (s) =>
-          autoerAction(
-            s,
-            items.find((i) => i.item_id == 'iron_bar'),
-            'smithing',
-          ),
-      },
-      {
-        id: 'autosmelt_steel',
-        name: 'Steel Autosmelter',
-        description: "It'll smelt those steel bars for ya!",
-        value: 2000,
-        cost: 500,
-        affects: 'steel_bar',
-        category: 'autoer',
-        upgrades: [
-          {
-            level: 0,
-            cost: 500,
-            value: 2000,
-            requirements: {
-              smithing: 20,
-            },
-          },
-          {
-            level: 1,
-            cost: 750,
-            value: 1750,
-            requirements: {
-              smithing: 22,
-            },
-          },
-          {
-            level: 2,
-            cost: 1000,
-            value: 1500,
-            requirements: {
-              smithing: 24,
-            },
-          },
-          {
-            level: 3,
-            cost: 1250,
-            value: 1250,
-            requirements: {
-              smithing: 26,
-            },
-          },
-          {
-            level: 4,
-            cost: 1350,
-            value: 1000,
-            requirements: {
-              smithing: 28,
-            },
-          },
-          {
-            level: 5,
-            cost: 1750,
-            value: 750,
-            requirements: {
-              smithing: 30,
-            },
-          },
-        ],
-        fn: (s) =>
-          autoerAction(
-            s,
-            items.find((i) => i.item_id == 'steel_bar'),
-            'smithing',
-          ),
-      },
-    ];
+    const allUpgrades = _upgrades;
     /** @type {Quest[]} */
     const quests = window.quests;
 
@@ -1095,6 +262,7 @@
         assistant_refresh_rate: 180000,
       },
       upgrades: [],
+      purchased_autoers: [],
       assistants: [],
       inventory: [
         {
@@ -1110,6 +278,7 @@
           quantity: 10,
         },
       ],
+      running_autoers: {},
       running_upgrades: {},
       quests_started: [],
       quests_completed: [],
@@ -1184,7 +353,7 @@
         name: data.name,
         description: data.description_template.replace(
           '&',
-          Math.floor(value * 100),
+          Math.floor(value * 100)
         ),
         skills: data.skills,
         affects: data.affects,
@@ -1203,7 +372,7 @@
 
       ingredients.forEach((ingredient) => {
         const item = state.value.inventory.find(
-          (i) => i.item_id === ingredient.item_id,
+          (i) => i.item_id === ingredient.item_id
         );
 
         if (!item || item.quantity < ingredient.quantity) {
@@ -1238,7 +407,7 @@
       while (currXp >= state.value.xp[nxtLvlKey]) {
         state.value.levels[key] += 1;
         state.value.xp[`${key}_xp_level`] = Math.abs(
-          state.value.xp[nxtLvlKey] - state.value.xp[key],
+          state.value.xp[nxtLvlKey] - state.value.xp[key]
         );
         state.value.xp[nxtLvlKey] += getXpForLevel(state.value.levels[key] + 1);
       }
@@ -1297,8 +466,15 @@
           break;
 
         case 'smithing':
-          const result = smith(state, item);
-          yield = result.success ? result.result[0].quantity : 0;
+          // @TODO: Figure out race condition that forces this to be necessary
+          if (hasIngredientsFor(state, item)) {
+            const result = smith(state, item);
+            yield = result.success ? result.result[0].quantity : 0;
+
+            result.result
+              .filter((r) => r.quantity < 0)
+              .forEach((r) => updateInventory(state, r.item_id, r.quantity));
+          }
           break;
 
         case 'selling':
@@ -1317,7 +493,7 @@
           state,
           action === 'mining' ? 'gathers' : 'crafts',
           item,
-          yield,
+          yield
         );
       }
 
@@ -1370,7 +546,7 @@
         result.result.push({
           item_id: ing.item_id,
           quantity: ing.quantity * -1,
-        }),
+        })
       );
 
       return result;
@@ -1390,7 +566,7 @@
       if (result.success) {
         updateXp(state, 'smithing', item.xp_given);
         let idx = state.value.stats.crafts.findIndex(
-          (i) => i.item_id === item.item_id,
+          (i) => i.item_id === item.item_id
         );
 
         if (idx === -1) {
@@ -1405,7 +581,7 @@
       }
 
       result.result.forEach((invUpdate) =>
-        updateInventory(state, invUpdate.item_id, invUpdate.quantity),
+        updateInventory(state, invUpdate.item_id, invUpdate.quantity)
       );
     };
 
@@ -1444,24 +620,24 @@
 
         updateXp(state, 'smithing', xp);
         result.result.forEach((invUpdate) =>
-          updateInventory(state, invUpdate.item_id, invUpdate.quantity),
+          updateInventory(state, invUpdate.item_id, invUpdate.quantity)
         );
       }
     };
 
     /**
-     * @param {Upgrade} upgrade
+     * @param {Upgrade} autoer
      * @param {{ id: string, const: number, level: number, value: number }} upgraded
      * @param {{ value: State }} state
      */
-    const upgradeAutoer = (upgrade, upgraded, state) => {
-      if (state.value.running_upgrades[upgrade.id]) {
-        upgrade.fn(state);
-        clearInterval(state.value.running_upgrades[upgrade.id]);
+    const upgradeAutoer = (autoer, upgraded, state) => {
+      if (state.value.running_autoers[autoer.id]) {
+        autoer.fn(state);
+        clearInterval(state.value.running_autoers[autoer.id]);
       }
 
-      state.value.running_upgrades[upgrade.id] = setInterval(() => {
-        upgrade.fn(state);
+      state.value.running_autoers[autoer.id] = setInterval(() => {
+        autoer.fn(state);
       }, upgraded.value);
     };
 
@@ -1474,6 +650,7 @@
      * @param {{ value: State }} state
      */
     const upgrade = (upgrade, level, state) => {
+      let targetStateKey = 'upgrades';
       let up;
 
       if (level === 0) {
@@ -1493,6 +670,39 @@
       }
 
       if (upgrade.category === 'autoer') {
+        targetStateKey = 'purchased_autoers';
+        upgrade.fn = () => {
+          let eligibleItems;
+
+          if (
+            upgrade.affects.includes('_weapons') ||
+            upgrade.affects.includes('_armor')
+          ) {
+            const age = upgrade.affects.split('_')[0];
+            const cat = upgrade.affects.split('_')[1];
+            eligibleItems = items.filter(
+              (i) => i.categories.includes(cat) && i.categories.includes(age)
+            );
+          } else {
+            eligibleItems = items.filter((i) => i.item_id === upgrade.affects);
+          }
+
+          const eligibleItem =
+            eligibleItems[Math.floor(Math.random() * eligibleItems.length)];
+
+          if (
+            upgrade.skill === 'smithing' &&
+            !hasIngredientsFor(state, eligibleItem)
+          ) {
+            return;
+          }
+
+          autoerAction(
+            state,
+            eligibleItems[Math.floor(Math.random() * eligibleItems.length)],
+            upgrade.skill
+          );
+        };
         upgradeAutoer(upgrade, up, state);
       } else if (upgrade.id === 'money_is_time') {
         // @TODO: Finish all running autoers + update their intervals
@@ -1505,7 +715,7 @@
 
         while (path.length > 1) {
           p = path.shift();
-          
+
           if (target.hasOwnProperty(p)) {
             target = target[p];
           } else {
@@ -1522,8 +732,8 @@
         }
       }
 
-      if (!state.value.upgrades.find((u) => u.id === upgrade.id)) {
-        state.value.upgrades.push({
+      if (!state.value[targetStateKey].find((u) => u.id === upgrade.id)) {
+        state.value[targetStateKey].push({
           id: upgrade.id,
           cost: up.cost,
           level: level,
@@ -1532,16 +742,16 @@
         });
       }
 
-      const currIdx = state.value.upgrades.findIndex(
-        (u) => u.id === upgrade.id,
+      const currIdx = state.value[targetStateKey].findIndex(
+        (u) => u.id === upgrade.id
       );
-      state.value.upgrades[currIdx] = {
+      state.value[targetStateKey][currIdx] = {
         id: upgrade.id,
         cost: up.cost,
         level: up.level,
         value:
           level !== 0 && upgrade.category !== 'autoer'
-            ? up.value + state.value.upgrades[currIdx].value
+            ? up.value + state.value[targetStateKey][currIdx].value
             : up.value,
         category: upgrade.category,
       };
@@ -1554,17 +764,19 @@
      * @returns {number}
      */
     const getUpgradeCost = (upgrade, state) => {
-      const currUpgrade = state.value.upgrades.find((u) => u.id === upgrade.id);
+      const key =
+        upgrade.category === 'autoer' ? 'purchased_autoers' : 'upgrades';
+      const currUpgrade = state.value[key].find((u) => u.id === upgrade.id);
 
       if (!currUpgrade) {
         return upgrade.cost;
       }
 
       const currPurchased = upgrade.upgrades.find(
-        (u) => u.level === currUpgrade.level,
+        (u) => u.level === currUpgrade.level
       );
       const cost = upgrade.upgrades.find(
-        (u) => u.level === currUpgrade.level + 1,
+        (u) => u.level === currUpgrade.level + 1
       );
       return cost?.cost ?? currPurchased.cost;
     };
@@ -1575,9 +787,9 @@
      */
     const userPurchasedUpgrade = (toUpgrade, state) => {
       // @TODO: Find the upgrade level to purchase
-      const currUpgrade = state.value.upgrades.find(
-        (u) => u.id === toUpgrade.id,
-      );
+      const key =
+        toUpgrade.category === 'autoer' ? 'purchased_autoers' : 'upgrades';
+      const currUpgrade = state.value[key].find((u) => u.id === toUpgrade.id);
       let cost = currUpgrade
         ? getUpgradeCost(toUpgrade, state)
         : toUpgrade.cost;
@@ -1590,6 +802,12 @@
 
       state.value.gold -= cost;
     };
+
+    /**
+     * @param {Autoer} autoer
+     * @param {{ value: State }} state
+     */
+    const userPurchasedAutoer = (autoer, state) => {};
 
     /**
      *
@@ -1605,7 +823,7 @@
       }
 
       let idx = state.value.stats[stat].findIndex(
-        (i) => i.item_id === item.item_id,
+        (i) => i.item_id === item.item_id
       );
 
       if (idx === -1) {
@@ -1641,7 +859,7 @@
      */
     const sellItem = (state, item) => {
       const bonusUpgrade = state.value.upgrades.find(
-        (u) => u.category === 'gold_bonus',
+        (u) => u.category === 'gold_bonus'
       );
       let gold = item.value;
 
@@ -1654,7 +872,7 @@
       state.value.stats.lifetime_wealth += gold;
 
       let statIdx = state.value.stats.sales.findIndex(
-        (i) => i.item_id === item.item_id,
+        (i) => i.item_id === item.item_id
       );
 
       if (statIdx === -1) {
@@ -1686,7 +904,7 @@
       // @TODO: Figure out why getAssistantJobFunctions isn't handling this!!
       if (
         !state.value.inventory.find(
-          (i) => i.item_id === item.item_id && i.quantity > 0,
+          (i) => i.item_id === item.item_id && i.quantity > 0
         )
       ) {
         console.log(`Not enough inventory for assistant to sell ${item.name}`);
@@ -1722,10 +940,12 @@
      * @returns {bool}
      */
     const hasRequirementsForUpgrade = (upgrade, state) => {
+      const key =
+        upgrade.category === 'autoer' ? 'purchased_autoers' : 'upgrades';
       const currLevel =
-        state.value.upgrades.find((u) => u.id === upgrade.id)?.level ?? 0;
+        state.value[key].find((u) => u.id === upgrade.id)?.level ?? 0;
       const nextLevel = upgrade.upgrades.find(
-        (u) => u.level === (currLevel === 0 ? 0 : currLevel + 1),
+        (u) => u.level === (currLevel === 0 ? 0 : currLevel + 1)
       );
 
       if (!nextLevel) {
@@ -1747,10 +967,12 @@
      * @returns {bool}
      */
     const canUpgradeUpgrade = (upgrade, state) => {
+      const key =
+        upgrade.category === 'autoer' ? 'purchased_autoers' : 'upgrades';
       const currLevel =
-        state.value.upgrades.find((u) => u.id === upgrade.id)?.level ?? 0;
+        state.value[key].find((u) => u.id === upgrade.id)?.level ?? 0;
       const nextLevel = upgrade.upgrades.find(
-        (u) => u.level === (currLevel === 0 ? 0 : currLevel + 1),
+        (u) => u.level === (currLevel === 0 ? 0 : currLevel + 1)
       );
 
       if (!nextLevel || nextLevel.cost > state.value.gold) {
@@ -1785,7 +1007,7 @@
           if (requiredQuests.length !== 0) {
             hasRequirements =
               requiredQuests.filter((q) =>
-                state.value.quests_completed.includes(q),
+                state.value.quests_completed.includes(q)
               ).length === requiredQuests.length;
 
             if (!hasRequirements) {
@@ -1803,7 +1025,7 @@
      */
     const canCompleteQuest = (quest, state) => {
       const currStep = state.value.quests_started.find(
-        (q) => q.quest_id === quest.id,
+        (q) => q.quest_id === quest.id
       );
 
       if (!currStep) {
@@ -1834,7 +1056,9 @@
 
       if (
         questStep.requirements.items?.filter(
-          (i) => getInventoryItem(state, i.item_id) < i.value || getInventoryItem(state, i.item_id) === 0,
+          (i) =>
+            getInventoryItem(state, i.item_id) < i.value ||
+            getInventoryItem(state, i.item_id) === 0
         ).length > 0
       ) {
         return false;
@@ -1844,8 +1068,8 @@
         questStep.requirements.upgrades?.length &&
         state.value.upgrades.filter((u) =>
           questStep.requirements.upgrades.find(
-            (uu) => uu.upgrade_id === u.id && uu.value > u.level,
-          ),
+            (uu) => uu.upgrade_id === u.id && uu.value > u.level
+          )
         ).length < questStep.requirements.upgrades.length
       ) {
         return false;
@@ -1874,7 +1098,7 @@
       state.value.quests_started[idx].complete = true;
 
       for (const qItemReq of currStep.requirements.items.filter(
-        (i) => i.consumed,
+        (i) => i.consumed
       )) {
         updateInventory(state, qItemReq.item_id, qItemReq.value * -1);
       }
@@ -1912,7 +1136,7 @@
       }
 
       state.value.quests_started = state.value.quests_started.filter(
-        (q) => q.quest_id !== quest.id,
+        (q) => q.quest_id !== quest.id
       );
       state.value.quests_completed.push(quest.id);
 
@@ -1968,7 +1192,7 @@
         // Default to doing nothing for selling for now
         if (skill !== 'selling') {
           avail = items.filter(
-            (i) => i.skill === skill && i.level <= state.value.levels[skill],
+            (i) => i.skill === skill && i.level <= state.value.levels[skill]
           );
         }
 
@@ -2045,7 +1269,7 @@
               actionableItems = items.filter(
                 (i) =>
                   i.skill === 'mining' &&
-                  assistant.config[key].includes(i.item_id),
+                  assistant.config[key].includes(i.item_id)
               );
               break;
 
@@ -2055,7 +1279,7 @@
                 (i) =>
                   i.skill === 'smithing' &&
                   assistant.config[key].includes(i.item_id) &&
-                  hasIngredientsFor(state, i),
+                  hasIngredientsFor(state, i)
               );
               break;
 
@@ -2064,29 +1288,35 @@
               actionableItems = items.filter(
                 (i) =>
                   state.value.inventory.find(
-                    (ii) => ii.item_id === i.item_id && ii.quantity > 0,
-                  ) && assistant.config[key].includes(i.item_id),
+                    (ii) => ii.item_id === i.item_id && ii.quantity > 0
+                  ) && assistant.config[key].includes(i.item_id)
               );
               break;
           }
-      
+
           if (!actionableItems.length) {
             return;
           }
 
           let actionItem = actionableItems[0];
 
-          if (actionableItems.length > 1 ) {
-            actionItem = actionableItems[Math.floor(Math.random() * actionableItems.length)];
+          if (actionableItems.length > 1) {
+            actionItem =
+              actionableItems[
+                Math.floor(Math.random() * actionableItems.length)
+              ];
           }
 
-          if (actionFn === assistantDidSmith && !hasIngredientsFor(state, actionItem)) {
+          if (
+            actionFn === assistantDidSmith &&
+            !hasIngredientsFor(state, actionItem)
+          ) {
             return;
           }
 
           if (
-            actionFn && 
-            actionItem && 
+            actionFn &&
+            actionItem &&
             state.value.gold >= assistant.cost_per_action
           ) {
             state.value.gold -= assistant.cost_per_action;
@@ -2107,9 +1337,7 @@
      * @returns {bool}
      */
     const canHireAssistant = (assistant, state) => {
-      const currLvl = state.value.assistants.find(
-        (a) => a.id === assistant.id,
-      );
+      const currLvl = state.value.assistants.find((a) => a.id === assistant.id);
       const nextLvl = currLvl ? currLvl.level + 1 : 0;
       const requirements = assistant.upgrades.find((u) => u.level === nextLvl);
 
@@ -2125,9 +1353,7 @@
      * @returns {bool}
      */
     const hasRequirementsForAssistant = (assistant, state) => {
-      const currLvl = state.value.assistants.find(
-        (a) => a.id === assistant.id,
-      );
+      const currLvl = state.value.assistants.find((a) => a.id === assistant.id);
       const nextLvl = currLvl ? currLvl.level + 1 : 0;
       const requirements = assistant.upgrades.find((u) => u.level === nextLvl);
 
@@ -2136,7 +1362,8 @@
       }
 
       for (const key in requirements.requirements) {
-        if (state.value.levels[key] < requirements.requirements[key]) { return false;
+        if (state.value.levels[key] < requirements.requirements[key]) {
+          return false;
         }
       }
 
@@ -2152,7 +1379,7 @@
       const available = perksData.filter((p) => p.skills.includes(skill));
       const perkData = available.sort(
         () =>
-          Math.random() * available.length - Math.random() * available.length,
+          Math.random() * available.length - Math.random() * available.length
       )[0];
       return createPerkFromData(perkData, state);
     };
@@ -2210,7 +1437,7 @@
       const skill =
         preferredSkill ??
         skills.sort(
-          () => Math.floor(Math.random() * 3) - Math.floor(Math.random() * 3),
+          () => Math.floor(Math.random() * 3) - Math.floor(Math.random() * 3)
         )[0];
       const perk = generateAssistantPerk(skill, state);
       const id = Math.floor(Math.random() * 100000);
@@ -2245,22 +1472,25 @@
         const firingAssistant = ref(null);
         const availableOreList = computed(() =>
           items.filter(
-            (i) => i.skill === 'mining' && i.level <= s.value.levels.mining,
-          ),
+            (i) => i.skill === 'mining' && i.level <= s.value.levels.mining
+          )
         );
         const availabeSmithableList = computed(() =>
           items.filter(
-            (i) => i.skill === 'smithing' && i.level <= s.value.levels.smithing,
-          ),
+            (i) => i.skill === 'smithing' && i.level <= s.value.levels.smithing
+          )
         );
         const availableQuests = computed(() =>
-          quests.filter((q) => !s.value.quests_completed.includes(q.id)),
+          quests.filter((q) => !s.value.quests_completed.includes(q.id))
         );
         const availableUpgrades = computed(() =>
-          allUpgrades.filter((u) => hasRequirementsForUpgrade(u, s)),
+          allUpgrades.filter((u) => hasRequirementsForUpgrade(u, s))
+        );
+        const availableAutoers = computed(() =>
+          autoers.filter((a) => hasRequirementsForUpgrade(a, s))
         );
         const availableAssistants = computed(() =>
-          assistants.value.filter((a) => hasRequirementsForAssistant(a, s)),
+          assistants.value.filter((a) => hasRequirementsForAssistant(a, s))
         );
         // hehexdd
         window.toggleStats = () => {
@@ -2290,6 +1520,7 @@
           availabeSmithableList,
           availableQuests,
           availableUpgrades,
+          availableAutoers,
           availableAssistants,
           currentQuest,
           viewingQuest,
@@ -2314,7 +1545,7 @@
            */
           hasInventory: (item) =>
             !!s.value.inventory.find(
-              (i) => i.item_id === item.item_id && i.quantity > 0,
+              (i) => i.item_id === item.item_id && i.quantity > 0
             ),
           /**
            * @param {Item} item
@@ -2356,7 +1587,7 @@
           completeQuestStep: () => {
             const currentStep = s.value.quests_started[0].step;
             const hasMoreSteps = currentQuest.value.steps.find(
-              (s) => s.id === currentStep + 1,
+              (s) => s.id === currentStep + 1
             );
 
             completeQuestStep(currentQuest.value, currentStep, s);
@@ -2380,7 +1611,7 @@
             return Math.floor(
               (s.value.xp[`${skill}_xp_level`] /
                 getXpForLevel(s.value.levels[skill])) *
-                100,
+                100
             );
           },
           /**
@@ -2398,11 +1629,11 @@
            * @returns {string}
            */
           getUpgradeText: (upgrade) => {
-            const currUpgrade = s.value.upgrades.find(
-              (u) => u.id === upgrade.id,
-            );
+            const key =
+              upgrade.category === 'autoer' ? 'purchased_autoers' : 'upgrades';
+            const currUpgrade = s.value[key].find((u) => u.id === upgrade.id);
             const maxUpgrade = upgrade.upgrades.sort(
-              (a, b) => a.level <= b.level,
+              (a, b) => a.level <= b.level
             )[0];
             let text = upgrade.name;
 
@@ -2424,17 +1655,17 @@
            */
           canUpgradeUpgrade: (upgrade) => canUpgradeUpgrade(upgrade, s),
           /**
-           * @param {Assistant} assistant 
+           * @param {Assistant} assistant
            * @returns {bool}
            */
           canHireAssistant: (assistant) => {
             return (
-              s.value.global_variables.max_assistants > s.value.assistants.length &&
-              canHireAssistant(assistant, s)
+              s.value.global_variables.max_assistants >
+                s.value.assistants.length && canHireAssistant(assistant, s)
             );
           },
           /**
-           * @param {PurchasedAssistant} assistant 
+           * @param {PurchasedAssistant} assistant
            * @returns {bool}
            */
           canUpgradeAssistant: (assistant) => canHireAssistant(assistant, s),
@@ -2458,7 +1689,7 @@
           hireAssistant: (assistant) => {
             hireAssistant(assistant, s);
             assistants.value = assistants.value.filter(
-              (a) => a.id !== assistant.id,
+              (a) => a.id !== assistant.id
             );
             configuringAssistant.value =
               s.value.assistants[s.value.assistants.length - 1];
@@ -2478,7 +1709,7 @@
           fireAssistant: (assistant) => {
             clearInterval(firingAssistant.value.interval_id);
             s.value.assistants = s.value.assistants.filter(
-              (a) => a.id !== assistant.id,
+              (a) => a.id !== assistant.id
             );
             firingAssistant.value = null;
           },
@@ -2493,7 +1724,7 @@
            */
           saveAssistantConfig: (purchasedAssistant) => {
             const idx = s.value.assistants.findIndex(
-              (a) => a.id === purchasedAssistant.id,
+              (a) => a.id === purchasedAssistant.id
             );
 
             if (idx === -1) {
@@ -2502,7 +1733,7 @@
             }
 
             s.value.assistants[idx] = JSON.parse(
-              JSON.stringify(purchasedAssistant),
+              JSON.stringify(purchasedAssistant)
             );
             configuringAssistant.value = null;
 
@@ -2513,7 +1744,7 @@
            */
           upgradeAssistant: (purchasedAssistant) => {
             const nxtLvl = purchasedAssistant.upgrades.find(
-              (u) => u.level === purchasedAssistant.level + 1,
+              (u) => u.level === purchasedAssistant.level + 1
             );
 
             if (!nxtLvl) {
@@ -2542,7 +1773,7 @@
            */
           getAssistantUpgradeCost: (purchasedAssistant) => {
             const nxtLvl = purchasedAssistant.upgrades.find(
-              (u) => u.level === purchasedAssistant.level + 1,
+              (u) => u.level === purchasedAssistant.level + 1
             );
 
             if (!nxtLvl) {
@@ -2557,7 +1788,7 @@
            */
           getAssistantUpgradeTitle: (assistant) => {
             const nxtLvl = assistant.upgrades.find(
-              (u) => u.level === assistant.level + 1,
+              (u) => u.level === assistant.level + 1
             );
 
             if (!nxtLvl) {

@@ -243,6 +243,26 @@
                 </div>
 
                 <div>
+                    <p>Autoers</p>
+
+                    <ul class="available-autoers">
+                        <li 
+                            v-for="autoer in availableAutoers"
+                            :key="autoer.id">
+                        {{ getUpgradeText(autoer) }}
+                        <br>
+                        <button
+                            type="button"
+                            :title="autoer.description"
+                            @click="userPurchasedUpgrade(autoer)"
+                            :disabled="!canUpgradeUpgrade(autoer)">
+                            {{ s.purchased_autoers.find((a) => a.id === autoer.id) ? 'Upgrade' : 'Buy '}}
+                        </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
                     <p>Upgrades</p>
                     <ul class="available-upgrades">
                         <li v-for="upgrade in availableUpgrades" :key="upgrade.id">
@@ -379,6 +399,8 @@
             </div>
         </div>
 
+        <script src="upgrades.js"></script>
+        <script src="autoers.js"></script>
         <script src="items.js"></script>
         <script src="quests.js"></script>
         <script src="script.js"></script>
