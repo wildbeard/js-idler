@@ -149,7 +149,7 @@ window.quests = [
           "Sure, you get some ore, but you get no experience from the work they do. What good is that? Why don't you test out the tin and copper autominers?",
         requirements: {
           items: [],
-          upgrades: [
+          autoers: [
             {
               upgrade_id: 'automine_copper',
               value: 1,
@@ -168,14 +168,15 @@ window.quests = [
   {
     id: 'introduction_assistants',
     name: 'Assistant Assitance',
-    description: "What good is a shop without some hired help? Those autominers and smithers are fancy but ya can't learn nothin' from em. What you need is an assistant.",
+    description:
+      "What good is a shop without some hired help? Those autominers and smithers are fancy but ya can't learn nothin' from em. What you need is an assistant.",
     requirements: {
       stats: {},
       levels: {
         mining: 1,
         smithing: 1,
       },
-      quests: ['introduction_autoers',],
+      quests: ['introduction_autoers'],
     },
     rewards: [
       {
@@ -208,7 +209,8 @@ window.quests = [
       {
         id: 0,
         name: 'An Assisted Overview',
-        description: 'Assistants help ya around the shop and can help ya learn a thing or two by sharing what they know. They only downside? Ya gotta pay em.',
+        description:
+          'Assistants help ya around the shop and can help ya learn a thing or two by sharing what they know. They only downside? Ya gotta pay em.',
         requirements: {
           items: [],
           upgrades: [],
@@ -217,7 +219,8 @@ window.quests = [
       {
         id: 1,
         name: 'An Assisted Overview',
-        description: 'Assistants have their own set of skills and talents but they come at a cost. Each action they perform, be it mining, smithing, or selling, will cost some gold. The better they are the more it costs.',
+        description:
+          'Assistants have their own set of skills and talents but they come at a cost. Each action they perform, be it mining, smithing, or selling, will cost some gold. The better they are the more it costs.',
         requirements: {
           items: [],
           upgrades: [],
@@ -226,7 +229,8 @@ window.quests = [
       {
         id: 2,
         name: 'An Assisted Overview',
-        description: 'Assistants can also be trained to be better at their job. They can only get so good, and each time ya train em it will cost ya even more gold.',
+        description:
+          'Assistants can also be trained to be better at their job. They can only get so good, and each time ya train em it will cost ya even more gold.',
         requirements: {
           items: [],
           upgrades: [],
@@ -235,7 +239,8 @@ window.quests = [
       {
         id: 3,
         name: 'An Assisted Overview',
-        description: "Don't go on a hiring frenzy. You're only allowed to hire a couple of assistants at a time and if you run out of gold that's it! They stop working!",
+        description:
+          "Don't go on a hiring frenzy. You're only allowed to hire a couple of assistants at a time and if you run out of gold that's it! They stop working!",
         requirements: {
           items: [],
           upgrades: [],
@@ -244,7 +249,8 @@ window.quests = [
       {
         id: 4,
         name: 'An Assisted Overview',
-        description: "That's all for now, though. I found this fella named Jimothy on the streets. He'd like to help ya out. I don't know what he's good at but some work is better than no work.",
+        description:
+          "That's all for now, though. I found this fella named Jimothy on the streets. He'd like to help ya out. I don't know what he's good at but some work is better than no work.",
         requirements: {
           items: [],
           upgrades: [],

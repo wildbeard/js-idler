@@ -1075,6 +1075,18 @@
         return false;
       }
 
+      // @TODO: Zzzz this is redundant from the above
+      if (
+        questStep.requirements.autoers?.length &&
+        state.value.purchased_autoers.filter((u) =>
+          questStep.requirements.autoers.find(
+            (uu) => uu.upgrade_id === u.id && uu.value > u.level
+          )
+        ).length < questStep.requirements.autoers.length
+      ) {
+        return false;
+      }
+
       return true;
     };
 
