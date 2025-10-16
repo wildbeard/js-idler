@@ -315,4 +315,108 @@ const _upgrades = [
       },
     ],
   },
+  {
+    id: 'autoer_mining_xp',
+    name: 'Mining Autoer: XP',
+    description:
+      'Mining Autoers now give a small portion of xp for each action performed.',
+    cost: 1200,
+    value: 0.1,
+    affects: 'xp',
+    category: 'xp',
+    upgrades: [
+      {
+        level: 0,
+        cost: 1200,
+        value: 0.1,
+        requirements: {
+          mining: 15,
+        },
+      },
+      {
+        level: 1,
+        cost: 1650,
+        value: 0.2,
+        requirements: {
+          mining: 30,
+        },
+      },
+      {
+        level: 2,
+        cost: 2200,
+        value: 0.3,
+        requirements: {
+          mining: 50,
+        },
+      },
+      {
+        level: 3,
+        cost: 2450,
+        value: 0.45,
+        requirements: {
+          mining: 60,
+        },
+      },
+      {
+        level: 4,
+        cost: 2600,
+        value: 0.6,
+        requirements: {
+          mining: 72,
+        },
+      },
+    ],
+  },
+  {
+    id: 'autoer_smithing_xp',
+    name: 'Smithing Autoer: XP',
+    description:
+      'Smithing Autoers now give a small portion of xp for each action performed.',
+    cost: 1200,
+    value: 0.1,
+    affects: 'xp',
+    category: 'xp',
+    upgrades: [
+      {
+        level: 0,
+        cost: 1200,
+        value: 0.1,
+        requirements: {
+          mining: 15,
+        },
+      },
+      {
+        level: 1,
+        cost: 1650,
+        value: 0.2,
+        requirements: {
+          mining: 30,
+        },
+      },
+      {
+        level: 2,
+        cost: 2200,
+        value: 0.3,
+        requirements: {
+          mining: 50,
+        },
+      },
+      {
+        level: 3,
+        cost: 2450,
+        value: 0.45,
+        requirements: {
+          mining: 60,
+        },
+      },
+      {
+        level: 4,
+        cost: 2600,
+        value: 0.6,
+        requirements: {
+          mining: 72,
+        },
+      },
+    ],
+  },
 ];

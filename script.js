@@ -457,12 +457,23 @@
      * @param {'mining' | 'smithing' | 'selling'} action
      */
     const autoerAction = (state, item, action) => {
+      const xpPercentUpgrade = state.value.upgrades.find(
+        (u) => u.id === `autoer_${action}_xp`
+      );
+      let xpPercent = 0;
       let xp = 0;
       let yield = 0;
+
+      if (xpPercentUpgrade) {
+        xpPercent = allUpgrades
+          .find((u) => u.id === xpPercentUpgrade.id)
+          ?.upgrades.find((u) => u.level === xpPercentUpgrade.level)?.value;
+      }
 
       switch (action) {
         case 'mining':
           yield = mine(state, item);
+          xp = Math.floor(item.xp_given * xpPercent);
           break;
 
         case 'smithing':
@@ -470,6 +481,7 @@
           if (hasIngredientsFor(state, item)) {
             const result = smith(state, item);
             yield = result.success ? result.result[0].quantity : 0;
+            xp = Math.floor(item.xp_given * xpPercent);
 
             result.result
               .filter((r) => r.quantity < 0)
