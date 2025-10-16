@@ -522,6 +522,44 @@
         ],
       },
       {
+        id: 'store_max_assistants',
+        name: 'Shop: Max Assistants',
+        description: 'Upgrading your shop allows you to hire more assistants.',
+        cost: 750,
+        affects: 'global_variables.max_assistants',
+        category: 'shop',
+        value: 2,
+        upgrades: [
+          {
+            level: 0,
+            cost: 750,
+            value: 2,
+            requirements: {
+              mining: 10,
+              smithing: 10,
+            },
+          },
+          {
+            level: 1,
+            cost: 1200,
+            value: 3,
+            requirements: {
+              mining: 22,
+              smithing: 22,
+            },
+          },
+          {
+            level: 2,
+            cost: 1800,
+            value: 4,
+            requirements: {
+              mining: 34,
+              smithing: 34,
+            },
+          },
+        ],
+      },
+      {
         id: 'bronze_sword_store',
         name: 'Shopfront: Bronze Weapon',
         description: "Automatically sells a random bronze weapon you've made.",
@@ -1052,7 +1090,7 @@
         smithing_next_level: 83,
       },
       global_variables: {
-        max_assistants: 3,
+        max_assistants: 1,
         max_available_assistants: 2,
         assistant_refresh_rate: 180000,
       },
@@ -1459,6 +1497,29 @@
       } else if (upgrade.id === 'money_is_time') {
         // @TODO: Finish all running autoers + update their intervals
         // Also create a function to do this rather than repeating code
+      } else if (upgrade.category === 'shop') {
+        // Bleh
+        const path = upgrade.affects.split('.');
+        let p = '';
+        let target = state.value;
+
+        while (path.length > 1) {
+          p = path.shift();
+          
+          if (target.hasOwnProperty(p)) {
+            target = target[p];
+          } else {
+            break;
+          }
+        }
+
+        // I don't particularly like abusing JS like this but
+        // itiswhatitis.jpg
+        p = path.shift();
+
+        if (target.hasOwnProperty(p)) {
+          target[p] = up.value;
+        }
       }
 
       if (!state.value.upgrades.find((u) => u.id === upgrade.id)) {
