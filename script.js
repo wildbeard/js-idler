@@ -2397,7 +2397,7 @@
           hireAssistant: (assistant) => {
             hireAssistant(assistant, s);
             assistants.value = assistants.value.filter(
-              (a) => a.id !== assistant.value,
+              (a) => a.id !== assistant.id,
             );
             configuringAssistant.value =
               s.value.assistants[s.value.assistants.length - 1];
