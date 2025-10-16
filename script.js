@@ -1773,8 +1773,8 @@
 
       if (
         questStep.requirements.items?.filter(
-          (i) => getInventoryItem(state, i.item_id) < i.value,
-        ).length
+          (i) => getInventoryItem(state, i.item_id) < i.value || getInventoryItem(state, i.item_id) === 0,
+        ).length > 0
       ) {
         return false;
       }
