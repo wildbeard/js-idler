@@ -215,7 +215,7 @@
  * }} global_variables
  * @property {{mining: number, smithing: number}} levels
  * @property {{mining: number, mining_next_leve: number; smithing_next_level: number, smithing: number}} xp
- * @property {PurchasedAutoer[]} autoers
+ * @property {PurchasedAutoer[]} purchased_autoers
  * @property {PurchasedUpgrade[]} upgrades
  * @property {{item_id: string, quantity: number}[]} inventory
  * @property {{ quest_id: number, step: number, complete: bool, }[]} quests_started
@@ -770,7 +770,7 @@
     };
 
     /**
-     * @param {Upgrade} upgrade
+     * @param {Upgrade | Autoer} upgrade
      * @param {{ value: State }} state
      *
      * @returns {number}
@@ -1508,10 +1508,18 @@
           quests.filter((q) => !s.value.quests_completed.includes(q.id))
         );
         const availableUpgrades = computed(() =>
-          allUpgrades.filter((u) => hasRequirementsForUpgrade(u, s))
+          allUpgrades.filter(
+            (u) =>
+              !s.value.upgrades.find((uu) => uu.id === u.id) &&
+              hasRequirementsForUpgrade(u, s)
+          )
         );
         const availableAutoers = computed(() =>
-          autoers.filter((a) => hasRequirementsForUpgrade(a, s))
+          autoers.filter(
+            (a) =>
+              !s.value.purchased_autoers.find((aa) => aa.id === a.id) &&
+              hasRequirementsForUpgrade(a, s)
+          )
         );
         const availableAssistants = computed(() =>
           assistants.value.filter((a) => hasRequirementsForAssistant(a, s))
@@ -1544,12 +1552,22 @@
           availabeSmithableList,
           availableQuests,
           availableUpgrades,
+          currentUpgrades: computed(() => {
+            return s.value.upgrades.map((a) =>
+              allUpgrades.find((aa) => aa.id === a.id)
+            );
+          }),
           availableAutoers,
           availableAssistants,
           currentQuest,
           viewingQuest,
           configuringAssistant,
           firingAssistant,
+          currentAutoers: computed(() => {
+            return s.value.purchased_autoers.map((a) => {
+              return autoers.find((aa) => aa.id === a.id);
+            });
+          }),
           toggleStats: () => toggleStats,
           /**
            * @param {Item} item
@@ -1649,6 +1667,11 @@
            */
           getQuest: (questId) => quests.find((q) => q.id === questId),
           /**
+           * @param {Upgrade | Autoer} upgrade
+           * @returns {number}
+           */
+          getUpgradeCost: (upgrade) => getUpgradeCost(upgrade, s),
+          /**
            * @param {Upgrade} upgrade
            * @returns {string}
            */
@@ -1668,6 +1691,33 @@
             }
 
             return text;
+          },
+          /**
+           * @param {Upgrade | Autoer} upgrade
+           * @returns {string[]}
+           */
+          getUpgradeRequirementText: (upgrade) => {
+            const key =
+              upgrade.category === 'autoer' ? 'purchased_autoers' : 'upgrades';
+            const currUpgrade = s.value[key].find((u) => u.id === upgrade.id);
+            const maxUpgrade = upgrade.upgrades.sort(
+              (a, b) => a.level <= b.level
+            )[0];
+
+            if (currUpgrade?.level === maxUpgrade.level) {
+              return [];
+            }
+
+            const nextLevel = upgrade.upgrades.find(
+              (u) => u.level === currUpgrade.level + 1
+            );
+            const txt = [];
+
+            for (let skillKey in nextLevel.requirements) {
+              txt.push(`${skillKey}: ${nextLevel.requirements[skillKey]}`);
+            }
+
+            return txt;
           },
           /**
            * @param {Upgrade} upgrade
