@@ -1552,6 +1552,11 @@
 
         // Every 3 minutes give the user a new assistant to hire
         setInterval(() => {
+          // Don't generate assistants if they haven't completed the quest
+          if (!s.value.quests_completed.includes('introduction_assistants')) {
+            return;
+          }
+
           console.log('getting a new assistant');
           const assistant = generateRandomAssistant(s);
 
