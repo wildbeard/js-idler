@@ -654,6 +654,27 @@
     };
 
     /**
+     *
+     * @param {Upgrade | Autoer} upgrade
+     * @param {{ value: State }} state
+     * @returns {(Upgrade['upgrades'][0] | Autoer['upgrades'][0])?}
+     */
+    const getUpgradeLevel = (upgrade, state) => {
+      const key =
+        upgrade.category === 'autoer' ? 'purchased_autoers' : 'upgrades';
+      const currUpgrade = state.value[key].find((u) => u.id === upgrade.id);
+      const level = currUpgrade?.level ?? 0;
+      let upgrd = upgrade;
+
+      // @TODO: Temp, state.upgrades don't create a copy, only copy certain attributes
+      if (!upgrade.upgrades) {
+        upgrd = allUpgrades.find((uu) => uu.id === upgrd.id);
+      }
+
+      return upgrd.upgrades.find((u) => u.level === level) ?? null;
+    };
+
+    /**
      * @TODO Might be good to make Upgrades an object that
      * has some of these functions on them. :)
      *
@@ -1691,6 +1712,90 @@
             }
 
             return text;
+          },
+          /**
+           * @param {Upgrade | Autoer} upgrade
+           * @returns {(Upgrade['upgrades'][0] | Autoer['upgrades'][0])?}
+           */
+          getUpgradeLevel: (upgrade) => getUpgradeLevel(upgrade, s),
+          /**
+           * @param {Upgrade | Autoer} upgrade
+           * @returns {string}
+           */
+          getUpgradeValueText: (upgrade) => {
+            if (upgrade.category !== 'autoer' || !upgrade.value_description) {
+              return '';
+            }
+
+            const flags = ['%{item}', '%{interval}'];
+            const currUpgrade = getUpgradeLevel(upgrade, s);
+            let str = upgrade.value_description;
+
+            flags.forEach((f) => {
+              // @TODO: Better way?
+              if (f.includes('item')) {
+                const item = items.find((i) => i.item_id === upgrade.affects);
+
+                if (item) {
+                  str = str.replace(f, item.name);
+                } else {
+                  str = str.replace(f, '');
+                }
+              } else if (f.includes('interval') && currUpgrade) {
+                if (currUpgrade) {
+                  str = str.replace(f, `${currUpgrade.value / 1000}s`);
+                } else {
+                  str = str.replace(f, '');
+                }
+              }
+            });
+
+            if (upgrade.category === 'autoer') {
+              if (
+                upgrade.id.includes('automine') &&
+                s.value.upgrades.find((u) => u.id === 'autoer_mining_xp')
+              ) {
+                const minerUpgrade = s.value.upgrades.find(
+                  (u) => u.id === 'autoer_mining_xp'
+                );
+
+                if (minerUpgrade) {
+                  const minerUpgradeLevel = getUpgradeLevel(minerUpgrade, s);
+                  const item = items.find((i) => i.item_id === upgrade.affects);
+
+                  str += `<br>${upgrade.name} will yield ${
+                    minerUpgradeLevel.value * 100
+                  }% (${Math.floor(
+                    item.xp_given * minerUpgradeLevel.value
+                  )}) xp per action.`;
+                }
+              }
+
+              if (
+                upgrade.id.includes('autosmelt') &&
+                s.value.upgrades.find((u) => u.id === 'autoer_smithing_xp')
+              ) {
+                const smelterUpgrade = s.value.upgrades.find(
+                  (u) => u.id === 'autoer_smithing_xp'
+                );
+
+                if (smelterUpgrade) {
+                  const smelterUpgradeLevel = getUpgradeLevel(
+                    smelterUpgrade,
+                    s
+                  );
+                  const item = items.find((i) => i.item_id === upgrade.affects);
+
+                  str += `<br>${upgrade.name} will yield ${
+                    smelterUpgradeLevel.value * 100
+                  }% (${Math.floor(
+                    item.xp_given * smelterUpgradeLevel.value
+                  )}) xp per action.`;
+                }
+              }
+            }
+
+            return str;
           },
           /**
            * @param {Upgrade | Autoer} upgrade

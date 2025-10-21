@@ -264,8 +264,8 @@
                             v-for="autoer in currentAutoers"
                             :key="autoer.id"
                             style="margin-bottom: 1rem;">
-                            {{ autoer.name }}
-                            <br>
+                            {{ autoer.name }} <br>
+                            <span v-html="getUpgradeValueText(autoer)"></span><br>
                             <template v-if="!getUpgradeRequirementText(autoer).length">
                                 Max Level
                             </template>
@@ -417,8 +417,8 @@
                         <li 
                             v-for="autoer in availableAutoers"
                             :key="autoer.id">
-                        {{ getUpgradeText(autoer) }}
-                        <br>
+                        {{ getUpgradeText(autoer) }} <br>
+                        <span v-html="getUpgradeValueText(autoer)"></span><br>
                         <button
                             type="button"
                             :title="autoer.description"
