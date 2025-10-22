@@ -225,6 +225,180 @@
 
 (
   function () {
+    /**
+     * @param {Upgrade | Autoer} props
+     * @returns {Autoer | Upgrade}
+     */
+    function UpgradableEntity(props) {
+      /** @type {Autoer | Upgrade} */
+      const properties = {
+        ...props,
+      };
+
+      /**
+       * @param {{ value: State }} state
+       * @returns {(PurchasedAutoer | Upgrade) | undefined}
+       */
+      const getUpgradeFromState = (state) => {
+        const key =
+          properties.category === 'autoer' ? 'purchased_autoers' : 'upgrades';
+        return state.value[key].find((u) => u.id === properties.id);
+      };
+
+      /**
+       * @param {{ value: State }} state
+       * @returns {(Autoer['upgrades'][0] | Upgrade['upgrades'][0]) | null}
+       */
+      const getCurrentUpgrade = (state) => {
+        const stateValue = getUpgradeFromState(state);
+        const currLevel = stateValue?.level ?? 0;
+
+        return properties.upgrades.find((u) => u.level === currLevel) ?? null;
+      };
+
+      /**
+       * Returns the cost of the next upgrade, or -1 if at max level.
+       * @param {{ value: State }} state
+       * @returns {number}
+       */
+      const getUpgradeCost = (state) => {
+        const stateValue = getUpgradeFromState(state);
+
+        if (!stateValue) {
+          return properties.cost;
+        }
+
+        const currPurchased = getCurrentUpgrade(state);
+
+        if (
+          properties.upgrades.sort((a, b) => a.level <= b.level)[0].level ===
+          currPurchased?.level
+        ) {
+          return -1;
+        }
+
+        const cost = properties.upgrades.find(
+          (u) => u.level === currPurchased.level + 1
+        );
+        return cost?.cost ?? currPurchased.cost;
+      };
+      /**
+       * Returns an HTML string
+       * @param {{ value: State }} state
+       * @returns {string}
+       */
+      const getUpgradeValueText = (state) => {
+        if (properties.category !== 'autoer' || !properties.value_description) {
+          return '';
+        }
+
+        const flags = ['%{item}', '%{interval}'];
+        const currUpgrade = getCurrentUpgrade(state);
+        let str = properties.value_description;
+
+        flags.forEach((f) => {
+          // @TODO: Better way?
+          if (f.includes('item')) {
+            // Okay I am not a big fan of accessing a global variable here.
+            const item = items.find((i) => i.item_id === properties.affects);
+
+            if (item) {
+              str = str.replace(f, item.name);
+            } else {
+              str = str.replace(f, '');
+            }
+          }
+          if (f.includes('interval') && currUpgrade) {
+            if (currUpgrade) {
+              str = str.replace(f, `${currUpgrade.value / 1000}s`);
+            } else {
+              str = str.replace(f, '');
+            }
+          }
+        });
+
+        if (properties.category === 'autoer') {
+          if (
+            properties.id.includes('automine') &&
+            state.value.upgrades.find((u) => u.id === 'autoer_mining_xp')
+          ) {
+            const minerUpgrade = state.value.upgrades.find(
+              (u) => u.id === 'autoer_mining_xp'
+            );
+
+            if (minerUpgrade) {
+              const minerUpgradeLevel = getCurrentUpgrade(state);
+              const item = items.find((i) => i.item_id === properties.affects);
+
+              str += `<br>${properties.name} will yield ${
+                minerUpgradeLevel.value * 100
+              }% (${Math.floor(
+                item.xp_given * minerUpgradeLevel.value
+              )}) xp per action.`;
+            }
+          }
+
+          if (
+            properties.id.includes('autosmelt') &&
+            state.value.upgrades.find((u) => u.id === 'autoer_smithing_xp')
+          ) {
+            const smelterUpgrade = state.value.upgrades.find(
+              (u) => u.id === 'autoer_smithing_xp'
+            );
+
+            if (smelterUpgrade) {
+              const smelterUpgradeLevel = getCurrentUpgrade(state);
+              const item = items.find((i) => i.item_id === properties.affects);
+
+              str += `<br>${properties.name} will yield ${
+                smelterUpgradeLevel.value * 100
+              }% (${Math.floor(
+                item.xp_given * smelterUpgradeLevel.value
+              )}) xp per action.`;
+            }
+          }
+        }
+
+        return str;
+      };
+
+      /**
+       * Returns an array of level requirements.
+       * @param {{ value: State }} state
+       * @returns {string[]}
+       */
+      const getUpgradeRequirementText = (state) => {
+        const currUpgrade = getCurrentUpgrade(state);
+        const maxUpgrade = properties.upgrades.sort(
+          (a, b) => a.level <= b.level
+        )[0];
+
+        if (currUpgrade?.level === maxUpgrade.level) {
+          return [];
+        }
+
+        const nextLevel = properties.upgrades.find(
+          (u) => u.level === currUpgrade.level + 1
+        );
+        const txt = [];
+
+        for (let skillKey in nextLevel.requirements) {
+          txt.push(`${skillKey}: ${nextLevel.requirements[skillKey]}`);
+        }
+
+        return txt;
+      };
+
+      return {
+        ...properties,
+        //
+        getCurrentUpgrade,
+        getUpgradeCost,
+        getUpgradeValueText,
+        getUpgradeRequirementText,
+      };
+    }
+
     /** @type Item[] */
     const items = window.items;
     /** @type Autoer[] */
@@ -654,31 +828,10 @@
     };
 
     /**
-     *
-     * @param {Upgrade | Autoer} upgrade
-     * @param {{ value: State }} state
-     * @returns {(Upgrade['upgrades'][0] | Autoer['upgrades'][0])?}
-     */
-    const getUpgradeLevel = (upgrade, state) => {
-      const key =
-        upgrade.category === 'autoer' ? 'purchased_autoers' : 'upgrades';
-      const currUpgrade = state.value[key].find((u) => u.id === upgrade.id);
-      const level = currUpgrade?.level ?? 0;
-      let upgrd = upgrade;
-
-      // @TODO: Temp, state.upgrades don't create a copy, only copy certain attributes
-      if (!upgrade.upgrades) {
-        upgrd = allUpgrades.find((uu) => uu.id === upgrd.id);
-      }
-
-      return upgrd.upgrades.find((u) => u.level === level) ?? null;
-    };
-
-    /**
      * @TODO Might be good to make Upgrades an object that
      * has some of these functions on them. :)
      *
-     * @param {Upgrade} upgrade
+     * @param {Upgrade | Autoer} upgrade
      * @param {number} level
      * @param {{ value: State }} state
      */
@@ -688,7 +841,6 @@
 
       if (level === 0) {
         up = {
-          id: upgrade.id,
           level: 0,
           cost: upgrade.cost,
           value: upgrade.value,
@@ -765,62 +917,26 @@
         }
       }
 
-      if (!state.value[targetStateKey].find((u) => u.id === upgrade.id)) {
-        state.value[targetStateKey].push({
-          id: upgrade.id,
-          cost: up.cost,
-          level: level,
-          value: up.value,
-          category: upgrade.category,
-        });
-      }
-
       const currIdx = state.value[targetStateKey].findIndex(
         (u) => u.id === upgrade.id
       );
-      state.value[targetStateKey][currIdx] = {
-        id: upgrade.id,
-        cost: up.cost,
-        level: up.level,
-        value:
-          level !== 0 && upgrade.category !== 'autoer'
-            ? up.value + state.value[targetStateKey][currIdx].value
-            : up.value,
-        category: upgrade.category,
-      };
-    };
 
-    /**
-     * Returns the cost of the upgrade or -1 if the upgrade is max level.
-     * @param {Upgrade | Autoer} upgrade
-     * @param {{ value: State }} state
-     *
-     * @returns {number}
-     */
-    const getUpgradeCost = (upgrade, state) => {
-      const key =
-        upgrade.category === 'autoer' ? 'purchased_autoers' : 'upgrades';
-      const currUpgrade = state.value[key].find((u) => u.id === upgrade.id);
-
-      if (!currUpgrade) {
-        return upgrade.cost;
+      if (currIdx === -1) {
+        state.value[targetStateKey].push({
+          ...upgrade,
+          ...up,
+        });
+      } else {
+        state.value[targetStateKey][currIdx] = {
+          ...upgrade,
+          cost: up.cost,
+          level: up.level,
+          value:
+            level !== 0 && upgrade.category !== 'autoer'
+              ? up.value + state.value[targetStateKey][currIdx].value
+              : up.value,
+        };
       }
-
-      const currPurchased = upgrade.upgrades.find(
-        (u) => u.level === currUpgrade.level
-      );
-
-      if (
-        upgrade.upgrades.sort((a, b) => a.level <= b.level)[0].level ===
-        currPurchased.level
-      ) {
-        return -1;
-      }
-
-      const cost = upgrade.upgrades.find(
-        (u) => u.level === currUpgrade.level + 1
-      );
-      return cost?.cost ?? currPurchased.cost;
     };
 
     /**
@@ -831,15 +947,23 @@
       // @TODO: Find the upgrade level to purchase
       const key =
         toUpgrade.category === 'autoer' ? 'purchased_autoers' : 'upgrades';
-      const currUpgrade = state.value[key].find((u) => u.id === toUpgrade.id);
-      let cost = currUpgrade
-        ? getUpgradeCost(toUpgrade, state)
-        : toUpgrade.cost;
+      let currUpgrade = state.value[key].find((u) => u.id === toUpgrade.id);
+      let level = 0;
 
       if (currUpgrade) {
-        upgrade(toUpgrade, currUpgrade.level + 1, state);
+        level = currUpgrade.level + 1;
+      }
+
+      if (!currUpgrade) {
+        currUpgrade = new UpgradableEntity(toUpgrade);
+      }
+
+      const cost = currUpgrade.getUpgradeCost(state);
+
+      if (level !== 0) {
+        upgrade(currUpgrade, currUpgrade.level + 1, state);
       } else {
-        upgrade(toUpgrade, 0, state);
+        upgrade(currUpgrade, 0, state);
       }
 
       state.value.gold -= cost;
@@ -984,10 +1108,9 @@
     const hasRequirementsForUpgrade = (upgrade, state) => {
       const key =
         upgrade.category === 'autoer' ? 'purchased_autoers' : 'upgrades';
-      const currLevel =
-        state.value[key].find((u) => u.id === upgrade.id)?.level ?? 0;
+      const currLevel = state.value[key].find((u) => u.id === upgrade.id);
       const nextLevel = upgrade.upgrades.find(
-        (u) => u.level === (currLevel === 0 ? 0 : currLevel + 1)
+        (u) => u.level === (currLevel ? currLevel.level + 1 : 0)
       );
 
       if (!nextLevel) {
@@ -1538,18 +1661,22 @@
           quests.filter((q) => !s.value.quests_completed.includes(q.id))
         );
         const availableUpgrades = computed(() =>
-          allUpgrades.filter(
-            (u) =>
-              !s.value.upgrades.find((uu) => uu.id === u.id) &&
-              hasRequirementsForUpgrade(u, s)
-          )
+          allUpgrades
+            .filter(
+              (u) =>
+                !s.value.upgrades.find((uu) => uu.id === u.id) &&
+                hasRequirementsForUpgrade(u, s)
+            )
+            .map((u) => new UpgradableEntity(u))
         );
         const availableAutoers = computed(() =>
-          autoers.filter(
-            (a) =>
-              !s.value.purchased_autoers.find((aa) => aa.id === a.id) &&
-              hasRequirementsForUpgrade(a, s)
-          )
+          autoers
+            .filter(
+              (a) =>
+                !s.value.purchased_autoers.find((aa) => aa.id === a.id) &&
+                hasRequirementsForUpgrade(a, s)
+            )
+            .map((a) => new UpgradableEntity(a))
         );
         const availableAssistants = computed(() =>
           assistants.value.filter((a) => hasRequirementsForAssistant(a, s))
@@ -1587,11 +1714,6 @@
           availabeSmithableList,
           availableQuests,
           availableUpgrades,
-          currentUpgrades: computed(() => {
-            return s.value.upgrades.map((a) =>
-              allUpgrades.find((aa) => aa.id === a.id)
-            );
-          }),
           availableAutoers,
           availableAssistants,
           currentQuest,
@@ -1701,122 +1823,6 @@
            * @returns {Quest | undefined}
            */
           getQuest: (questId) => quests.find((q) => q.id === questId),
-          /**
-           * @param {Upgrade | Autoer} upgrade
-           * @returns {number}
-           */
-          getUpgradeCost: (upgrade) => getUpgradeCost(upgrade, s),
-          /**
-           * @param {Upgrade | Autoer} upgrade
-           * @returns {(Upgrade['upgrades'][0] | Autoer['upgrades'][0])?}
-           */
-          getUpgradeLevel: (upgrade) => getUpgradeLevel(upgrade, s),
-          /**
-           * @param {Upgrade | Autoer} upgrade
-           * @returns {string}
-           */
-          getUpgradeValueText: (upgrade) => {
-            if (upgrade.category !== 'autoer' || !upgrade.value_description) {
-              return '';
-            }
-
-            const flags = ['%{item}', '%{interval}'];
-            const currUpgrade = getUpgradeLevel(upgrade, s);
-            let str = upgrade.value_description;
-
-            flags.forEach((f) => {
-              // @TODO: Better way?
-              if (f.includes('item')) {
-                const item = items.find((i) => i.item_id === upgrade.affects);
-
-                if (item) {
-                  str = str.replace(f, item.name);
-                } else {
-                  str = str.replace(f, '');
-                }
-              } else if (f.includes('interval') && currUpgrade) {
-                if (currUpgrade) {
-                  str = str.replace(f, `${currUpgrade.value / 1000}s`);
-                } else {
-                  str = str.replace(f, '');
-                }
-              }
-            });
-
-            if (upgrade.category === 'autoer') {
-              if (
-                upgrade.id.includes('automine') &&
-                s.value.upgrades.find((u) => u.id === 'autoer_mining_xp')
-              ) {
-                const minerUpgrade = s.value.upgrades.find(
-                  (u) => u.id === 'autoer_mining_xp'
-                );
-
-                if (minerUpgrade) {
-                  const minerUpgradeLevel = getUpgradeLevel(minerUpgrade, s);
-                  const item = items.find((i) => i.item_id === upgrade.affects);
-
-                  str += `<br>${upgrade.name} will yield ${
-                    minerUpgradeLevel.value * 100
-                  }% (${Math.floor(
-                    item.xp_given * minerUpgradeLevel.value
-                  )}) xp per action.`;
-                }
-              }
-
-              if (
-                upgrade.id.includes('autosmelt') &&
-                s.value.upgrades.find((u) => u.id === 'autoer_smithing_xp')
-              ) {
-                const smelterUpgrade = s.value.upgrades.find(
-                  (u) => u.id === 'autoer_smithing_xp'
-                );
-
-                if (smelterUpgrade) {
-                  const smelterUpgradeLevel = getUpgradeLevel(
-                    smelterUpgrade,
-                    s
-                  );
-                  const item = items.find((i) => i.item_id === upgrade.affects);
-
-                  str += `<br>${upgrade.name} will yield ${
-                    smelterUpgradeLevel.value * 100
-                  }% (${Math.floor(
-                    item.xp_given * smelterUpgradeLevel.value
-                  )}) xp per action.`;
-                }
-              }
-            }
-
-            return str;
-          },
-          /**
-           * @param {Upgrade | Autoer} upgrade
-           * @returns {string[]}
-           */
-          getUpgradeRequirementText: (upgrade) => {
-            const key =
-              upgrade.category === 'autoer' ? 'purchased_autoers' : 'upgrades';
-            const currUpgrade = s.value[key].find((u) => u.id === upgrade.id);
-            const maxUpgrade = upgrade.upgrades.sort(
-              (a, b) => a.level <= b.level
-            )[0];
-
-            if (currUpgrade?.level === maxUpgrade.level) {
-              return [];
-            }
-
-            const nextLevel = upgrade.upgrades.find(
-              (u) => u.level === currUpgrade.level + 1
-            );
-            const txt = [];
-
-            for (let skillKey in nextLevel.requirements) {
-              txt.push(`${skillKey}: ${nextLevel.requirements[skillKey]}`);
-            }
-
-            return txt;
-          },
           /**
            * @param {Upgrade} upgrade
            */

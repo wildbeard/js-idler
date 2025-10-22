@@ -261,18 +261,18 @@
 
                     <ul>
                         <li 
-                            v-for="autoer in currentAutoers"
+                            v-for="autoer in s.purchased_autoers"
                             :key="autoer.id"
                             style="margin-bottom: 1rem;">
                             {{ autoer.name }} <br>
-                            <span v-html="getUpgradeValueText(autoer)"></span><br>
-                            <template v-if="!getUpgradeRequirementText(autoer).length">
+                            <span v-html="autoer.getUpgradeValueText({ value: s })"></span><br>
+                            <template v-if="!autoer.getUpgradeRequirementText({ value: s }).length">
                                 Max Level
                             </template>
                             <template v-else>
                                 <p style="margin: 0.25rem 0;">Upgrade Requirements</p>
-                                <p style="margin: 0;">Levels: {{ getUpgradeRequirementText(autoer).join(',') }}</p>
-                                <p style="margin: 0 0 0.25rem;">Gold: {{ getUpgradeCost(autoer) }}</p>
+                                <p style="margin: 0;">Levels: {{ autoer.getUpgradeRequirementText({ value: s }).join(',') }}</p>
+                                <p style="margin: 0 0 0.25rem;">Gold: {{ autoer.getUpgradeCost({ value: s }) }}</p>
 
                                 <button
                                     type="button"
@@ -290,17 +290,17 @@
                     <p>Current Upgrades</p>
                     <ul class="available-upgrades">
                         <li 
-                            v-for="upgrade in currentUpgrades" 
+                            v-for="upgrade in s.upgrades" 
                             :key="upgrade.id">
                             {{ upgrade.name }}
                             <br>
-                            <template v-if="!getUpgradeRequirementText(upgrade).length">
+                            <template v-if="!upgrade.getUpgradeRequirementText({ value: s }).length">
                                 Max Level
                             </template>
                             <template v-else>
                                 <p style="margin: 0.25rem 0;">Upgrade Requirements</p>
-                                <p style="margin: 0;">Levels: {{ getUpgradeRequirementText(upgrade).join(',') }}</p>
-                                <p style="margin: 0 0 0.25rem;">Gold: {{ getUpgradeCost(upgrade) }}</p>
+                                <p style="margin: 0;">Levels: {{ upgrade.getUpgradeRequirementText({ value: s}).join(',') }}</p>
+                                <p style="margin: 0 0 0.25rem;">Gold: {{ upgrade.getUpgradeCost({ value: s }) }}</p>
 
                                 <button
                                     type="button"
@@ -417,8 +417,8 @@
                         <li 
                             v-for="autoer in availableAutoers"
                             :key="autoer.id">
-                        {{ autoer.name }} | {{ getUpgradeCost(autoer) }}gp <br>
-                        <span v-html="getUpgradeValueText(autoer)"></span><br>
+                        {{ autoer.name }} | {{ autoer.getUpgradeCost({ value: s }) }}gp <br>
+                        <span v-html="autoer.getUpgradeValueText({ value: s })"></span><br>
                         <button
                             type="button"
                             :title="autoer.description"
@@ -462,7 +462,7 @@
                                 :title="upgrade.description ?? 'An upgrade'"
                                 @click="userPurchasedUpgrade(upgrade)"
                                 :disabled="!canUpgradeUpgrade(upgrade)">
-                                Buy for {{ getUpgradeCost(upgrade) }}gp
+                                Buy for {{ upgrade.getUpgradeCost({ value: s }) }}gp
                             </button>
                         </li>
                     </ul>
