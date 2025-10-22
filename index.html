@@ -417,7 +417,7 @@
                         <li 
                             v-for="autoer in availableAutoers"
                             :key="autoer.id">
-                        {{ getUpgradeText(autoer) }} <br>
+                        {{ autoer.name }} | {{ getUpgradeCost(autoer) }}gp <br>
                         <span v-html="getUpgradeValueText(autoer)"></span><br>
                         <button
                             type="button"
@@ -432,10 +432,11 @@
 
                 <div>
                     <p>Available Assistants</p>
-                    <ul 
-                        v-if="availableAssistants"
-                        class="available-assistants">
-                        <li v-for="assistant in availableAssistants" :key="assistant.id">
+                    <ul class="available-assistants">
+                        <li 
+                            v-if="availableAssistants.length"
+                            v-for="assistant in availableAssistants"
+                            :key="assistant.id">
                             Name: {{ assistant.name }} <br>
                             Skills: {{ assistant.skills.join(',') }} <br>
                             Perk: {{ assistant.perk.description }} <br>
@@ -447,19 +448,22 @@
                                 Hire for {{ getAssistantCost(assistant) }}
                             </button>
                         </li>
+                        <li v-else>None Available</li>
                     </ul>
-                    <p v-else>None Available</p>
                 </div>
 
                 <div>
                     <p>Available Upgrades</p>
                     <ul class="available-upgrades">
                         <li v-for="upgrade in availableUpgrades" :key="upgrade.id">
+                            {{ upgrade.name }} <br>
                             <button 
                                 type="button"
                                 :title="upgrade.description ?? 'An upgrade'"
                                 @click="userPurchasedUpgrade(upgrade)"
-                                :disabled="!canUpgradeUpgrade(upgrade)">{{ getUpgradeText(upgrade) }}</button>
+                                :disabled="!canUpgradeUpgrade(upgrade)">
+                                Buy for {{ getUpgradeCost(upgrade) }}gp
+                            </button>
                         </li>
                     </ul>
                 </div>

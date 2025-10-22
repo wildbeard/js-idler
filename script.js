@@ -791,6 +791,7 @@
     };
 
     /**
+     * Returns the cost of the upgrade or -1 if the upgrade is max level.
      * @param {Upgrade | Autoer} upgrade
      * @param {{ value: State }} state
      *
@@ -808,6 +809,14 @@
       const currPurchased = upgrade.upgrades.find(
         (u) => u.level === currUpgrade.level
       );
+
+      if (
+        upgrade.upgrades.sort((a, b) => a.level <= b.level)[0].level ===
+        currPurchased.level
+      ) {
+        return -1;
+      }
+
       const cost = upgrade.upgrades.find(
         (u) => u.level === currUpgrade.level + 1
       );
@@ -1697,27 +1706,6 @@
            * @returns {number}
            */
           getUpgradeCost: (upgrade) => getUpgradeCost(upgrade, s),
-          /**
-           * @param {Upgrade} upgrade
-           * @returns {string}
-           */
-          getUpgradeText: (upgrade) => {
-            const key =
-              upgrade.category === 'autoer' ? 'purchased_autoers' : 'upgrades';
-            const currUpgrade = s.value[key].find((u) => u.id === upgrade.id);
-            const maxUpgrade = upgrade.upgrades.sort(
-              (a, b) => a.level <= b.level
-            )[0];
-            let text = upgrade.name;
-
-            if (currUpgrade?.level === maxUpgrade.level) {
-              text += ' | Max Level';
-            } else {
-              text += ` | ${getUpgradeCost(upgrade, s)}gp`;
-            }
-
-            return text;
-          },
           /**
            * @param {Upgrade | Autoer} upgrade
            * @returns {(Upgrade['upgrades'][0] | Autoer['upgrades'][0])?}
