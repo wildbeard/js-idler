@@ -278,7 +278,7 @@
                                     type="button"
                                     :title="autoer.description"
                                     @click="userPurchasedUpgrade(autoer)"
-                                    :disabled="!canUpgradeUpgrade(autoer)">
+                                    :disabled="!autoer.canUpgrade({ value: s })">
                                     Upgrade
                                 </button>
                             </template>
@@ -306,7 +306,7 @@
                                     type="button"
                                     :title="upgrade.description"
                                     @click="userPurchasedUpgrade(upgrade)"
-                                    :disabled="!canUpgradeUpgrade(upgrade)">
+                                    :disabled="!upgrade.canUpgrade({ value: s })">
                                     Upgrade
                                 </button>
                             </template>
@@ -423,7 +423,7 @@
                             type="button"
                             :title="autoer.description"
                             @click="userPurchasedUpgrade(autoer)"
-                            :disabled="!canUpgradeUpgrade(autoer)">
+                            :disabled="!autoer.canUpgrade({ value: s })">
                             {{ s.purchased_autoers.find((a) => a.id === autoer.id) ? 'Upgrade' : 'Buy '}}
                         </button>
                         </li>
@@ -461,7 +461,7 @@
                                 type="button"
                                 :title="upgrade.description ?? 'An upgrade'"
                                 @click="userPurchasedUpgrade(upgrade)"
-                                :disabled="!canUpgradeUpgrade(upgrade)">
+                                :disabled="!upgrade.canUpgrade({ value: s })">
                                 Buy for {{ upgrade.getUpgradeCost({ value: s }) }}gp
                             </button>
                         </li>

@@ -247,12 +247,17 @@
 
       /**
        * @param {{ value: State }} state
+       * @param {bool} defaultUpgrade
        * @returns {(Autoer['upgrades'][0] | Upgrade['upgrades'][0]) | null}
        */
-      const getCurrentUpgrade = (state) => {
+      const getCurrentUpgrade = (state, defaultUpgrade = false) => {
         const stateValue = getUpgradeFromState(state);
-        const currLevel = stateValue?.level ?? 0;
 
+        if (!stateValue && !defaultUpgrade) {
+          return null;
+        }
+
+        const currLevel = stateValue?.level ?? 0;
         return properties.upgrades.find((u) => u.level === currLevel) ?? null;
       };
 
@@ -282,6 +287,7 @@
         );
         return cost?.cost ?? currPurchased.cost;
       };
+
       /**
        * Returns an HTML string
        * @param {{ value: State }} state
@@ -293,7 +299,7 @@
         }
 
         const flags = ['%{item}', '%{interval}'];
-        const currUpgrade = getCurrentUpgrade(state);
+        const currUpgrade = getCurrentUpgrade(state, true);
         let str = properties.value_description;
 
         flags.forEach((f) => {
@@ -308,6 +314,7 @@
               str = str.replace(f, '');
             }
           }
+
           if (f.includes('interval') && currUpgrade) {
             if (currUpgrade) {
               str = str.replace(f, `${currUpgrade.value / 1000}s`);
@@ -389,12 +396,54 @@
         return txt;
       };
 
+      /**
+       * @param {{ value: State }} state
+       * @returns {bool}
+       */
+      const hasRequirementsForUpgrade = (state) => {
+        const currUpgrade = getCurrentUpgrade(state);
+        const nextLevel = properties.upgrades.find(
+          (u) => u.level === (currUpgrade ? currUpgrade.level + 1 : 0)
+        );
+
+        if (!nextLevel) {
+          return false;
+        }
+
+        for (const skillKey in nextLevel.requirements) {
+          if (nextLevel.requirements[skillKey] > state.value.levels[skillKey]) {
+            return false;
+          }
+        }
+
+        return true;
+      };
+
+      /**
+       * @param {{ value: State }} state
+       * @returns {bool}
+       */
+      const canUpgrade = (state) => {
+        const currUpgrade = getCurrentUpgrade(state);
+        const nextLevel = properties.upgrades.find(
+          (u) => u.level === (currUpgrade ? currUpgrade.level + 1 : 0)
+        );
+
+        if (!nextLevel || nextLevel.cost > state.value.gold) {
+          return false;
+        }
+
+        return hasRequirementsForUpgrade(state);
+      };
+
       return {
         ...properties,
         //
-        getCurrentUpgrade,
+        canUpgrade,
         getUpgradeCost,
+        getCurrentUpgrade,
         getUpgradeValueText,
+        hasRequirementsForUpgrade,
         getUpgradeRequirementText,
       };
     }
@@ -1101,53 +1150,6 @@
     };
 
     /**
-     * @param {Upgrade} upgrade
-     *
-     * @returns {bool}
-     */
-    const hasRequirementsForUpgrade = (upgrade, state) => {
-      const key =
-        upgrade.category === 'autoer' ? 'purchased_autoers' : 'upgrades';
-      const currLevel = state.value[key].find((u) => u.id === upgrade.id);
-      const nextLevel = upgrade.upgrades.find(
-        (u) => u.level === (currLevel ? currLevel.level + 1 : 0)
-      );
-
-      if (!nextLevel) {
-        return false;
-      }
-
-      for (const reqKey in nextLevel.requirements) {
-        if (nextLevel.requirements[reqKey] > state.value.levels[reqKey]) {
-          return false;
-        }
-      }
-
-      return true;
-    };
-
-    /**
-     * @param {Upgrade} upgrade
-     *
-     * @returns {bool}
-     */
-    const canUpgradeUpgrade = (upgrade, state) => {
-      const key =
-        upgrade.category === 'autoer' ? 'purchased_autoers' : 'upgrades';
-      const currLevel =
-        state.value[key].find((u) => u.id === upgrade.id)?.level ?? 0;
-      const nextLevel = upgrade.upgrades.find(
-        (u) => u.level === (currLevel === 0 ? 0 : currLevel + 1)
-      );
-
-      if (!nextLevel || nextLevel.cost > state.value.gold) {
-        return false;
-      }
-
-      return hasRequirementsForUpgrade(upgrade, state);
-    };
-
-    /**
      * @param {Quest} quest
      * @param {State} state
      *
@@ -1662,21 +1664,17 @@
         );
         const availableUpgrades = computed(() =>
           allUpgrades
-            .filter(
-              (u) =>
-                !s.value.upgrades.find((uu) => uu.id === u.id) &&
-                hasRequirementsForUpgrade(u, s)
-            )
+            .filter((u) => !s.value.upgrades.find((uu) => uu.id === u.id))
             .map((u) => new UpgradableEntity(u))
+            .filter((u) => u.hasRequirementsForUpgrade(s))
         );
         const availableAutoers = computed(() =>
           autoers
             .filter(
-              (a) =>
-                !s.value.purchased_autoers.find((aa) => aa.id === a.id) &&
-                hasRequirementsForUpgrade(a, s)
+              (a) => !s.value.purchased_autoers.find((aa) => aa.id === a.id)
             )
             .map((a) => new UpgradableEntity(a))
+            .filter((a) => a.hasRequirementsForUpgrade(s))
         );
         const availableAssistants = computed(() =>
           assistants.value.filter((a) => hasRequirementsForAssistant(a, s))
@@ -1827,11 +1825,6 @@
            * @param {Upgrade} upgrade
            */
           userPurchasedUpgrade: (upgrade) => userPurchasedUpgrade(upgrade, s),
-          /**
-           * @param {Upgrade} upgrade
-           * @returns {bool}
-           */
-          canUpgradeUpgrade: (upgrade) => canUpgradeUpgrade(upgrade, s),
           /**
            * @param {Assistant} assistant
            * @returns {bool}
