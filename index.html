@@ -197,6 +197,12 @@
                             {{ getItem(invItem.item_id).name }} x{{ invItem.quantity }}
                         </li>
                     </ul>
+
+                    <button
+                        :title="`Bank Sale! ${getBankSaleValue()}gp!`"
+                        @click="bankSale()">
+                        Bank Sale
+                    </button>
                 </div>
 
                 <div>
