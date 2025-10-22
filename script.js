@@ -2007,13 +2007,17 @@
             }, 0);
           },
           bankSale: () => {
-            let total = 0;
+            const total = s.value.inventory.reduce((curr, inv) => {
+              return (curr +=
+                inv.quantity *
+                items.find((i) => i.item_id === inv.item_id).value);
+            }, 0);
 
             s.value.inventory.forEach((inv) => {
-              total +=
-                inv.quantity * items.find((i) => i.item_id === inv.item_id);
               inv.quantity = 0;
             });
+            s.value.gold += total;
+            s.value.stats.lifetime_wealth += total;
           },
         };
       },
