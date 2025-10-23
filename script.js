@@ -13,9 +13,7 @@
  * @property {boolean} sellable
  * @property {{item_id: string, quantity: number}[]?} ingredients
  * @property {string[]} categories
- */
-
-/**
+ *
  * @typedef Quest
  * @type {object}
  *
@@ -50,9 +48,7 @@
  *    }[],
  *  }
  * }[]} steps
- */
-
-/**
+ *
  * @typedef Upgrade
  * @type {object}
  *
@@ -62,6 +58,7 @@
  * @property {number} interval
  * @property {string} affects
  * @property {number} cost
+ * @property {number} level
  * @property {string} category
  * @property {{
  *  id: string,
@@ -73,57 +70,17 @@
  *    mining: number,
  * }
  * }[]} upgrades
- */
-
-/**
- * @typedef Autoer
+ *
+ * @typedef {Upgrade} Autoer
+ *
+ * @typedef PurchasedAutoerProps
  * @type {object}
  *
- * @property {string} id
- * @property {string} name
- * @property {string} description
- * @property {number} interval
- * @property {string} affects
- * @property {number} cost
- * @property {string} category
- * @property {{
- *  id: string,
- *  level: number,
- *  cost: number,
- *  value: number,
- *  requirements: {
- *    smithing: number,
- *    mining: number,
- * }
- * }[]} upgrades
- */
-
-/**
- * @typedef PurchasedAutoer
- * @type {object}
- *
- * @property {string} id
- * @property {string} name
- * @property {string} description
- * @property {number} interval
- * @property {string} affects
- * @property {number} cost
- * @property {string} category
- * @property {{
- *  id: string,
- *  level: number,
- *  cost: number,
- *  value: number,
- *  requirements: {
- *    smithing: number,
- *    mining: number,
- * }
- * }[]} upgrades
  * @property {number} interval_id
  * @property {function} fn
- */
-
-/**
+ *
+ * @typedef {Autoer & PurchasedAutoerProps} PurchasedAutoer
+ *
  * @typedef Assistant
  * @type {object}
  *
@@ -149,35 +106,10 @@
  *  }
  * }[]} upgrades
  * @property {function} fn
- */
-
-/**
- * @TODO Figure out why I can't use extends
- * @typedef PurchasedAssistant
+ *
+ * @typedef PurchasedAssistantProps
  * @type {object}
  *
- * @property {string} id
- * @property {string} name
- * @property {string} description
- * @property {number} cost_per_action
- * @property {string[]} skills
- * @property {{
- *   skill: 'mining' | 'smithing' | 'selling',
- *   affects: 'xp' | 'yield' | 'interval',
- *   value: number,
- *   name: string,
- *   description: string,
- * }} perk
- * @property {{
- *  level: number,
- *  cost: number,
- *  value: number,
- *  requirements: {
- *    mining: number?,
- *    smithing: number?,
- *  }
- * }[]} upgrades
- * @property {function} fn
  * @property {number} level
  * @property {number} interval_id
  * @property {number} interval
@@ -186,18 +118,11 @@
  *  smithing: string[],
  *  selling: string[],
  * }} config
- */
-
-/**
- * @typedef PurchasedUpgrade
- * @type {object}
  *
- * @property {string} id
- * @property {number} level
- * @property {number} interval
- */
-
-/**
+ * @typedef {Assistant & PurchasedAssistantProps} PurchasedAssistant
+ *
+ * @typedef {Upgrade} PurchasedUpgrade
+ *
  * @typedef State
  * @type {object}
  *
@@ -221,13 +146,42 @@
  * @property {{ quest_id: number, step: number, complete: bool, }[]} quests_started
  * @property {string[]} quests_completed
  * @property {PurchasedAssistant[]} assistants
+ *
+ * @typedef UpgradableEntity
+ * @type {object}
+ *
+ * @property {string} id
+ * @property {string} name
+ * @property {string} description
+ * @property {number} interval
+ * @property {number} level
+ * @property {number} cost
+ * @property {string} affects
+ * @property {'autoer' | 'upgrade'} category
+ * @property {{
+ *  id: string,
+ *  level: number,
+ *  cost: number,
+ *  value: number,
+ *  requirements: {
+ *    smithing: number,
+ *    mining: number,
+ * }
+ * }[]} upgrades
+ * @property {function} fn Will be defined if the entity is an Autoer
+ * @property {function} canUpgrade
+ * @property {function} getUpgradeCost
+ * @property {function} getCurrentUpgrade
+ * @property {function} getUpgradeValueText
+ * @property {function} hasRequirementsForUpgrade
+ * @property {function} getUpgradeRequirementText
  */
 
 (
   function () {
     /**
      * @param {Upgrade | Autoer} props
-     * @returns {Autoer | Upgrade}
+     * @returns {UpgradableEntity}
      */
     function UpgradableEntity(props) {
       /** @type {Autoer | Upgrade} */
@@ -447,7 +401,6 @@
         getUpgradeRequirementText,
       };
     }
-
     /** @type Item[] */
     const items = window.items;
     /** @type Autoer[] */
@@ -688,9 +641,9 @@
       let yield = 0;
 
       if (xpPercentUpgrade) {
-        xpPercent = allUpgrades
-          .find((u) => u.id === xpPercentUpgrade.id)
-          ?.upgrades.find((u) => u.level === xpPercentUpgrade.level)?.value;
+        xpPercent = xpPercentUpgrade.upgrades.find(
+          (u) => u.level === xpPercentUpgrade.level
+        )?.value;
       }
 
       switch (action) {
