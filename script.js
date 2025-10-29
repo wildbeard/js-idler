@@ -147,7 +147,11 @@
  * @property {string[]} quests_completed
  * @property {PurchasedAssistant[]} assistants
  *
- * @typedef UpgradableEntity
+ * @function canUpgrade
+ * @param {{ value: State }} state
+ * @returns {bool}
+ *
+ * @typedef {UpgradableEntity}
  * @type {object}
  *
  * @property {string} id
@@ -175,6 +179,21 @@
  * @property {function} getUpgradeValueText
  * @property {function} hasRequirementsForUpgrade
  * @property {function} getUpgradeRequirementText
+ *
+ * @typedef {object} ResourceNode
+ *
+ * @property {string} id
+ * @property {string} name
+ * @property {string} description
+ * @property {'mining' | 'smithing'} skill
+ * @property {{ mining: number }} level_requirements
+ * @property {{
+ *  item_id: string,
+ *  quantity: number,
+ *  xp_given: number,
+ *  success_chance: number,
+ *  is_rare: number,
+ * }[]} yields
  */
 
 (
@@ -401,6 +420,102 @@
         getUpgradeRequirementText,
       };
     }
+    /** @type ResourceNode[] */
+    const resourceNodes = [
+      {
+        id: 'copper_deposit',
+        name: 'Copper Deposit',
+        description: 'A deposit of copper that will yield Copper Ore.',
+        skill: 'mining',
+        level_requirements: {
+          mining: 1,
+        },
+        yields: [
+          {
+            item_id: 'copper_ore',
+            xp_given: 10,
+            success_chance: 1.0,
+            quantity: 1,
+            is_rare: false, // @TODO: Move to item?
+          },
+          {
+            item_id: 'uncut_emerald',
+            xp_given: 0,
+            success_change: 0.02,
+            quantity: 1,
+            is_rare: true,
+          },
+        ],
+      },
+      {
+        id: 'tin_deposit',
+        name: 'Tin Deposit',
+        description: 'A deposit of tin that will yield Tin Ore.',
+        skill: 'mining',
+        level_requirements: {
+          mining: 1,
+        },
+        yields: [
+          {
+            item_id: 'tin_ore',
+            xp_given: 10,
+            success_chance: 1.0,
+            quantity: 1,
+            is_rare: false,
+          },
+          {
+            item_id: 'uncut_emerald',
+            xp_given: 0,
+            success_change: 0.02,
+            quantity: 1,
+            is_rare: true,
+          },
+        ],
+      },
+      {
+        id: 'iron_deposit',
+        name: 'Iron Deposit',
+        description: 'A deposit of iron that will yield Iron Ore.',
+        skill: 'mining',
+        level_requirements: {
+          mining: 10,
+        },
+        yields: [
+          {
+            item_id: 'iron_ore',
+            xp_given: 20,
+            success_chance: 0.75,
+            quantity: 1,
+            is_rare: false,
+          },
+          {
+            item_id: 'uncut_emerald',
+            xp_given: 0,
+            success_change: 0.04,
+            quantity: 1,
+            is_rare: true,
+          },
+        ],
+      },
+      {
+        id: 'coal_deposit',
+        name: 'Coal Deposit',
+        description: 'A deposit of coal that will yield Coal.',
+        skill: 'mining',
+        level_requirements: {
+          mining: 10,
+        },
+        yields: [
+          {
+            item_id: 'coal',
+            xp_given: 20,
+            success_chance: 1.0,
+            quantity: 1,
+            is_rare: false,
+          },
+        ],
+      },
+    ];
     /** @type Item[] */
     const items = window.items;
     /** @type Autoer[] */
@@ -591,48 +706,76 @@
 
     /**
      * @param {{ value: State }} state
-     * @param {Item} item
+     * @param {ResourceNode} node
      *
-     * @returns {number}
+     * @returns {{
+     *  item_id: string,
+     *  quantity: number,
+     *  xp_given: number,
+     * }[]}
      */
-    const mine = (state, item) => {
-      const baseSuccess = item.success_chance;
-      const rng = Math.random();
-      const bonusYieldChance = state.value.upgrades
-        .filter((u) => u.affects === item.id && u.category === 'mining_excess')
-        .reduce((total, curr) => (total += curr.value), 0);
-      const yield = rng < bonusYieldChance ? 2 : 1;
-      const currLvl = state.value.levels.mining;
+    const mine = (state, node) => {
+      const itemYield = [];
 
-      if (baseSuccess === 1.0 || currLvl >= item.level * 2) {
-        return yield;
-      }
+      node.yields.forEach((y) => {
+        const baseSuccess = y.success_chance;
+        const rng = Math.random();
+        const bonusYieldChance = state.value.upgrades
+          // @TODO: Update Upgrades to look at nodes not items
+          .filter(
+            (u) => u.affects === node.id && u.category === 'mining_excess'
+          )
+          .reduce((total, curr) => (total += curr.value), 0);
+        const currLvl = state.value.levels.mining;
+        let yield = 0;
 
-      return rng < baseSuccess + currLvl / (item.level * 2) ? yield : 0;
+        if (y.is_rare) {
+          yield = rng < baseSuccess ? 1 : 0;
+        } else if (
+          baseSuccess === 1.0 ||
+          currLvl >= node.level_requirements.mining * 2 ||
+          rng < baseSuccess + currLvl / (node.level_requirements.mining * 2)
+        ) {
+          yield = 1;
+        }
+
+        // @TODO: We want the bonus chance to scale down if the level is not 2x required level.
+        if (rng < bonusYieldChance && yield > 0) {
+          yield += 1;
+        }
+
+        itemYield.push({
+          item_id: y.item_id,
+          quantity: yield,
+          xp_given: y.xp_given,
+        });
+      });
+
+      return itemYield;
     };
 
     /**
      * @param {{ value: State }} state
-     * @param {Item} item
+     * @param {ResourceNode} node
      */
-    const userDidMine = (state, item) => {
-      const gathered = mine(state, item);
+    const userDidMine = (state, node) => {
+      const gathered = mine(state, node);
 
-      if (gathered > 0) {
-        updateXp(state, 'mining', item.xp_given);
-        updateInventory(state, item.item_id, gathered);
-        updateStats(state, 'gathers', item, gathered);
-      } else {
-        // @TODO: Add some visual logs for the user!
-      }
+      gathered
+        .filter((g) => g.quantity > 0)
+        .forEach((g) => {
+          updateXp(state, 'mining', g.xp_given);
+          updateInventory(state, g.item_id, g.quantity);
+          // updateStats(state, 'gathers', node, gathered);
+        });
     };
 
     /**
      * @param {{ value: State }} state
-     * @param {Item} item
+     * @param {ResourceNode | Item} target
      * @param {'mining' | 'smithing' | 'selling'} action
      */
-    const autoerAction = (state, item, action) => {
+    const autoerAction = (state, target, action) => {
       const xpPercentUpgrade = state.value.upgrades.find(
         (u) => u.id === `autoer_${action}_xp`
       );
@@ -648,16 +791,29 @@
 
       switch (action) {
         case 'mining':
-          yield = mine(state, item);
-          xp = Math.floor(item.xp_given * xpPercent);
+          mine(state, target)
+            .filter((m) => m.quantity > 0)
+            .forEach((m) => {
+              updateInventory(state, m.item_id, m.quantity);
+
+              if (xpPercent > 0) {
+                updateXp(state, 'mining', m.xp_given * xpPercent);
+                updateStats(
+                  state,
+                  'gathers',
+                  items.find((i) => i.item_id === m.item_id),
+                  m.quantity
+                );
+              }
+            });
           break;
 
         case 'smithing':
           // @TODO: Figure out race condition that forces this to be necessary
-          if (hasIngredientsFor(state, item)) {
-            const result = smith(state, item);
+          if (hasIngredientsFor(state, target)) {
+            const result = smith(state, target);
             yield = result.success ? result.result[0].quantity : 0;
-            xp = Math.floor(item.xp_given * xpPercent);
+            xp = Math.floor(target.xp_given * xpPercent);
 
             result.result
               .filter((r) => r.quantity < 0)
@@ -666,7 +822,7 @@
           break;
 
         case 'selling':
-          sellItem(state, item);
+          sellItem(state, target);
           break;
       }
 
@@ -680,40 +836,50 @@
         updateStats(
           state,
           action === 'mining' ? 'gathers' : 'crafts',
-          item,
+          target,
           yield
         );
       }
 
-      if (item) {
-        updateInventory(state, item.item_id, yield);
+      if (target && action !== 'mining') {
+        updateInventory(state, target.item_id, yield);
       }
     };
 
     /**
      * @param {{ value: State }} state
      * @param {PurchasedAssistant} assistant
-     * @param {Item} item
+     * @param {ResourceNode} node
      */
-    const assistantDidMine = (state, assistant, item) => {
-      let gathered = mine(state, item);
-      let xp = item.xp_given;
+    const assistantDidMine = (state, assistant, node) => {
+      let xp = 0;
 
-      if (gathered === 0) {
-        return;
-      }
+      mine(state, node)
+        .filter((m) => m.quantity)
+        .forEach((m) => {
+          let gathered = m.quantity;
+          let xpGained = m.xp_given;
 
-      if (assistant.perk.affects === 'xp') {
-        xp = item.xp_given + Math.floor(item.xp_given * assistant.perk.value);
-      } else if (assistant.perk.affects === 'yield') {
-        if (Math.random() < assistant.perk.value) {
-          gathered += Math.floor(Math.random() * (3 - 1 + 1) + 1);
-        }
-      }
+          if (assistant.perk.affects === 'xp') {
+            xpGained =
+              m.xp_given + Math.floor(m.xp_given * assistant.perk.value);
+          } else if (assistant.perk.affects === 'yield') {
+            if (Math.random() < assistant.perk.value) {
+              gathered += Math.floor(Math.random() * (3 - 1 + 1) + 1);
+            }
+          }
+
+          xp += xpGained;
+          updateInventory(state, m.item_id, gathered);
+          updateStats(
+            state,
+            'gathers',
+            items.find((i) => i.item_id === m.item_id),
+            gathered
+          );
+        });
 
       updateXp(state, 'mining', xp);
-      updateInventory(state, item.item_id, gathered);
-      updateStats(state, 'gathers', item, gathered);
     };
 
     /**
@@ -870,6 +1036,10 @@
             eligibleItems = items.filter(
               (i) => i.categories.includes(cat) && i.categories.includes(age)
             );
+          } else if (upgrade.skill === 'mining') {
+            eligibleItems = resourceNodes.filter(
+              (i) => i.id === upgrade.affects
+            );
           } else {
             eligibleItems = items.filter((i) => i.item_id === upgrade.affects);
           }
@@ -884,11 +1054,7 @@
             return;
           }
 
-          autoerAction(
-            state,
-            eligibleItems[Math.floor(Math.random() * eligibleItems.length)],
-            upgrade.skill
-          );
+          autoerAction(state, eligibleItem, upgrade.skill);
         };
         upgradeAutoer(upgrade, up, state);
       } else if (upgrade.id === 'money_is_time') {
@@ -1398,10 +1564,12 @@
           switch (key) {
             case 'mining':
               actionFn = assistantDidMine;
-              actionableItems = items.filter(
+              actionableItems = resourceNodes.filter(
                 (i) =>
                   i.skill === 'mining' &&
-                  assistant.config[key].includes(i.item_id)
+                  i.yields.filter((y) =>
+                    assistant.config[key].includes(y.item_id)
+                  ).length
               );
               break;
 
@@ -1603,8 +1771,10 @@
         /** @type {{ value: PurchasedAssistant }} */
         const firingAssistant = ref(null);
         const availableOreList = computed(() =>
-          items.filter(
-            (i) => i.skill === 'mining' && i.level <= s.value.levels.mining
+          resourceNodes.filter(
+            (i) =>
+              i.skill === 'mining' &&
+              i.level_requirements.mining <= s.value.levels.mining
           )
         );
         const availabeSmithableList = computed(() =>
@@ -1678,9 +1848,9 @@
           }),
           toggleStats: () => toggleStats,
           /**
-           * @param {Item} item
+           * @param {ResourceNode} node
            */
-          userDidMine: (item) => userDidMine(s, item),
+          userDidMine: (node) => userDidMine(s, node),
           /**
            * @param {Item} item
            */

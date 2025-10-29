@@ -193,8 +193,12 @@
                     <p>Inventory</p>
                     <ul>
                         <li>Gold {{ s.gold }}</li>
-                        <li v-for="invItem in s.inventory" :key="invItem">
+                        <li v-for="invItem in s.inventory" :key="invItem.item_id">
                             {{ getItem(invItem.item_id).name }} x{{ invItem.quantity }}
+                            <button 
+                                type="button"
+                                @click="userDidSell(getItem(invItem.item_id))"
+                                :disabled="!hasInventory(getItem(invItem.item_id))">$</button>
                         </li>
                     </ul>
 
@@ -210,10 +214,6 @@
                     <ul class="ore-list">
                         <li v-for="ore in availableOreList" :key="ore.item_id">
                             <button type="button" @click="userDidMine(ore)">{{ ore.name }}</button>
-                            <button 
-                                type="button"
-                                @click="userDidSell(ore)"
-                                :disabled="!hasInventory(ore)">$</button>
                         </li>
                     </ul>
                 </div>
@@ -226,10 +226,6 @@
                                 type="button"
                                 @click="userDidSmith(smithable)"
                                 :disabled="!userCanCraft(smithable)">{{ smithable.name }}</button>
-                            <button 
-                                type="button"
-                                @click="userDidSell(smithable)"
-                                :disabled="!hasInventory(smithable)">$</button>
                         </li>
                     </ul>
                 </div>
