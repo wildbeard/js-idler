@@ -18,18 +18,7 @@
 
             #sidebar,
             #rightbar {
-                flex: 0 1 25%;
-            }
-
-            #main {
-                display: flex;
-                flex: 0 0 50%;
-                margin-top: 15px;
-            }
-
-            #main > div {
-                width: 75%;
-                padding: 0 15px;
+                width: 100%;
             }
 
             .available-quests li {
@@ -37,7 +26,12 @@
             }
 
             .quest-panel {
+                position: absolute;
+                top: 2rem;
+                left: 1.5rem;
+                width: calc(100vw - 5rem);
                 padding: 15px;
+                background-color: white;
                 border: 1px solid black;
                 border-radius: 0.25rem;
             }
@@ -59,6 +53,54 @@
                 border: 1px solid black;
                 border-radius: 0.5rem;;
                 transform: translate(-50%, -50%);
+            }
+
+            .skill-btn {
+                min-width: 115px;
+                text-align: center;
+            }
+
+            .simple-list li {
+                margin-bottom: 0.5rem;
+            }
+
+            .inventory div {
+                display: flex;
+                justify-content: space-between;
+            }
+
+            @media screen and (min-width: 1024px) {
+                #sidebar,
+                #rightbar {
+                    flex: 0 1 25%;
+                }
+
+                #sidebar {
+                    max-width: 200px;
+                }
+
+                #rightbar {
+                    max-width: 275px;
+                }
+
+                #main {
+                    display: flex;
+                    flex: 1 0 50%;
+                    justify-content: center;
+                    margin-top: 15px;
+                }
+
+                #main > div {
+                    width: 50%;
+                    padding: 0 15px;
+                }
+            
+                .quest-panel {
+                    position: initial;
+                    top: initial;
+                    left: initial;
+                    width: initial;
+                }
             }
         </style>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -191,14 +233,16 @@
 
                 <div>
                     <p>Inventory</p>
-                    <ul>
+                    <ul class="simple-list inventory">
                         <li>Gold {{ s.gold }}</li>
                         <li v-for="invItem in s.inventory" :key="invItem.item_id">
-                            {{ getItem(invItem.item_id).name }} x{{ invItem.quantity }}
-                            <button 
-                                type="button"
-                                @click="userDidSell(getItem(invItem.item_id))"
-                                :disabled="!hasInventory(getItem(invItem.item_id))">$</button>
+                            <div>
+                                {{ getItem(invItem.item_id).name }} x{{ invItem.quantity }}
+                                <button 
+                                    type="button"
+                                    @click="userDidSell(getItem(invItem.item_id))"
+                                    :disabled="!hasInventory(getItem(invItem.item_id))">$</button>
+                            </div>
                         </li>
                     </ul>
 
@@ -211,18 +255,24 @@
 
                 <div>
                     <p>Mining</p>
-                    <ul class="ore-list">
+                    <ul class="simple-list ore-list">
                         <li v-for="ore in availableOreList" :key="ore.item_id">
-                            <button type="button" @click="userDidMine(ore)">{{ ore.name }}</button>
+                            <button 
+                                class="skill-btn" 
+                                type="button" 
+                                @click="userDidMine(ore)">
+                                {{ ore.name }}
+                            </button>
                         </li>
                     </ul>
                 </div>
 
                 <div>
                     <p>Smithing</p>
-                    <ul class="smithing-list">
+                    <ul class="simple-list smithing-list">
                         <li v-for="smithable in availabeSmithableList" :key="smithable.item_id">
                             <button 
+                                class="skill-btn"
                                 type="button"
                                 @click="userDidSmith(smithable)"
                                 :disabled="!userCanCraft(smithable)">{{ smithable.name }}</button>
@@ -233,9 +283,11 @@
                 <div>
                     <p>Hired Assistants ({{ `${s.assistants.length}/${s.global_variables.max_assistants}` }})</p>
                     <ul>
+                        <li v-if="!s.assistants.length">None Hired</li>
                         <li
                             v-for="assistant in s.assistants"
-                            :key="assistant.id">
+                            :key="assistant.id"
+                            style="margin-bottom: 1rem;">
                             {{ assistant.name }} <br>
                             Assistant Speed: {{ (assistant.interval / 1000).toFixed(2) }}s<br>
                             Assistant Wages: {{ assistant.cost_per_action }}gp<br>
@@ -262,6 +314,7 @@
                     <p>Autoers</p>
 
                     <ul>
+                        <li v-if="!s.purchased_autoers.length">None Purchased</li>
                         <li 
                             v-for="autoer in s.purchased_autoers"
                             :key="autoer.id"
@@ -291,6 +344,7 @@
                 <div>
                     <p>Current Upgrades</p>
                     <ul class="available-upgrades">
+                        <li v-if="!s.upgrades.length">None Purchased</li>
                         <li 
                             v-for="upgrade in s.upgrades" 
                             :key="upgrade.id">
@@ -376,12 +430,23 @@
                                 type="button"
                                 class="start-quest"
                                 @click="acceptQuest(viewingQuest)"
-                                :disabled="!canStartQuest(viewingQuest)">Start</button>
+                                :disabled="!canStartQuest(viewingQuest)"
+                                style="margin-right: 1rem;">
+                                Start
+                            </button>
+                            <button
+                                v-if="!isQuestStarted(viewingQuest)"
+                                type="button"
+                                @click="closeQuestPanel">
+                                Cancel
+                            </button>
                             <button 
                                 v-if="isQuestStarted(viewingQuest)"
                                 type="button"
                                 class="complete-quest"
-                                :disabled="!canCompleteQuest(viewingQuest)">Complete</button>
+                                :disabled="!canCompleteQuest(viewingQuest)">
+                                Complete
+                            </button>
                         </div>
 
                         <hr v-if="currentQuest" style="margin: 1rem 0;">
@@ -416,6 +481,7 @@
                 <div>
                     <p>Available Autoers</p>
                     <ul class="available-autoers">
+                        <li v-if="!availableAutoers.length">None Available</li>
                         <li 
                             v-for="autoer in availableAutoers"
                             :key="autoer.id">
@@ -457,6 +523,7 @@
                 <div>
                     <p>Available Upgrades</p>
                     <ul class="available-upgrades">
+                        <li v-if="!availableUpgrades.length">None Available</li>
                         <li v-for="upgrade in availableUpgrades" :key="upgrade.id">
                             {{ upgrade.name }} <br>
                             <button 
@@ -473,6 +540,7 @@
                 <div>
                     <p>Quests</p>
                     <ul class="available-quests">
+                        <li v-if="!availableQuests.length">- All Quests Completed -</li>
                         <li 
                             v-for="quest in availableQuests"
                             :key="quest.id"

@@ -1976,6 +1976,7 @@
            */
           isQuestStarted: (quest) =>
             !!s.value.quests_started.find((q) => q.quest_id === quest.id),
+          closeQuestPanel: () => (viewingQuest.value = null),
           xpForSkill: (skill) => {
             return Math.floor(
               (s.value.xp[`${skill}_xp_level`] /
