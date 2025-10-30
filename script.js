@@ -1395,11 +1395,9 @@
       const currStep = quest.steps.find((s) => s.id === step);
       state.value.quests_started[idx].complete = true;
 
-      for (const qItemReq of currStep.requirements.items.filter(
-        (i) => i.consumed
-      )) {
-        updateInventory(state, qItemReq.item_id, qItemReq.value * -1);
-      }
+      currStep.requirements.items
+        .filter((i) => i.consumed)
+        .forEach((i) => updateInventory(state, i.item_id, i.value * -1));
     };
 
     /**

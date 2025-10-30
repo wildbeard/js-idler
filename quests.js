@@ -301,7 +301,7 @@ window.quests = [
           items: [
             {
               item_id: 'bronze_dagger',
-              quantity: 1,
+              value: 1,
               consumed: true,
             },
           ],
