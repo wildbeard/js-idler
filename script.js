@@ -516,6 +516,37 @@
         ],
       },
     ];
+    const assistantFirstNames = [
+      'Pebble',
+      'Retch',
+      'Smudge',
+      'Pikwik',
+      'Crum',
+      'Skip',
+      'Chatopher',
+      'Squelch',
+      'Crank',
+      'Jarnathan',
+      'Chonk',
+      'Jough',
+    ];
+    const assistantLastNames = [
+      'Toast',
+      'Groundscore',
+      'Muhhog',
+      'Dingus',
+      'Grubcoal',
+      'Mudbritches',
+      'Rubble',
+      'Spitwik',
+      'Jippity',
+      'Grumble',
+      'Wungo',
+      'Dimwit',
+      'Pizzle',
+      'Stinkerton',
+      'Rudeboy',
+    ];
     /** @type Item[] */
     const items = window.items;
     /** @type Autoer[] */
@@ -1726,6 +1757,28 @@
     };
 
     /**
+     * @returns {string}
+     */
+    const generateAssistantName = () => {
+      function scrambleArray(arr) {
+        const a = Math.floor(Math.random() * arr.length);
+        const b = Math.floor(Math.random() * arr.length);
+        return arr.sort(() => a - b);
+      }
+
+      const f =
+        scrambleArray(assistantFirstNames)[
+          Math.floor(Math.random() * assistantFirstNames.length)
+        ];
+      const l =
+        scrambleArray(assistantLastNames)[
+          Math.floor(Math.random() * assistantLastNames.length)
+        ];
+
+      return `${f} ${l}`;
+    };
+
+    /**
      * @param {{ value: State }} state
      * @param {('mining' | 'smithing' | 'selling')?} preferredSkill
      * @returns {Assistant}
@@ -1742,7 +1795,7 @@
       /** @type {Assistant} */
       const assistant = {
         id,
-        name: `Conehead ${id}`,
+        name: generateAssistantName(),
         // @TODO Add scaling for cost per action
         cost_per_action: Math.floor(Math.random() * 10),
         skills: [skill],
@@ -1750,7 +1803,6 @@
         upgrades: generateAssistantLevels(skill, perk, state),
       };
 
-      console.log(assistant);
       return assistant;
     };
 
@@ -1812,7 +1864,6 @@
             return;
           }
 
-          console.log('getting a new assistant');
           const assistant = generateRandomAssistant(s);
 
           if (
@@ -2054,9 +2105,19 @@
             }
 
             s.value.gold -= cost;
-            // @TODO: Make upgrading also increase the value of perks
+            let currCost = purchasedAssistant.cost_per_action;
+            let perkVal = purchasedAssistant.perk.value;
             purchasedAssistant.level = nxtLvl.level;
             purchasedAssistant.interval = nxtLvl.value;
+            purchasedAssistant.cost_per_action += Math.floor(
+              currCost * (nxtLvl.level + 1 * 0.025) * 0.15 +
+                s.value.levels[purchasedAssistant.skills[0]] * 0.08
+            );
+            purchasedAssistant.perk.value += Math.floor(
+              perkVal +
+                nxtLvl.level * 0.25 +
+                s.value.levels[purchasedAssistant.skills[0]] * 0.15
+            );
             updateAssistantJobs(purchasedAssistant.id, s);
           },
           /**
