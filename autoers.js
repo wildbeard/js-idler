@@ -26,12 +26,13 @@
 const _autoers = [
   {
     id: 'automine_copper',
-    name: 'Copper Autominer',
+    name: 'Autominer: Copper',
     description: 'Automagically mines copper for you!',
+    value_description: 'Automatically mines %{item} every %{interval}.',
     value: 2000,
     cost: 25,
     skill: 'mining',
-    affects: 'copper_ore',
+    affects: 'copper_deposit',
     category: 'autoer',
     upgrades: [
       {
@@ -78,12 +79,13 @@ const _autoers = [
   },
   {
     id: 'automine_tin',
-    name: 'Tin Autominer',
+    name: 'Autominer: Tin',
     description: 'Automagically mines tin for you!',
+    value_description: 'Automatically mines %{item} every %{interval}.',
     value: 2000,
     cost: 25,
     skill: 'mining',
-    affects: 'tin_ore',
+    affects: 'tin_deposit',
     category: 'autoer',
     upgrades: [
       {
@@ -130,9 +132,10 @@ const _autoers = [
   },
   {
     id: 'autosmelt_bronze',
-    name: 'Bronze Autosmelter',
+    name: 'Autosmelter: Bronze',
     description:
       "Imagine having an apprentice smelting bronze for you. It's just like that.",
+    value_description: 'Automatically smelts a %{item} every %{interval}.',
     value: 2000,
     skill: 'smithing',
     cost: 100,
@@ -186,6 +189,8 @@ const _autoers = [
     name: 'Autohammer: Bronze Weapons',
     description:
       "We don't now how to adjust this thing, so it'll just make a random bronze weapon for you.",
+    value_description:
+      'Automatically smiths a random Bronze weapon every %{interval}.',
     value: 2000,
     cost: 200,
     skill: 'smithing',
@@ -239,6 +244,8 @@ const _autoers = [
     name: 'Autohammer: Bronze Armor',
     description:
       "We don't now how to adjust this thing, so it'll just make a random bronze armor for you.",
+    value_description:
+      'Automatically smiths a piece of Bronze armor every %{interval}.',
     value: 2000,
     cost: 200,
     skill: 'smithing',
@@ -289,12 +296,13 @@ const _autoers = [
   },
   {
     id: 'automine_iron',
-    name: 'Iron Autominer',
+    name: 'Autominer: Iron',
     description: 'Automagically mines iron for you!',
+    value_description: 'Automatically mines %{item} every %{interval}.',
     value: 2000,
     cost: 250,
     skill: 'mining',
-    affects: 'iron_ore',
+    affects: 'iron_deposit',
     category: 'autoer',
     upgrades: [
       {
@@ -349,12 +357,13 @@ const _autoers = [
   },
   {
     id: 'automine_coal',
-    name: 'Coal Autominer',
+    name: 'Autominer: Coal',
     description: 'Automagically mines coal for you!',
+    value_description: 'Automatically mines %{item} every %{interval}.',
     value: 2000,
     cost: 250,
     skill: 'mining',
-    affects: 'coal',
+    affects: 'coal_deposit',
     category: 'autoer',
     upgrades: [
       {
@@ -409,8 +418,9 @@ const _autoers = [
   },
   {
     id: 'autosmelt_iron',
-    name: 'Iron Autosmelter',
+    name: 'Autosmelter: Iron',
     description: "It'll smelt those iron bars for ya!",
+    value_description: 'Automatically smelts %{item} every %{interval}.',
     value: 2000,
     cost: 250,
     skill: 'smithing',
@@ -469,8 +479,9 @@ const _autoers = [
   },
   {
     id: 'autosmelt_steel',
-    name: 'Steel Autosmelter',
+    name: 'Autosmelter: Steel',
     description: "It'll smelt those steel bars for ya!",
+    value_description: 'Automatically smelts %{item} every %{interval}.',
     value: 2000,
     cost: 500,
     skill: 'smithing',

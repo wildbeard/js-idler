@@ -18,6 +18,16 @@
 /** @type {Item[]} */
 window.items = [
   {
+    item_id: 'uncut_emerald',
+    level: 1,
+    value: 22,
+    name: 'Uncut Emerald',
+    success_chance: 1.0,
+    xp_given: 0,
+    sellable: true,
+    categories: ['gem', 'uncut', 'rare'],
+  },
+  {
     item_id: 'copper_ore',
     level: 1,
     value: 1,
@@ -103,6 +113,23 @@ window.items = [
     xp_given: 10,
     sellable: true,
     categories: ['maces', 'weapons', 'bronze'],
+    ingredients: [
+      {
+        item_id: 'bronze_bar',
+        quantity: 3,
+      },
+    ],
+  },
+  {
+    item_id: 'bronze_helmet',
+    level: 3,
+    value: 26,
+    skill: 'smithing',
+    name: 'Bronze Helmet',
+    success_chance: 1.0,
+    xp_given: 30,
+    sellable: true,
+    categories: ['bronze', 'armor'],
     ingredients: [
       {
         item_id: 'bronze_bar',
