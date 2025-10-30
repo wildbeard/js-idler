@@ -1817,6 +1817,7 @@
         const statsShown = ref(false);
         const currentQuest = ref(null);
         const viewingQuest = ref(null);
+        const questMinimized = ref(false);
         const configuringAssistant = ref(null);
         /** @type {{ value: PurchasedAssistant }} */
         const firingAssistant = ref(null);
@@ -1856,6 +1857,7 @@
         window.toggleStats = () => {
           statsShown.value = !statsShown.value;
         };
+        window.generateAssistantName = generateAssistantName;
 
         // Every 3 minutes give the user a new assistant to hire
         setInterval(() => {
@@ -1888,6 +1890,7 @@
           availableAssistants,
           currentQuest,
           viewingQuest,
+          questMinimized,
           configuringAssistant,
           firingAssistant,
           currentAutoers: computed(() => {
@@ -1921,10 +1924,13 @@
            * @returns {bool}
            */
           userCanCraft: (item) => hasIngredientsFor(s, item),
+          toggleQuestBody: () => (questMinimized.value = !questMinimized.value),
           /**
            * @param {Quest} quest
            */
           updateQuestPanel: (quest) => {
+            // le`sigh
+            window.scrollTo(0, 0);
             viewingQuest.value =
               quest.id === viewingQuest.value?.id ? null : quest;
           },

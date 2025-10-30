@@ -18,6 +18,12 @@
 
             #sidebar,
             #rightbar {
+                order: 2;
+                width: 100%;
+            }
+
+            #main {
+                order: 1;
                 width: 100%;
             }
 
@@ -26,14 +32,20 @@
             }
 
             .quest-panel {
-                position: absolute;
-                top: 2rem;
-                left: 1.5rem;
-                width: calc(100vw - 5rem);
+                position: relative;
+                margin-top: 1.5rem;
                 padding: 15px;
                 background-color: white;
                 border: 1px solid black;
                 border-radius: 0.25rem;
+            }
+
+            .minimize-quest {
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                width: 22px;
+                height: 22px;
             }
 
             .quest-title {
@@ -76,16 +88,19 @@
                 }
 
                 #sidebar {
+                    order: 1;
                     max-width: 200px;
                 }
 
                 #rightbar {
+                    order: 2;
                     max-width: 275px;
                 }
 
                 #main {
                     display: flex;
                     flex: 1 0 50%;
+                    order: 2;
                     justify-content: center;
                     margin-top: 15px;
                 }
@@ -93,13 +108,6 @@
                 #main > div {
                     width: 50%;
                     padding: 0 15px;
-                }
-            
-                .quest-panel {
-                    position: initial;
-                    top: initial;
-                    left: initial;
-                    width: initial;
                 }
             }
         </style>
@@ -374,102 +382,112 @@
             <div id="main">
                 <div>
                     <div class="quest-panel" v-if="viewingQuest">
+                        <button 
+                            class="minimize-quest"
+                            type="button"
+                            @click="toggleQuestBody">
+                            {{ !questMinimized ? '-' : '+' }}
+                        </button>
                         <h2 class="quest-title">{{ viewingQuest.name }}</h2>
-                        <p class="quest-desc">{{ viewingQuest.description }}</p>
+                        
+                        <div 
+                            v-if="!questMinimized"
+                            class="quest-body">
+                            <p class="quest-desc">{{ viewingQuest.description }}</p>
+                            <div class="requirements">
+                                <div class="quest-level-requirements">
+                                    <p>Level Requirements</p>
+                                    <ul class="level-reqs">
+                                        <li v-for="(value, levelKey) in viewingQuest.requirements.levels" :key="levelKey">
+                                            <span :style="{ color: s.levels[levelKey] >= value ? 'green' : 'red' }">
+                                                {{ `${levelKey}: ${value}` }}
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
 
-                        <div class="requirements">
-                            <div class="quest-level-requirements">
-                                <p>Level Requirements</p>
-                                <ul class="level-reqs">
-                                    <li v-for="(value, levelKey) in viewingQuest.requirements.levels" :key="levelKey">
-                                        <span :style="{ color: s.levels[levelKey] >= value ? 'green' : 'red' }">
-                                            {{ `${levelKey}: ${value}` }}
-                                        </span>
+                                <div class="quest-quest-requirements">
+                                    <p>Quest Requirements</p>
+                                    <ul 
+                                        v-if="viewingQuest.requirements.quests.length"
+                                        class="quest-reqs">
+                                        <li 
+                                            v-for="questId in viewingQuest.requirements.quests"
+                                            :key="questId">
+                                            {{ getQuest(questId)?.name }}
+                                        </li>
+                                    </ul>
+                                    <p v-else>None</p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <p>Rewards</p>
+                                <ul class="quest-rewards">
+                                    <li v-for="(reward, idx) in viewingQuest.rewards" :key="idx">
+                                        <template v-if="reward.category === 'experience'">
+                                            {{ `${reward.value} ${reward.affects} xp` }}
+                                        </template>
+                                        <template v-else-if="reward.category === 'item' && getItem(reward.item_id)">
+                                            {{ `${reward.value}x ${getItem(reward.item_id).name}` }}
+                                        </template>
+                                        <template v-else-if="reward.category === 'money'">
+                                            {{ `${reward.value} gold` }}
+                                        </template>
+                                        <template v-else-if="reward.category === 'assistant'">
+                                            A {{ reward.affects }} assistant
+                                        </template>
                                     </li>
                                 </ul>
                             </div>
-
-                            <div class="quest-quest-requirements">
-                                <p>Quest Requirements</p>
-                                <ul 
-                                    v-if="viewingQuest.requirements.quests.length"
-                                    class="quest-reqs">
-                                    <li 
-                                        v-for="questId in viewingQuest.requirements.quests"
-                                        :key="questId">
-                                        {{ getQuest(questId)?.name }}
-                                    </li>
-                                </ul>
-                                <p v-else>None</p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <p>Rewards</p>
-                            <ul class="quest-rewards">
-                                <li v-for="(reward, idx) in viewingQuest.rewards" :key="idx">
-                                    <template v-if="reward.category === 'experience'">
-                                        {{ `${reward.value} ${reward.affects} xp` }}
-                                    </template>
-                                    <template v-else-if="reward.category === 'item' && getItem(reward.item_id)">
-                                        {{ `${reward.value}x ${getItem(reward.item_id).name}` }}
-                                    </template>
-                                    <template v-else-if="reward.category === 'money'">
-                                        {{ `${reward.value} gold` }}
-                                    </template>
-                                    <template v-else-if="reward.category === 'assistant'">
-                                        A {{ reward.affects }} assistant
-                                    </template>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <button 
-                                v-if="!isQuestStarted(viewingQuest)"
-                                type="button"
-                                class="start-quest"
-                                @click="acceptQuest(viewingQuest)"
-                                :disabled="!canStartQuest(viewingQuest)"
-                                style="margin-right: 1rem;">
-                                Start
-                            </button>
-                            <button
-                                v-if="!isQuestStarted(viewingQuest)"
-                                type="button"
-                                @click="closeQuestPanel">
-                                Cancel
-                            </button>
-                            <button 
-                                v-if="isQuestStarted(viewingQuest)"
-                                type="button"
-                                class="complete-quest"
-                                :disabled="!canCompleteQuest(viewingQuest)">
-                                Complete
-                            </button>
-                        </div>
-
-                        <hr v-if="currentQuest" style="margin: 1rem 0;">
-
-                        <div v-if="currentQuest" class="current-quest">
-                            <p class="quest-title">Quest Progress</p>
-
-                            <ul class="quest-steps">
-                                <li 
-                                    v-for="questStep in currentQuest.steps"
-                                    :style="{
-                                        textDecoration: getCurrentQuestStep() > questStep.id ? 'line-through' : 'none',
-                                    }">
-                                    {{ questStep.description }}
-                                </li>
-                            </ul>
 
                             <div>
                                 <button 
+                                    v-if="!isQuestStarted(viewingQuest)"
                                     type="button"
-                                    class="complete-step"
-                                    @click="completeQuestStep"
-                                    :disabled="!canCompleteQuestStep(currentQuest)">Complete Step</button>
+                                    class="start-quest"
+                                    @click="acceptQuest(viewingQuest)"
+                                    :disabled="!canStartQuest(viewingQuest)"
+                                    style="margin-right: 1rem;">
+                                    Start
+                                </button>
+                                <button
+                                    v-if="!isQuestStarted(viewingQuest)"
+                                    type="button"
+                                    @click="closeQuestPanel">
+                                    Cancel
+                                </button>
+                                <button 
+                                    v-if="isQuestStarted(viewingQuest)"
+                                    type="button"
+                                    class="complete-quest"
+                                    :disabled="!canCompleteQuest(viewingQuest)">
+                                    Complete
+                                </button>
+                            </div>
+
+                            <hr v-if="currentQuest" style="margin: 1rem 0;">
+
+                            <div v-if="currentQuest" class="current-quest">
+                                <p class="quest-title">Quest Progress</p>
+
+                                <ul class="quest-steps">
+                                    <li 
+                                        v-for="questStep in currentQuest.steps"
+                                        :style="{
+                                            textDecoration: getCurrentQuestStep() > questStep.id ? 'line-through' : 'none',
+                                        }">
+                                        {{ questStep.description }}
+                                    </li>
+                                </ul>
+
+                                <div>
+                                    <button 
+                                        type="button"
+                                        class="complete-step"
+                                        @click="completeQuestStep"
+                                        :disabled="!canCompleteQuestStep(currentQuest)">Complete Step</button>
+                                </div>
                             </div>
                         </div>
                     </div>
