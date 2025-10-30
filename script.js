@@ -2113,11 +2113,18 @@
               currCost * (nxtLvl.level + 1 * 0.025) * 0.15 +
                 s.value.levels[purchasedAssistant.skills[0]] * 0.08
             );
-            purchasedAssistant.perk.value += Math.floor(
-              perkVal +
-                nxtLvl.level * 0.25 +
-                s.value.levels[purchasedAssistant.skills[0]] * 0.15
-            );
+            purchasedAssistant.perk.value +=
+              Math.floor(
+                perkVal +
+                  nxtLvl.level * 0.25 +
+                  s.value.levels[purchasedAssistant.skills[0]] * 0.15
+              ) / 100;
+            purchasedAssistant.perk.description = perksData
+              .find((p) => p.id === purchasedAssistant.perk.id)
+              ?.description_template.replace(
+                '&',
+                Math.floor(purchasedAssistant.perk.value * 100)
+              );
             updateAssistantJobs(purchasedAssistant.id, s);
           },
           /**
