@@ -256,7 +256,7 @@
         }
 
         const cost = properties.upgrades.find(
-          (u) => u.level === currPurchased.level + 1
+          (u) => u.level === currPurchased.level + 1,
         );
         return cost?.cost ?? currPurchased.cost;
       };
@@ -303,7 +303,7 @@
             state.value.upgrades.find((u) => u.id === 'autoer_mining_xp')
           ) {
             const minerUpgrade = state.value.upgrades.find(
-              (u) => u.id === 'autoer_mining_xp'
+              (u) => u.id === 'autoer_mining_xp',
             );
 
             if (minerUpgrade) {
@@ -313,7 +313,7 @@
               str += `<br>${properties.name} will yield ${
                 minerUpgradeLevel.value * 100
               }% (${Math.floor(
-                item.xp_given * minerUpgradeLevel.value
+                item.xp_given * minerUpgradeLevel.value,
               )}) xp per action.`;
             }
           }
@@ -323,7 +323,7 @@
             state.value.upgrades.find((u) => u.id === 'autoer_smithing_xp')
           ) {
             const smelterUpgrade = state.value.upgrades.find(
-              (u) => u.id === 'autoer_smithing_xp'
+              (u) => u.id === 'autoer_smithing_xp',
             );
 
             if (smelterUpgrade) {
@@ -333,7 +333,7 @@
               str += `<br>${properties.name} will yield ${
                 smelterUpgradeLevel.value * 100
               }% (${Math.floor(
-                item.xp_given * smelterUpgradeLevel.value
+                item.xp_given * smelterUpgradeLevel.value,
               )}) xp per action.`;
             }
           }
@@ -350,7 +350,7 @@
       const getUpgradeRequirementText = (state) => {
         const currUpgrade = getCurrentUpgrade(state);
         const maxUpgrade = properties.upgrades.sort(
-          (a, b) => a.level <= b.level
+          (a, b) => a.level <= b.level,
         )[0];
 
         if (currUpgrade?.level === maxUpgrade.level) {
@@ -358,7 +358,7 @@
         }
 
         const nextLevel = properties.upgrades.find(
-          (u) => u.level === currUpgrade.level + 1
+          (u) => u.level === currUpgrade.level + 1,
         );
         const txt = [];
 
@@ -376,7 +376,7 @@
       const hasRequirementsForUpgrade = (state) => {
         const currUpgrade = getCurrentUpgrade(state);
         const nextLevel = properties.upgrades.find(
-          (u) => u.level === (currUpgrade ? currUpgrade.level + 1 : 0)
+          (u) => u.level === (currUpgrade ? currUpgrade.level + 1 : 0),
         );
 
         if (!nextLevel) {
@@ -399,7 +399,7 @@
       const canUpgrade = (state) => {
         const currUpgrade = getCurrentUpgrade(state);
         const nextLevel = properties.upgrades.find(
-          (u) => u.level === (currUpgrade ? currUpgrade.level + 1 : 0)
+          (u) => u.level === (currUpgrade ? currUpgrade.level + 1 : 0),
         );
 
         if (!nextLevel || nextLevel.cost > state.value.gold) {
@@ -675,7 +675,7 @@
         name: data.name,
         description: data.description_template.replace(
           '&',
-          Math.floor(value * 100)
+          Math.floor(value * 100),
         ),
         skills: data.skills,
         affects: data.affects,
@@ -694,7 +694,7 @@
 
       ingredients.forEach((ingredient) => {
         const item = state.value.inventory.find(
-          (i) => i.item_id === ingredient.item_id
+          (i) => i.item_id === ingredient.item_id,
         );
 
         if (!item || item.quantity < ingredient.quantity) {
@@ -729,7 +729,7 @@
       while (currXp >= state.value.xp[nxtLvlKey]) {
         state.value.levels[key] += 1;
         state.value.xp[`${key}_xp_level`] = Math.abs(
-          state.value.xp[nxtLvlKey] - state.value.xp[key]
+          state.value.xp[nxtLvlKey] - state.value.xp[key],
         );
         state.value.xp[nxtLvlKey] += getXpForLevel(state.value.levels[key] + 1);
       }
@@ -754,7 +754,7 @@
         const bonusYieldChance = state.value.upgrades
           // @TODO: Update Upgrades to look at nodes not items
           .filter(
-            (u) => u.affects === node.id && u.category === 'mining_excess'
+            (u) => u.affects === node.id && u.category === 'mining_excess',
           )
           .reduce((total, curr) => (total += curr.value), 0);
         const currLvl = state.value.levels.mining;
@@ -808,7 +808,7 @@
      */
     const autoerAction = (state, target, action) => {
       const xpPercentUpgrade = state.value.upgrades.find(
-        (u) => u.id === `autoer_${action}_xp`
+        (u) => u.id === `autoer_${action}_xp`,
       );
       let xpPercent = 0;
       let xp = 0;
@@ -816,7 +816,7 @@
 
       if (xpPercentUpgrade) {
         xpPercent = xpPercentUpgrade.upgrades.find(
-          (u) => u.level === xpPercentUpgrade.level
+          (u) => u.level === xpPercentUpgrade.level,
         )?.value;
       }
 
@@ -833,7 +833,7 @@
                   state,
                   'gathers',
                   items.find((i) => i.item_id === m.item_id),
-                  m.quantity
+                  m.quantity,
                 );
               }
             });
@@ -868,7 +868,7 @@
           state,
           action === 'mining' ? 'gathers' : 'crafts',
           target,
-          yield
+          yield,
         );
       }
 
@@ -906,7 +906,7 @@
             state,
             'gathers',
             items.find((i) => i.item_id === m.item_id),
-            gathered
+            gathered,
           );
         });
 
@@ -931,7 +931,7 @@
         result.result.push({
           item_id: ing.item_id,
           quantity: ing.quantity * -1,
-        })
+        }),
       );
 
       return result;
@@ -951,7 +951,7 @@
       if (result.success) {
         updateXp(state, 'smithing', item.xp_given);
         let idx = state.value.stats.crafts.findIndex(
-          (i) => i.item_id === item.item_id
+          (i) => i.item_id === item.item_id,
         );
 
         if (idx === -1) {
@@ -966,7 +966,7 @@
       }
 
       result.result.forEach((invUpdate) =>
-        updateInventory(state, invUpdate.item_id, invUpdate.quantity)
+        updateInventory(state, invUpdate.item_id, invUpdate.quantity),
       );
     };
 
@@ -1005,7 +1005,7 @@
 
         updateXp(state, 'smithing', xp);
         result.result.forEach((invUpdate) =>
-          updateInventory(state, invUpdate.item_id, invUpdate.quantity)
+          updateInventory(state, invUpdate.item_id, invUpdate.quantity),
         );
       }
     };
@@ -1065,11 +1065,11 @@
             const age = upgrade.affects.split('_')[0];
             const cat = upgrade.affects.split('_')[1];
             eligibleItems = items.filter(
-              (i) => i.categories.includes(cat) && i.categories.includes(age)
+              (i) => i.categories.includes(cat) && i.categories.includes(age),
             );
           } else if (upgrade.skill === 'mining') {
             eligibleItems = resourceNodes.filter(
-              (i) => i.id === upgrade.affects
+              (i) => i.id === upgrade.affects,
             );
           } else {
             eligibleItems = items.filter((i) => i.item_id === upgrade.affects);
@@ -1117,7 +1117,7 @@
       }
 
       const currIdx = state.value[targetStateKey].findIndex(
-        (u) => u.id === upgrade.id
+        (u) => u.id === upgrade.id,
       );
 
       if (currIdx === -1) {
@@ -1188,7 +1188,7 @@
       }
 
       let idx = state.value.stats[stat].findIndex(
-        (i) => i.item_id === item.item_id
+        (i) => i.item_id === item.item_id,
       );
 
       if (idx === -1) {
@@ -1224,7 +1224,7 @@
      */
     const sellItem = (state, item) => {
       const bonusUpgrade = state.value.upgrades.find(
-        (u) => u.category === 'gold_bonus'
+        (u) => u.category === 'gold_bonus',
       );
       let gold = item.value;
 
@@ -1237,7 +1237,7 @@
       state.value.stats.lifetime_wealth += gold;
 
       let statIdx = state.value.stats.sales.findIndex(
-        (i) => i.item_id === item.item_id
+        (i) => i.item_id === item.item_id,
       );
 
       if (statIdx === -1) {
@@ -1269,7 +1269,7 @@
       // @TODO: Figure out why getAssistantJobFunctions isn't handling this!!
       if (
         !state.value.inventory.find(
-          (i) => i.item_id === item.item_id && i.quantity > 0
+          (i) => i.item_id === item.item_id && i.quantity > 0,
         )
       ) {
         console.log(`Not enough inventory for assistant to sell ${item.name}`);
@@ -1324,7 +1324,7 @@
           if (requiredQuests.length !== 0) {
             hasRequirements =
               requiredQuests.filter((q) =>
-                state.value.quests_completed.includes(q)
+                state.value.quests_completed.includes(q),
               ).length === requiredQuests.length;
 
             if (!hasRequirements) {
@@ -1342,7 +1342,7 @@
      */
     const canCompleteQuest = (quest, state) => {
       const currStep = state.value.quests_started.find(
-        (q) => q.quest_id === quest.id
+        (q) => q.quest_id === quest.id,
       );
 
       if (!currStep) {
@@ -1375,7 +1375,7 @@
         questStep.requirements.items?.filter(
           (i) =>
             getInventoryItem(state, i.item_id) < i.value ||
-            getInventoryItem(state, i.item_id) === 0
+            getInventoryItem(state, i.item_id) === 0,
         ).length > 0
       ) {
         return false;
@@ -1385,8 +1385,8 @@
         questStep.requirements.upgrades?.length &&
         state.value.upgrades.filter((u) =>
           questStep.requirements.upgrades.find(
-            (uu) => uu.upgrade_id === u.id && uu.value > u.level
-          )
+            (uu) => uu.upgrade_id === u.id && uu.value > u.level,
+          ),
         ).length < questStep.requirements.upgrades.length
       ) {
         return false;
@@ -1397,8 +1397,8 @@
         questStep.requirements.autoers?.length &&
         state.value.purchased_autoers.filter((u) =>
           questStep.requirements.autoers.find(
-            (uu) => uu.upgrade_id === u.id && uu.value > u.level
-          )
+            (uu) => uu.upgrade_id === u.id && uu.value > u.level,
+          ),
         ).length < questStep.requirements.autoers.length
       ) {
         return false;
@@ -1463,7 +1463,7 @@
       }
 
       state.value.quests_started = state.value.quests_started.filter(
-        (q) => q.quest_id !== quest.id
+        (q) => q.quest_id !== quest.id,
       );
       state.value.quests_completed.push(quest.id);
 
@@ -1519,7 +1519,7 @@
         // Default to doing nothing for selling for now
         if (skill !== 'selling') {
           avail = items.filter(
-            (i) => i.skill === skill && i.level <= state.value.levels[skill]
+            (i) => i.skill === skill && i.level <= state.value.levels[skill],
           );
         }
 
@@ -1597,8 +1597,8 @@
                 (i) =>
                   i.skill === 'mining' &&
                   i.yields.filter((y) =>
-                    assistant.config[key].includes(y.item_id)
-                  ).length
+                    assistant.config[key].includes(y.item_id),
+                  ).length,
               );
               break;
 
@@ -1608,7 +1608,7 @@
                 (i) =>
                   i.skill === 'smithing' &&
                   assistant.config[key].includes(i.item_id) &&
-                  hasIngredientsFor(state, i)
+                  hasIngredientsFor(state, i),
               );
               break;
 
@@ -1617,8 +1617,8 @@
               actionableItems = items.filter(
                 (i) =>
                   state.value.inventory.find(
-                    (ii) => ii.item_id === i.item_id && ii.quantity > 0
-                  ) && assistant.config[key].includes(i.item_id)
+                    (ii) => ii.item_id === i.item_id && ii.quantity > 0,
+                  ) && assistant.config[key].includes(i.item_id),
               );
               break;
           }
@@ -1708,7 +1708,7 @@
       const available = perksData.filter((p) => p.skills.includes(skill));
       const perkData = available.sort(
         () =>
-          Math.random() * available.length - Math.random() * available.length
+          Math.random() * available.length - Math.random() * available.length,
       )[0];
       return createPerkFromData(perkData, state);
     };
@@ -1788,7 +1788,7 @@
       const skill =
         preferredSkill ??
         skills.sort(
-          () => Math.floor(Math.random() * 3) - Math.floor(Math.random() * 3)
+          () => Math.floor(Math.random() * 3) - Math.floor(Math.random() * 3),
         )[0];
       const perk = generateAssistantPerk(skill, state);
       const id = Math.floor(Math.random() * 100000);
@@ -1825,33 +1825,33 @@
           resourceNodes.filter(
             (i) =>
               i.skill === 'mining' &&
-              i.level_requirements.mining <= s.value.levels.mining
-          )
+              i.level_requirements.mining <= s.value.levels.mining,
+          ),
         );
         const availabeSmithableList = computed(() =>
           items.filter(
-            (i) => i.skill === 'smithing' && i.level <= s.value.levels.smithing
-          )
+            (i) => i.skill === 'smithing' && i.level <= s.value.levels.smithing,
+          ),
         );
         const availableQuests = computed(() =>
-          quests.filter((q) => !s.value.quests_completed.includes(q.id))
+          quests.filter((q) => !s.value.quests_completed.includes(q.id)),
         );
         const availableUpgrades = computed(() =>
           allUpgrades
             .filter((u) => !s.value.upgrades.find((uu) => uu.id === u.id))
             .map((u) => new UpgradableEntity(u))
-            .filter((u) => u.hasRequirementsForUpgrade(s))
+            .filter((u) => u.hasRequirementsForUpgrade(s)),
         );
         const availableAutoers = computed(() =>
           autoers
             .filter(
-              (a) => !s.value.purchased_autoers.find((aa) => aa.id === a.id)
+              (a) => !s.value.purchased_autoers.find((aa) => aa.id === a.id),
             )
             .map((a) => new UpgradableEntity(a))
-            .filter((a) => a.hasRequirementsForUpgrade(s))
+            .filter((a) => a.hasRequirementsForUpgrade(s)),
         );
         const availableAssistants = computed(() =>
-          assistants.value.filter((a) => hasRequirementsForAssistant(a, s))
+          assistants.value.filter((a) => hasRequirementsForAssistant(a, s)),
         );
         // hehexdd
         window.toggleStats = () => {
@@ -1917,7 +1917,7 @@
            */
           hasInventory: (item) =>
             !!s.value.inventory.find(
-              (i) => i.item_id === item.item_id && i.quantity > 0
+              (i) => i.item_id === item.item_id && i.quantity > 0,
             ),
           /**
            * @param {Item} item
@@ -1962,7 +1962,7 @@
           completeQuestStep: () => {
             const currentStep = s.value.quests_started[0].step;
             const hasMoreSteps = currentQuest.value.steps.find(
-              (s) => s.id === currentStep + 1
+              (s) => s.id === currentStep + 1,
             );
 
             completeQuestStep(currentQuest.value, currentStep, s);
@@ -1987,7 +1987,7 @@
             return Math.floor(
               (s.value.xp[`${skill}_xp_level`] /
                 getXpForLevel(s.value.levels[skill])) *
-                100
+                100,
             );
           },
           /**
@@ -2039,7 +2039,7 @@
           hireAssistant: (assistant) => {
             hireAssistant(assistant, s);
             assistants.value = assistants.value.filter(
-              (a) => a.id !== assistant.id
+              (a) => a.id !== assistant.id,
             );
             configuringAssistant.value =
               s.value.assistants[s.value.assistants.length - 1];
@@ -2059,7 +2059,7 @@
           fireAssistant: (assistant) => {
             clearInterval(firingAssistant.value.interval_id);
             s.value.assistants = s.value.assistants.filter(
-              (a) => a.id !== assistant.id
+              (a) => a.id !== assistant.id,
             );
             firingAssistant.value = null;
           },
@@ -2074,7 +2074,7 @@
            */
           saveAssistantConfig: (purchasedAssistant) => {
             const idx = s.value.assistants.findIndex(
-              (a) => a.id === purchasedAssistant.id
+              (a) => a.id === purchasedAssistant.id,
             );
 
             if (idx === -1) {
@@ -2083,7 +2083,7 @@
             }
 
             s.value.assistants[idx] = JSON.parse(
-              JSON.stringify(purchasedAssistant)
+              JSON.stringify(purchasedAssistant),
             );
             configuringAssistant.value = null;
 
@@ -2094,7 +2094,7 @@
            */
           upgradeAssistant: (purchasedAssistant) => {
             const nxtLvl = purchasedAssistant.upgrades.find(
-              (u) => u.level === purchasedAssistant.level + 1
+              (u) => u.level === purchasedAssistant.level + 1,
             );
 
             if (!nxtLvl) {
@@ -2118,19 +2118,19 @@
             purchasedAssistant.interval = nxtLvl.value;
             purchasedAssistant.cost_per_action += Math.floor(
               currCost * (nxtLvl.level + 1 * 0.025) * 0.15 +
-                s.value.levels[purchasedAssistant.skills[0]] * 0.08
+                s.value.levels[purchasedAssistant.skills[0]] * 0.08,
             );
             purchasedAssistant.perk.value +=
               Math.floor(
                 perkVal +
                   nxtLvl.level * 0.25 +
-                  s.value.levels[purchasedAssistant.skills[0]] * 0.15
+                  s.value.levels[purchasedAssistant.skills[0]] * 0.15,
               ) / 100;
             purchasedAssistant.perk.description = perksData
               .find((p) => p.id === purchasedAssistant.perk.id)
               ?.description_template.replace(
                 '&',
-                Math.floor(purchasedAssistant.perk.value * 100)
+                Math.floor(purchasedAssistant.perk.value * 100),
               );
             updateAssistantJobs(purchasedAssistant.id, s);
           },
@@ -2140,7 +2140,7 @@
            */
           getAssistantUpgradeCost: (purchasedAssistant) => {
             const nxtLvl = purchasedAssistant.upgrades.find(
-              (u) => u.level === purchasedAssistant.level + 1
+              (u) => u.level === purchasedAssistant.level + 1,
             );
 
             if (!nxtLvl) {
@@ -2155,7 +2155,7 @@
            */
           getAssistantUpgradeTitle: (assistant) => {
             const nxtLvl = assistant.upgrades.find(
-              (u) => u.level === assistant.level + 1
+              (u) => u.level === assistant.level + 1,
             );
 
             if (!nxtLvl) {
