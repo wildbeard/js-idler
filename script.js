@@ -1806,12 +1806,60 @@
       return assistant;
     };
 
+    /**
+     * Returns the state from localStorage or the default starting state.
+     * @returns {State}
+     */
+    const loadState = () => {
+      const s = localStorage.getItem('game-state');
+      return s ? JSON.parse(s) : state;
+    };
+
+    /**
+     * Hydrates the given state, converting certain JSON objects to functions.
+     * @param {State} loaded
+     * @param {{ value: State }} current
+     * @returns {State}
+     */
+    const hydrateState = (loaded, current) => {
+      if (loaded.purchased_autoers.length) {
+        loaded.purchased_autoers.forEach((a) => {
+          const u = new UpgradableEntity(a);
+          upgrade(u, a.level, current);
+        });
+      }
+
+      if (loaded.upgrades.length) {
+        loaded.upgrades.forEach((up) => {
+          const u = new UpgradableEntity(up);
+          upgrade(u, u.level, current);
+        });
+      }
+
+      return current;
+    };
+
+    /**
+     * @param {{ value: State }} state
+     */
+    const saveGameState = (state) => {
+      localStorage.setItem('game-state', JSON.stringify(state.value));
+    };
+
     const { createApp, ref, computed } = Vue;
 
     createApp({
       setup() {
+        const baseState = loadState();
         /** @type {{ value: State }} s */
-        const s = ref({ ...state });
+        let s = ref({ ...baseState });
+
+        if (baseState.purchased_autoers.length || baseState.upgrades.length) {
+          s = hydrateState(baseState, s);
+        } else {
+          s = ref({ ...baseState });
+        }
+
         /** @type {{ value: Assistant[] }} */
         const assistants = ref([]);
         const statsShown = ref(false);
@@ -1854,10 +1902,12 @@
           assistants.value.filter((a) => hasRequirementsForAssistant(a, s)),
         );
         // hehexdd
-        window.toggleStats = () => {
-          statsShown.value = !statsShown.value;
-        };
-        window.generateAssistantName = generateAssistantName;
+        window.toggleStats = () => (statsShown.value = !statsShown.value);
+        // Save game before the user leaves
+        window.addEventListener('beforeunload', () => saveGameState(s));
+
+        // Auto-save every 15 seconds
+        setInterval(() => saveGameState(s), 15000);
 
         // Every 3 minutes give the user a new assistant to hire
         setInterval(() => {
