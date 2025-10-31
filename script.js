@@ -126,6 +126,7 @@
  * @typedef State
  * @type {object}
  *
+ * @property {string} version
  * @property {number} gold
  * @property {{
  *  lifetime_wealth: number,
@@ -198,6 +199,8 @@
 
 (
   function () {
+    const version = '0.1.0';
+
     /**
      * @param {Upgrade | Autoer} props
      * @returns {UpgradableEntity}
@@ -557,7 +560,8 @@
     const quests = window.quests;
 
     /** @type {State} */
-    const state = {
+    const startingState = {
+      version,
       // @TODO: Shit like total bronze swords sold (count + value)
       stats: {
         lifetime_wealth: 500,
@@ -1811,8 +1815,29 @@
      * @returns {State}
      */
     const loadState = () => {
-      const s = localStorage.getItem('game-state');
-      return s ? JSON.parse(s) : state;
+      const loadedStr = localStorage.getItem('game-state');
+
+      if (!loadedStr) {
+        return startingState;
+      }
+
+      const loaded = JSON.parse(loadedStr);
+      const currVer = version.split('.');
+      const loadedVer = loaded.version?.split('.');
+
+      // Sorry kids, it's just not that kind of game.
+      // But also, I think technically anything in Minor/Patch should be
+      // considered safe according to semantic docs. As minor is supposed to be
+      // backwards compatible functionality.
+      if (
+        !loadedVer ||
+        currVer[0] > loadedVer[0] ||
+        currVer[1] > loadedVer[1]
+      ) {
+        return startingState;
+      }
+
+      return loaded;
     };
 
     /**
@@ -1843,6 +1868,10 @@
      * @param {{ value: State }} state
      */
     const saveGameState = (state) => {
+      if (state.value.version !== version) {
+        state.value.version = version;
+      }
+
       localStorage.setItem('game-state', JSON.stringify(state.value));
     };
 
