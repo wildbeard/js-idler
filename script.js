@@ -424,101 +424,7 @@
       };
     }
     /** @type ResourceNode[] */
-    const resourceNodes = [
-      {
-        id: 'copper_deposit',
-        name: 'Copper Deposit',
-        description: 'A deposit of copper that will yield Copper Ore.',
-        skill: 'mining',
-        level_requirements: {
-          mining: 1,
-        },
-        yields: [
-          {
-            item_id: 'copper_ore',
-            xp_given: 10,
-            success_chance: 1.0,
-            quantity: 1,
-            is_rare: false, // @TODO: Move to item?
-          },
-          {
-            item_id: 'uncut_emerald',
-            xp_given: 0,
-            success_change: 0.02,
-            quantity: 1,
-            is_rare: true,
-          },
-        ],
-      },
-      {
-        id: 'tin_deposit',
-        name: 'Tin Deposit',
-        description: 'A deposit of tin that will yield Tin Ore.',
-        skill: 'mining',
-        level_requirements: {
-          mining: 1,
-        },
-        yields: [
-          {
-            item_id: 'tin_ore',
-            xp_given: 10,
-            success_chance: 1.0,
-            quantity: 1,
-            is_rare: false,
-          },
-          {
-            item_id: 'uncut_emerald',
-            xp_given: 0,
-            success_change: 0.02,
-            quantity: 1,
-            is_rare: true,
-          },
-        ],
-      },
-      {
-        id: 'iron_deposit',
-        name: 'Iron Deposit',
-        description: 'A deposit of iron that will yield Iron Ore.',
-        skill: 'mining',
-        level_requirements: {
-          mining: 10,
-        },
-        yields: [
-          {
-            item_id: 'iron_ore',
-            xp_given: 20,
-            success_chance: 0.75,
-            quantity: 1,
-            is_rare: false,
-          },
-          {
-            item_id: 'uncut_emerald',
-            xp_given: 0,
-            success_change: 0.04,
-            quantity: 1,
-            is_rare: true,
-          },
-        ],
-      },
-      {
-        id: 'coal_deposit',
-        name: 'Coal Deposit',
-        description: 'A deposit of coal that will yield Coal.',
-        skill: 'mining',
-        level_requirements: {
-          mining: 10,
-        },
-        yields: [
-          {
-            item_id: 'coal',
-            xp_given: 20,
-            success_chance: 1.0,
-            quantity: 1,
-            is_rare: false,
-          },
-        ],
-      },
-    ];
+    const resourceNodes = window.resourceNodes;
     const assistantFirstNames = [
       'Pebble',
       'Retch',
@@ -1905,9 +1811,13 @@
               i.level_requirements.mining <= s.value.levels.mining,
           ),
         );
-        const availabeSmithableList = computed(() =>
+        const availableSmithableList = computed(() =>
+          // @TODO: Show quest items when a required quest is active
           items.filter(
-            (i) => i.skill === 'smithing' && i.level <= s.value.levels.smithing,
+            (i) =>
+              i.skill === 'smithing' &&
+              i.level <= s.value.levels.smithing &&
+              !i.categories.includes('quest_item'),
           ),
         );
         const availableQuests = computed(() =>
@@ -1962,7 +1872,7 @@
           items,
           statsShown,
           availableOreList,
-          availabeSmithableList,
+          availableSmithableList,
           availableQuests,
           availableUpgrades,
           availableAutoers,

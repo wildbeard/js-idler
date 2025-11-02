@@ -28,6 +28,38 @@ window.items = [
     categories: ['gem', 'uncut', 'rare'],
   },
   {
+    item_id: 'iron_horseshoe',
+    level: 10,
+    value: 33,
+    skill: 'smithing',
+    name: 'Iron Horseshoe',
+    success_chance: 1.0,
+    xp_given: 45,
+    categories: ['iron', 'quest_item'],
+    ingredients: [
+      {
+        item_id: 'iron_bar',
+        quantity: 3,
+      },
+    ],
+  },
+  {
+    item_id: 'steel_horseshoe',
+    level: 20,
+    value: 147,
+    skill: 'smithing',
+    name: 'Steel Horseshoe',
+    success_chance: 1.0,
+    xp_given: 145,
+    categories: ['steel', 'quest_item'],
+    ingredients: [
+      {
+        item_id: 'steel_bar',
+        quantity: 3,
+      },
+    ],
+  },
+  {
     item_id: 'copper_ore',
     level: 1,
     value: 1,
@@ -278,6 +310,81 @@ window.items = [
       {
         item_id: 'steel_bar',
         quantity: 4,
+      },
+    ],
+  },
+  {
+    item_id: 'steel_pickaxe',
+    level: 23,
+    skill: 'smithing',
+    name: 'Steel Pickaxe',
+    description: 'A pickaxe made of steel.',
+    success_chance: 1.0,
+    xp_given: 146,
+    categories: ['steel', 'tool', 'quest_item'],
+    value: 152,
+    ingredients: [
+      {
+        item_id: 'steel_bar',
+        quantity: 3,
+      },
+    ],
+  },
+  {
+    item_id: 'starmetal_bar_rough',
+    level: 30,
+    skill: 'smithing',
+    name: 'Rough Starmetal Bar',
+    description: 'A rudimentary starmetal alloy.',
+    success_chance: 0.6,
+    value: 75,
+    categories: ['starmetal', 'bar'],
+    xp_given: 135,
+    ingredients: [
+      {
+        item_id: 'starmetal_ore',
+        quantity: 1,
+      },
+      {
+        item_id: 'coal',
+        quantity: 3,
+      },
+    ],
+  },
+  {
+    item_id: 'starmetal_bar',
+    level: 34,
+    skill: 'smithing',
+    name: 'Starmetal Bar',
+    description: 'A more refined starmetal alloy.',
+    success_chance: 0.75,
+    value: 175,
+    categories: ['starmetal', 'bar'],
+    xp_given: 188,
+    ingredients: [
+      {
+        item_id: 'starmetal_bar_rough',
+        quantity: 2,
+      },
+      {
+        item_id: 'steel_bar',
+        quantity: 1,
+      },
+    ],
+  },
+  {
+    item_id: 'starmetal_sword',
+    level: 34,
+    skill: 'smithing',
+    name: 'Starmetal Sword',
+    description: 'A sword made of starmetal.',
+    value: 350,
+    categories: ['starmetal', 'sword', 'weapons'],
+    xp_given: 345,
+    ingredients: [
+      {
+        item_id: 'starmetal_bar',
+        quantity: 2,
       },
     ],
   },
