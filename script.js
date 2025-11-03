@@ -199,7 +199,7 @@
 
 (
   function () {
-    const version = '0.1.0';
+    const version = '0.1.1';
 
     /**
      * @param {Upgrade | Autoer} props
@@ -1164,10 +1164,36 @@
     /**
      * @param {{ value: State }} state
      * @param {Item} item
+     * @param {bool} [sellAll=false]
      */
-    const userDidSell = (state, item) => {
+    const userDidSell = (state, item, sellAll = false) => {
+      if (sellAll) {
+        return userDidSellAll(state, item);
+      }
+
       sellItem(state, item);
       updateInventory(state, item.item_id, -1);
+    };
+
+    /**
+     * @param {{ value: State }} state
+     * @param {Item} item
+     */
+    const userDidSellAll = (state, item) => {
+      const invItem = state.value.inventory.find(
+        (i) => i.item_id === item.item_id,
+      );
+
+      if (!invItem) {
+        return;
+      }
+
+      const quantity = invItem.quantity;
+      const goldVal = quantity * item.value;
+
+      state.value.gold += goldVal;
+      state.value.stats.lifetime_wealth += goldVal;
+      updateInventory(state, item.item_id, quantity * -1);
     };
 
     /**
@@ -1835,15 +1861,15 @@
               (a) => !s.value.purchased_autoers.find((aa) => aa.id === a.id),
             )
             .map((a) => new UpgradableEntity(a))
-            .filter((a) => a.hasRequirementsForUpgrade(s))
+            .filter((a) => a.hasRequirementsForUpgrade(s)),
         );
         const availableAssistants = computed(() =>
-          assistants.value.filter((a) => hasRequirementsForAssistant(a, s))
+          assistants.value.filter((a) => hasRequirementsForAssistant(a, s)),
         );
 
         if (s.value.quests_started.length) {
           currentQuest.value = quests.find(
-            (q) => q.id === s.value.quests_started[0].quest_id
+            (q) => q.id === s.value.quests_started[0].quest_id,
           );
           viewingQuest.value = currentQuest.value;
         }
@@ -1906,8 +1932,9 @@
           userDidSmith: (item) => userDidSmith(s, item),
           /**
            * @param {Item} item
+           * @param {bool} [all=false]
            */
-          userDidSell: (item) => userDidSell(s, item),
+          userDidSell: (item, all = false) => userDidSell(s, item, all),
           /**
            * @param {Item} item
            * @returns {bool}

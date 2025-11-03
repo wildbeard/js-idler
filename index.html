@@ -82,6 +82,10 @@
             }
 
             @media screen and (min-width: 1024px) {
+                .mobile-only {
+                    display: none;
+                }
+
                 #sidebar,
                 #rightbar {
                     flex: 0 1 25%;
@@ -246,10 +250,19 @@
                         <li v-for="invItem in s.inventory" :key="invItem.item_id">
                             <div>
                                 {{ getItem(invItem.item_id).name }} x{{ invItem.quantity }}
-                                <button 
-                                    type="button"
-                                    @click="userDidSell(getItem(invItem.item_id))"
-                                    :disabled="!hasInventory(getItem(invItem.item_id))">$</button>
+                                <div>
+                                    <button 
+                                        type="button"
+                                        @click.shift="userDidSell(getItem(invItem.item_id), true)"
+                                        @click.exact="userDidSell(getItem(invItem.item_id))"
+                                        :disabled="!hasInventory(getItem(invItem.item_id))">$</button>
+                                    <button 
+                                        type="button"
+                                        @click="userDidSell(getItem(invItem.item_id), true)"
+                                        :disabled="!hasInventory(getItem(invItem.item_id))"
+                                        class="mobile-only"
+                                        style="margin-left: 1rem;">$$</button>
+                                </div>
                             </div>
                         </li>
                     </ul>
@@ -429,7 +442,12 @@
                                             {{ `${reward.value} ${reward.affects} xp` }}
                                         </template>
                                         <template v-else-if="reward.category === 'item' && getItem(reward.item_id)">
-                                            {{ `${reward.value}x ${getItem(reward.item_id).name}` }}
+                                            <template v-if="reward.value === 1">
+                                                {{ `${getItem(reward.item_id).name}` }}
+                                            </template>
+                                            <template v-else>
+                                                {{ `${reward.value}x ${getItem(reward.item_id).name}` }}
+                                            </template>
                                         </template>
                                         <template v-else-if="reward.category === 'money'">
                                             {{ `${reward.value} gold` }}
