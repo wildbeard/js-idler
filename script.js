@@ -199,7 +199,7 @@
 
 (
   function () {
-    const version = '0.1.2';
+    const version = '0.1.3';
 
     /**
      * @param {Upgrade | Autoer} props
@@ -2255,16 +2255,14 @@
           },
           getBankSaleValue: () => {
             return s.value.inventory.reduce((curr, inv) => {
-              return (curr +=
-                inv.quantity *
-                items.find((i) => i.item_id === inv.item_id).value);
+              const item = items.find((i) => i.item_id === inv.item_id);
+              return (curr += inv.quantity * (item?.value ?? 0));
             }, 0);
           },
           bankSale: () => {
             const total = s.value.inventory.reduce((curr, inv) => {
-              return (curr +=
-                inv.quantity *
-                items.find((i) => i.item_id === inv.item_id).value);
+              const item = items.find((i) => i.item_id === inv.item_id);
+              return (curr += inv.quantity * (item?.value ?? 0));
             }, 0);
 
             s.value.inventory.forEach((inv) => {
