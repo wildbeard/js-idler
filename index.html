@@ -441,21 +441,14 @@
                                 </ul>
                             </div>
 
-                            <div>
+                            <div style="text-align: right;">
                                 <button 
                                     v-if="!isQuestStarted(viewingQuest)"
                                     type="button"
                                     class="start-quest"
                                     @click="acceptQuest(viewingQuest)"
-                                    :disabled="!canStartQuest(viewingQuest)"
-                                    style="margin-right: 1rem;">
+                                    :disabled="!canStartQuest(viewingQuest)">
                                     Start
-                                </button>
-                                <button
-                                    v-if="!isQuestStarted(viewingQuest)"
-                                    type="button"
-                                    @click="closeQuestPanel">
-                                    Cancel
                                 </button>
                                 <button 
                                     v-if="isQuestStarted(viewingQuest)"
@@ -464,11 +457,18 @@
                                     :disabled="!canCompleteQuest(viewingQuest)">
                                     Complete
                                 </button>
+                                <button
+                                    v-if="isQuestStarted(viewingQuest)"
+                                    type="button"
+                                    @click="closeQuestPanel(viewingQuest)"
+                                    style="margin-left: 1rem;">
+                                    Cancel
+                                </button>
                             </div>
 
-                            <hr v-if="currentQuest" style="margin: 1rem 0;">
+                            <hr v-if="currentQuest && currentQuest.id === viewingQuest.id" style="margin: 1rem 0;">
 
-                            <div v-if="currentQuest" class="current-quest">
+                            <div v-if="currentQuest && currentQuest.id === viewingQuest.id" class="current-quest">
                                 <p class="quest-title">Quest Progress</p>
 
                                 <ul class="quest-steps">
@@ -481,7 +481,7 @@
                                     </li>
                                 </ul>
 
-                                <div>
+                                <div style="text-align: right;">
                                     <button 
                                         type="button"
                                         class="complete-step"

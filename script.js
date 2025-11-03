@@ -1835,11 +1835,19 @@
               (a) => !s.value.purchased_autoers.find((aa) => aa.id === a.id),
             )
             .map((a) => new UpgradableEntity(a))
-            .filter((a) => a.hasRequirementsForUpgrade(s)),
+            .filter((a) => a.hasRequirementsForUpgrade(s))
         );
         const availableAssistants = computed(() =>
-          assistants.value.filter((a) => hasRequirementsForAssistant(a, s)),
+          assistants.value.filter((a) => hasRequirementsForAssistant(a, s))
         );
+
+        if (s.value.quests_started.length) {
+          currentQuest.value = quests.find(
+            (q) => q.id === s.value.quests_started[0].quest_id
+          );
+          viewingQuest.value = currentQuest.value;
+        }
+
         // hehexdd
         window.toggleStats = () => (statsShown.value = !statsShown.value);
         // Save game before the user leaves
@@ -1971,7 +1979,16 @@
            */
           isQuestStarted: (quest) =>
             !!s.value.quests_started.find((q) => q.quest_id === quest.id),
-          closeQuestPanel: () => (viewingQuest.value = null),
+          /**
+           * @param {Quest} quest
+           */
+          closeQuestPanel: (quest) => {
+            if (s.value.quests_started[0].quest_id === quest.id) {
+              s.value.quests_started = [];
+            }
+
+            viewingQuest.value = null;
+          },
           xpForSkill: (skill) => {
             return Math.floor(
               (s.value.xp[`${skill}_xp_level`] /
