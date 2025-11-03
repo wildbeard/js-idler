@@ -199,7 +199,7 @@
 
 (
   function () {
-    const version = '0.1.1';
+    const version = '0.1.2';
 
     /**
      * @param {Upgrade | Autoer} props
@@ -681,7 +681,7 @@
         }
 
         // @TODO: We want the bonus chance to scale down if the level is not 2x required level.
-        if (rng < bonusYieldChance && yield > 0) {
+        if (bonusYieldChance && rng < bonusYieldChance && yield > 0) {
           yield += 1;
         }
 
@@ -1606,10 +1606,26 @@
       const nextLvl = currLvl ? currLvl.level + 1 : 0;
       const requirements = assistant.upgrades.find((u) => u.level === nextLvl);
 
+      if (!requirements) {
+        return false;
+      }
+
       return (
         state.value.gold >= requirements.cost &&
         hasRequirementsForAssistant(assistant, state)
       );
+    };
+
+    /**
+     * @param {Assistant} assistant
+     * @param {{ value: State }} state
+     * @returns {bool}
+     */
+    const isAssistantMaxed = (assistant, state) => {
+      const currLvl = state.value.assistants.find((a) => a.id === assistant.id);
+      const nextLvl = currLvl ? currLvl.level + 1 : 0;
+
+      return !assistant.upgrades.find((u) => u.level === nextLvl);
     };
 
     /**
@@ -2078,10 +2094,17 @@
               s.value.assistants[s.value.assistants.length - 1];
           },
           /**
+           * @param {Assistant} assistant
+           * @returns {bool}
+           */
+          isAssistantMaxed: (assistant) => isAssistantMaxed(assistant, s),
+          /**
            * @param {PurchasedAssistant} assistant
            */
           confirmFireAssistant: (assistant) => {
             firingAssistant.value = assistant;
+            // le`sigh
+            window.scrollTo(0, 0);
           },
           cancelFiring: () => {
             firingAssistant.value = null;
@@ -2100,6 +2123,8 @@
            * @param {PurchasedAssistant} purchasedAssistant
            */
           editAssistant: (purchasedAssistant) => {
+            // le`sigh
+            window.scrollTo(0, 0);
             configuringAssistant.value = purchasedAssistant;
           },
           /**

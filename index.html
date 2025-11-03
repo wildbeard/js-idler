@@ -59,6 +59,7 @@
                 top: 50%;
                 left: 50%;
                 width: 450px;
+                max-width: 85%;
                 height: 450px;
                 padding: 15px;
                 background: white;
@@ -319,7 +320,12 @@
                                 @click="upgradeAssistant(assistant)"
                                 :title="getAssistantUpgradeTitle(assistant)"
                                 :disabled="!canUpgradeAssistant(assistant)">
-                                Train {{ getAssistantUpgradeCost(assistant) }}gp
+                                <template v-if="!isAssistantMaxed(assistant)">
+                                    Train {{ getAssistantUpgradeCost(assistant) }}gp
+                                </template>
+                                <template v-else>
+                                    Max Level
+                                </template>
                             </button>
                             <button
                                 type="button"
