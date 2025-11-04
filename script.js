@@ -199,7 +199,7 @@
 
 (
   function () {
-    const version = '0.1.5';
+    const version = '0.1.6';
 
     /**
      * @param {Upgrade | Autoer} props
@@ -496,8 +496,8 @@
         smithing_next_level: 83,
       },
       global_variables: {
-        max_assistants: 1,
-        max_available_assistants: 2,
+        max_assistants: 2,
+        max_available_assistants: 3,
         assistant_refresh_rate: 180000,
       },
       upgrades: [],
@@ -1814,7 +1814,22 @@
 
       if (loaded.upgrades.length) {
         loaded.upgrades.forEach((up) => {
-          const u = new UpgradableEntity(up);
+          let upgrd = up;
+          let fromData;
+
+          if (up.category === 'autoer') {
+            fromData = autoers.find((a) => a.id === up.id);
+          } else {
+            fromData = allUpgrades.find((u) => u.id === up.id);
+          }
+
+          // @TODO: Implement a diff check
+          upgrd = {
+            ...fromData,
+            level: up.level,
+          };
+
+          const u = new UpgradableEntity(upgrd);
           upgrade(u, u.level, current, true);
         });
       }
