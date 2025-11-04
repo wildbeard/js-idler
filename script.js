@@ -954,8 +954,9 @@
      * @param {Upgrade | Autoer} upgrade
      * @param {number} level
      * @param {{ value: State }} state
+     * @param {bool} [hydrating=false]
      */
-    const upgrade = (upgrade, level, state) => {
+    const upgrade = (upgrade, level, state, hydrating = false) => {
       let targetStateKey = 'upgrades';
       let up;
 
@@ -1031,7 +1032,7 @@
         // I don't particularly like abusing JS like this but
         // itiswhatitis.jpg
         p = path.shift();
-
+        console.log(up, p);
         if (target.hasOwnProperty(p)) {
           target[p] = up.value;
         }
@@ -1047,14 +1048,16 @@
           ...up,
         });
       } else {
+        const newVal =
+          !hydrating && level !== 0 && upgrade.category !== 'autoer'
+            ? up.value + state.value[targetStateKey][currIdx].value
+            : up.value;
+
         state.value[targetStateKey][currIdx] = {
           ...upgrade,
           cost: up.cost,
           level: up.level,
-          value:
-            level !== 0 && upgrade.category !== 'autoer'
-              ? up.value + state.value[targetStateKey][currIdx].value
-              : up.value,
+          value: newVal,
         };
       }
     };
@@ -1816,7 +1819,7 @@
       if (loaded.upgrades.length) {
         loaded.upgrades.forEach((up) => {
           const u = new UpgradableEntity(up);
-          upgrade(u, u.level, current);
+          upgrade(u, u.level, current, true);
         });
       }
 
