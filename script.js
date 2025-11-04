@@ -199,7 +199,7 @@
 
 (
   function () {
-    const version = '0.1.7';
+    const version = '0.1.8';
 
     /**
      * @param {Upgrade | Autoer} props
@@ -253,7 +253,7 @@
           }
 
           state.value.running_autoers[properties.id] = setInterval(
-            () => getAuterFunction(state),
+            () => getAutoerFunction(state),
             upgrade.value,
           );
         }
@@ -271,7 +271,7 @@
        * @param {{ value: State }} state
        * @returns {function}
        */
-      const getAuterFunction = (state) => {
+      const getAutoerFunction = (state) => {
         let eligibleItems;
 
         if (
@@ -301,7 +301,7 @@
           return;
         }
 
-        autoerAction(state, eligibleItem, properties.skill);
+        return autoerAction(state, eligibleItem, properties.skill);
       };
 
       /**
@@ -489,14 +489,15 @@
       return {
         ...properties,
         //
+        isRunning,
         canUpgrade,
+        toggleState,
         getUpgradeCost,
         getCurrentUpgrade,
+        getAutoerFunction,
         getUpgradeValueText,
         hasRequirementsForUpgrade,
         getUpgradeRequirementText,
-        toggleState,
-        isRunning,
       };
     }
     /** @type ResourceNode[] */
@@ -1042,38 +1043,7 @@
 
       if (upgrade.category === 'autoer') {
         targetStateKey = 'purchased_autoers';
-        upgrade.fn = () => {
-          let eligibleItems;
-
-          if (
-            upgrade.affects.includes('_weapons') ||
-            upgrade.affects.includes('_armor')
-          ) {
-            const age = upgrade.affects.split('_')[0];
-            const cat = upgrade.affects.split('_')[1];
-            eligibleItems = items.filter(
-              (i) => i.categories.includes(cat) && i.categories.includes(age),
-            );
-          } else if (upgrade.skill === 'mining') {
-            eligibleItems = resourceNodes.filter(
-              (i) => i.id === upgrade.affects,
-            );
-          } else {
-            eligibleItems = items.filter((i) => i.item_id === upgrade.affects);
-          }
-
-          const eligibleItem =
-            eligibleItems[Math.floor(Math.random() * eligibleItems.length)];
-
-          if (
-            upgrade.skill === 'smithing' &&
-            !hasIngredientsFor(state, eligibleItem)
-          ) {
-            return;
-          }
-
-          autoerAction(state, eligibleItem, upgrade.skill);
-        };
+        upgrade.fn = (state) => upgrade.getAutoerFunction(state);
         upgradeAutoer(upgrade, up, state);
       } else if (upgrade.id === 'money_is_time') {
         // @TODO: Finish all running autoers + update their intervals
