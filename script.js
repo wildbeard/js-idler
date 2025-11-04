@@ -199,7 +199,7 @@
 
 (
   function () {
-    const version = '0.1.4';
+    const version = '0.1.5';
 
     /**
      * @param {Upgrade | Autoer} props
@@ -313,8 +313,6 @@
               const minerUpgradeLevel = minerUpgrade.upgrades.find(
                 (u) => u.level === minerUpgrade.level,
               );
-              // @TODO: Figure out why getCurrentUpgrade is fucked
-              // const minerUpgradeLevel = getCurrentUpgrade(state);
               // We're just assuming the first item is the primary
               const item = resourceNodes.find(
                 (n) => n.id === properties.affects,
@@ -340,8 +338,6 @@
               const smelterUpgradeLevel = smelterUpgrade.upgrades.find(
                 (u) => u.level === smelterUpgrade.level,
               );
-              // @TODO: Figure out why getCurrentUpgrade is fucked
-              // const smelterUpgradeLevel = getCurrentUpgrade(state);
               const item = items.find((i) => i.item_id === properties.affects);
 
               str += `<br>${properties.name} will yield ${
@@ -1032,7 +1028,7 @@
         // I don't particularly like abusing JS like this but
         // itiswhatitis.jpg
         p = path.shift();
-        console.log(up, p);
+
         if (target.hasOwnProperty(p)) {
           target[p] = up.value;
         }
@@ -1856,10 +1852,19 @@
         const statsShown = ref(false);
         const currentQuest = ref(null);
         const viewingQuest = ref(null);
-        const questMinimized = ref(false);
         const configuringAssistant = ref(null);
         /** @type {{ value: PurchasedAssistant }} */
         const firingAssistant = ref(null);
+        /** @type {{ value: { quest: bool, inventory: bool }}} */
+        const toggleState = ref({
+          quest: false,
+          inventory: true,
+          mining: false,
+          smithing: false,
+          purchased_upgrades: false,
+          purchased_autoers: false,
+          hired_assistants: false,
+        });
         const availableOreList = computed(() =>
           resourceNodes.filter(
             (i) =>
@@ -1943,9 +1948,9 @@
           availableAssistants,
           currentQuest,
           viewingQuest,
-          questMinimized,
           configuringAssistant,
           firingAssistant,
+          toggleState,
           currentAutoers: computed(() => {
             return s.value.purchased_autoers.map((a) => {
               return autoers.find((aa) => aa.id === a.id);
@@ -1978,7 +1983,11 @@
            * @returns {bool}
            */
           userCanCraft: (item) => hasIngredientsFor(s, item),
-          toggleQuestBody: () => (questMinimized.value = !questMinimized.value),
+          /**
+           * @param {string} key
+           */
+          togglePanel: (key) =>
+            (toggleState.value[key] = !toggleState.value[key]),
           /**
            * @param {Quest} quest
            */

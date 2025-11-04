@@ -31,6 +31,35 @@
                 cursor: pointer;
             }
 
+            .toggle-panel {
+            }
+
+            .toggle-panel__header {
+                position: relative;
+                border-bottom: 1px solid black;
+            }
+
+            .toggle-panel__header > div {
+                display: flex;
+                width: 90%;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .toggle-panel__header-title {
+                margin: 0.75rem 0;
+                font-size: 1.6rem;
+            }
+
+            .toggle-panel__header button {
+                top: 15px;
+                right: 0;
+            }
+
+            .toggle-panel__body {
+
+            }
+
             .quest-panel {
                 position: relative;
                 margin-top: 1.5rem;
@@ -40,7 +69,7 @@
                 border-radius: 0.25rem;
             }
 
-            .minimize-quest {
+            .minimize-button {
                 position: absolute;
                 top: 8px;
                 right: 8px;
@@ -94,7 +123,7 @@
 
                 #sidebar {
                     order: 1;
-                    max-width: 200px;
+                    max-width: 250px;
                 }
 
                 #rightbar {
@@ -232,10 +261,10 @@
 
             <div id="sidebar">
                 <div>
-                    <p>Levels</p>
+                    <p style="font-size: 1.6rem; line-height: 1.2;">Levels</p>
                     <div>
                         <p>Mining {{ s.levels.mining }}</p>
-                        <progress :value="xpForSkill('mining')" max="100" />
+                        <progress :value="xpForSkill('mining')" max="100" :title="s.xp.mining" />
                     </div>
 
                     <div>
@@ -245,156 +274,256 @@
                 </div>
 
                 <div>
-                    <p>Inventory</p>
-                    <ul class="simple-list inventory">
-                        <li>Gold {{ s.gold }}</li>
-                        <li v-for="invItem in s.inventory" :key="invItem.item_id">
+                    <div class="toggle-panel">
+                        <div class="toggle-panel__header">
                             <div>
-                                {{ getItem(invItem.item_id).name }} x{{ invItem.quantity }}
-                                <div>
-                                    <button 
-                                        type="button"
-                                        @click.shift="userDidSell(getItem(invItem.item_id), true)"
-                                        @click.exact="userDidSell(getItem(invItem.item_id))"
-                                        :disabled="!hasInventory(getItem(invItem.item_id))">$</button>
-                                    <button 
-                                        type="button"
-                                        @click="userDidSell(getItem(invItem.item_id), true)"
-                                        :disabled="!hasInventory(getItem(invItem.item_id))"
-                                        class="mobile-only"
-                                        style="margin-left: 1rem;">$$</button>
-                                </div>
+                                <p class="toggle-panel__header-title">Inventory</p>
+                                <p>Gold {{ s.gold }}</p>
                             </div>
-                        </li>
-                    </ul>
-
-                    <button
-                        :title="`Bank Sale! ${getBankSaleValue()}gp!`"
-                        @click="bankSale()">
-                        Sell All
-                    </button>
-                </div>
-
-                <div>
-                    <p>Mining</p>
-                    <ul class="simple-list ore-list">
-                        <li v-for="ore in availableOreList" :key="ore.item_id">
-                            <button 
-                                class="skill-btn" 
-                                type="button" 
-                                @click="userDidMine(ore)">
-                                {{ ore.name }}
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-
-                <div>
-                    <p>Smithing</p>
-                    <ul class="simple-list smithing-list">
-                        <li v-for="smithable in availableSmithableList" :key="smithable.item_id">
-                            <button 
-                                class="skill-btn"
-                                type="button"
-                                @click="userDidSmith(smithable)"
-                                :disabled="!userCanCraft(smithable)">{{ smithable.name }}</button>
-                        </li>
-                    </ul>
-                </div>
-
-                <div>
-                    <p>Hired Assistants ({{ `${s.assistants.length}/${s.global_variables.max_assistants}` }})</p>
-                    <ul>
-                        <li v-if="!s.assistants.length">None Hired</li>
-                        <li
-                            v-for="assistant in s.assistants"
-                            :key="assistant.id"
-                            style="margin-bottom: 1rem;">
-                            {{ assistant.name }} <br>
-                            Assistant Speed: {{ (assistant.interval / 1000).toFixed(2) }}s<br>
-                            Assistant Wages: {{ assistant.cost_per_action }}gp<br>
-                            Assistant is: {{ getAssistantJob(assistant) }}<br>
-                            Assistant Perk: {{ assistant.perk.description }}<br>
+                        
                             <button
+                                class="minimize-button"
                                 type="button"
-                                @click="upgradeAssistant(assistant)"
-                                :title="getAssistantUpgradeTitle(assistant)"
-                                :disabled="!canUpgradeAssistant(assistant)">
-                                <template v-if="!isAssistantMaxed(assistant)">
-                                    Train {{ getAssistantUpgradeCost(assistant) }}gp
-                                </template>
-                                <template v-else>
+                                @click="togglePanel('inventory')">
+                                {{ toggleState.inventory ? '-' : '+' }}
+                            </button>
+                        </div>
+
+                        <div 
+                            v-show="toggleState.inventory"
+                            class="toggle-panel__body">
+                            <ul class="simple-list inventory">
+                                <li v-for="invItem in s.inventory" :key="invItem.item_id">
+                                    <div>
+                                        {{ getItem(invItem.item_id).name }} x{{ invItem.quantity }}
+                                        <div>
+                                            <button 
+                                                type="button"
+                                                @click.shift="userDidSell(getItem(invItem.item_id), true)"
+                                                @click.exact="userDidSell(getItem(invItem.item_id))"
+                                                :disabled="!hasInventory(getItem(invItem.item_id))">$</button>
+                                            <button 
+                                                type="button"
+                                                @click="userDidSell(getItem(invItem.item_id), true)"
+                                                :disabled="!hasInventory(getItem(invItem.item_id))"
+                                                class="mobile-only"
+                                                style="margin-left: 1rem;">$$</button>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+
+                            <div style="margin-top: 1rem; text-align: right;">
+                                <button
+                                    :title="`Bank Sale! ${getBankSaleValue()}gp!`"
+                                    @click="bankSale()">
+                                    Sell All
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div>
+                    <div class="toggle-panel" style="margin-top: 1.5rem;">
+                        <div class="toggle-panel__header">
+                            <div>
+                                <p class="toggle-panel__header-title">Mining</p>
+                            </div>
+                            <button
+                                class="minimize-button"
+                                type="button"
+                                @click="togglePanel('mining')">
+                                {{ toggleState.mining ? '-' : '+' }}
+                            </button>
+                        </div>
+
+                        <div 
+                            v-show="toggleState.mining"
+                            class="toggle-panel__body">
+                            <ul class="simple-list ore-list">
+                                <li v-for="ore in availableOreList" :key="ore.item_id">
+                                    <button 
+                                        class="skill-btn" 
+                                        type="button" 
+                                        @click="userDidMine(ore)">
+                                        {{ ore.name }}
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="toggle-panel" style="margin-top: 1.5rem;">
+                        <div class="toggle-panel__header">
+                            <div>
+                                <p class="toggle-panel__header-title">Smithing</p>
+                            </div>
+                            <button
+                                class="minimize-button"
+                                type="button"
+                                @click="togglePanel('smithing')">
+                                {{ toggleState.smithing ? '-' : '+' }}
+                            </button>
+                        </div>
+
+                        <div v-show="toggleState.smithing" class="toggle-panel__body">
+                            <ul class="simple-list smithing-list">
+                                <li v-for="smithable in availableSmithableList" :key="smithable.item_id">
+                                    <button 
+                                        class="skill-btn"
+                                        type="button"
+                                        @click="userDidSmith(smithable)"
+                                        :disabled="!userCanCraft(smithable)">{{ smithable.name }}</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="toggle-panel" style="margin-top: 1.5rem;">
+                    <div class="toggle-panel__header">
+                        <div>
+                            <p class="toggle-panel__header-title">
+                                Assistants 
+                                <span style="font-size: 0.85rem;">({{ `${s.assistants.length}/${s.global_variables.max_assistants}` }})</span>
+                            </p>
+                        </div>
+
+                        <button
+                            class="minimize-button"
+                            type="button"
+                            @click="togglePanel('hired_assistants')">
+                            {{ toggleState.hired_assistants ? '-' : '+' }}
+                        </button>
+                    </div>
+
+                    <div v-show="toggleState.hired_assistants" class="toggle-panel__body">
+                        <ul>
+                            <li v-if="!s.assistants.length">None Hired</li>
+                            <li
+                                v-for="assistant in s.assistants"
+                                :key="assistant.id"
+                                style="margin-bottom: 1rem;">
+                                {{ assistant.name }} <br>
+                                Assistant Speed: {{ (assistant.interval / 1000).toFixed(2) }}s<br>
+                                Assistant Wages: {{ assistant.cost_per_action }}gp<br>
+                                Assistant is: {{ getAssistantJob(assistant) }}<br>
+                                Assistant Perk: {{ assistant.perk.description }}<br>
+                                <button
+                                    type="button"
+                                    @click="upgradeAssistant(assistant)"
+                                    :title="getAssistantUpgradeTitle(assistant)"
+                                    :disabled="!canUpgradeAssistant(assistant)">
+                                    <template v-if="!isAssistantMaxed(assistant)">
+                                        Train {{ getAssistantUpgradeCost(assistant) }}gp
+                                    </template>
+                                    <template v-else>
+                                        Max Level
+                                    </template>
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="editAssistant(assistant)">Edit Job</button>
+                                <button
+                                    type="button"
+                                    @click="confirmFireAssistant(assistant)">Fire Assistant</button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="toggle-panel" style="margin-top: 1.5rem;">
+                    <div class="toggle-panel__header">
+                        <div>
+                            <p class="toggle-panel__header-title">Autoers</p>
+                        </div>
+
+                        <button
+                            class="minimize-button"
+                            type="button"
+                            @click="togglePanel('purchased_autoers')">
+                            {{ toggleState.purchased_autoers ? '-' : '+' }}
+                        </button>
+                    </div>
+
+                    <div v-show="toggleState.purchased_autoers" class="toggle-panel__body">
+                        <ul>
+                            <li v-if="!s.purchased_autoers.length">None Purchased</li>
+                            <li 
+                                v-for="autoer in s.purchased_autoers"
+                                :key="autoer.id"
+                                style="margin-bottom: 1rem;">
+                                {{ autoer.name }} <br>
+                                <span v-html="autoer.getUpgradeValueText({ value: s })"></span><br>
+                                <template v-if="!autoer.getUpgradeRequirementText({ value: s }).length">
                                     Max Level
                                 </template>
-                            </button>
-                            <button
-                                type="button"
-                                @click="editAssistant(assistant)">Edit Job</button>
-                            <button
-                                type="button"
-                                @click="confirmFireAssistant(assistant)">Fire Assistant</button>
-                        </li>
-                    </ul>
+                                <template v-else>
+                                    <p style="margin: 0.25rem 0;">Upgrade Requirements</p>
+                                    <p style="margin: 0;">Levels: {{ autoer.getUpgradeRequirementText({ value: s }).join(',') }}</p>
+                                    <p style="margin: 0 0 0.25rem;">Gold: {{ autoer.getUpgradeCost({ value: s }) }}</p>
+
+                                    <button
+                                        type="button"
+                                        :title="autoer.description"
+                                        @click="userPurchasedUpgrade(autoer)"
+                                        :disabled="!autoer.canUpgrade({ value: s })">
+                                        Upgrade
+                                    </button>
+                                </template>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
-                <div>
-                    <p>Autoers</p>
+                <div class="toggle-panel" style="margin-top: 1.5rem;">
+                    <div class="toggle-panel__header">
+                        <div>
+                            <p class="toggle-panel__header-title">Current Upgrades</p>
+                        </div>
 
-                    <ul>
-                        <li v-if="!s.purchased_autoers.length">None Purchased</li>
-                        <li 
-                            v-for="autoer in s.purchased_autoers"
-                            :key="autoer.id"
-                            style="margin-bottom: 1rem;">
-                            {{ autoer.name }} <br>
-                            <span v-html="autoer.getUpgradeValueText({ value: s })"></span><br>
-                            <template v-if="!autoer.getUpgradeRequirementText({ value: s }).length">
-                                Max Level
-                            </template>
-                            <template v-else>
-                                <p style="margin: 0.25rem 0;">Upgrade Requirements</p>
-                                <p style="margin: 0;">Levels: {{ autoer.getUpgradeRequirementText({ value: s }).join(',') }}</p>
-                                <p style="margin: 0 0 0.25rem;">Gold: {{ autoer.getUpgradeCost({ value: s }) }}</p>
+                        <button
+                            class="minimize-button"
+                            type="button"
+                            @click="togglePanel('purchased_upgrades')">
+                            {{ toggleState.purchased_upgrades ? '-' : '+' }}
+                        </button>
+                    </div>
 
-                                <button
-                                    type="button"
-                                    :title="autoer.description"
-                                    @click="userPurchasedUpgrade(autoer)"
-                                    :disabled="!autoer.canUpgrade({ value: s })">
-                                    Upgrade
-                                </button>
-                            </template>
-                        </li>
-                    </ul>
-                </div>
+                    <div v-show="toggleState.purchased_upgrades" class="toggle-panel__body">
+                        <ul class="available-upgrades">
+                            <li v-if="!s.upgrades.length">None Purchased</li>
+                            <li 
+                                v-for="upgrade in s.upgrades" 
+                                :key="upgrade.id">
+                                {{ upgrade.name }}
+                                <br>
+                                Current Value: {{ upgrade.value < 1 ? `${Math.floor(upgrade.value * 100)}%` : upgrade.value }}
+                                <template v-if="!upgrade.getUpgradeRequirementText({ value: s }).length">
+                                    Max Level
+                                </template>
+                                <template v-else>
+                                    <br>
+                                    Next Value:
+                                    <p style="margin: 0.25rem 0;">Upgrade Requirements</p>
+                                    <p style="margin: 0;">Levels: {{ upgrade.getUpgradeRequirementText({ value: s}).join(',') }}</p>
+                                    <p style="margin: 0 0 0.25rem;">Gold: {{ upgrade.getUpgradeCost({ value: s }) }}</p>
 
-                <div>
-                    <p>Current Upgrades</p>
-                    <ul class="available-upgrades">
-                        <li v-if="!s.upgrades.length">None Purchased</li>
-                        <li 
-                            v-for="upgrade in s.upgrades" 
-                            :key="upgrade.id">
-                            {{ upgrade.name }}
-                            <br>
-                            <template v-if="!upgrade.getUpgradeRequirementText({ value: s }).length">
-                                Max Level
-                            </template>
-                            <template v-else>
-                                <p style="margin: 0.25rem 0;">Upgrade Requirements</p>
-                                <p style="margin: 0;">Levels: {{ upgrade.getUpgradeRequirementText({ value: s}).join(',') }}</p>
-                                <p style="margin: 0 0 0.25rem;">Gold: {{ upgrade.getUpgradeCost({ value: s }) }}</p>
-
-                                <button
-                                    type="button"
-                                    :title="upgrade.description"
-                                    @click="userPurchasedUpgrade(upgrade)"
-                                    :disabled="!upgrade.canUpgrade({ value: s })">
-                                    Upgrade
-                                </button>
-                            </template>
-                        </li>
-                    </ul>
+                                    <button
+                                        type="button"
+                                        :title="upgrade.description"
+                                        @click="userPurchasedUpgrade(upgrade)"
+                                        :disabled="!upgrade.canUpgrade({ value: s })">
+                                        Upgrade
+                                    </button>
+                                </template>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
@@ -402,15 +531,15 @@
                 <div>
                     <div class="quest-panel" v-if="viewingQuest">
                         <button 
-                            class="minimize-quest"
+                            class="minimize-button"
                             type="button"
-                            @click="toggleQuestBody">
-                            {{ !questMinimized ? '-' : '+' }}
+                            @click="togglePanel('quest')">
+                            {{ !toggleState.quest ? '-' : '+' }}
                         </button>
                         <h2 class="quest-title">{{ viewingQuest.name }}</h2>
                         
                         <div 
-                            v-if="!questMinimized"
+                            v-if="!toggleState.quest"
                             class="quest-body">
                             <p class="quest-desc">{{ viewingQuest.description }}</p>
                             <div class="requirements">
