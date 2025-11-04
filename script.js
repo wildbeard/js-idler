@@ -199,7 +199,7 @@
 
 (
   function () {
-    const version = '0.1.3';
+    const version = '0.1.4';
 
     /**
      * @param {Upgrade | Autoer} props
@@ -310,12 +310,19 @@
             );
 
             if (minerUpgrade) {
-              const minerUpgradeLevel = getCurrentUpgrade(state);
-              const item = items.find((i) => i.item_id === properties.affects);
+              const minerUpgradeLevel = minerUpgrade.upgrades.find(
+                (u) => u.level === minerUpgrade.level,
+              );
+              // @TODO: Figure out why getCurrentUpgrade is fucked
+              // const minerUpgradeLevel = getCurrentUpgrade(state);
+              // We're just assuming the first item is the primary
+              const item = resourceNodes.find(
+                (n) => n.id === properties.affects,
+              )?.yields[0];
 
-              str += `<br>${properties.name} will yield ${
-                minerUpgradeLevel.value * 100
-              }% (${Math.floor(
+              str += `<br>${properties.name} will yield ${Math.floor(
+                minerUpgradeLevel.value * 100,
+              )}% (${Math.floor(
                 item.xp_given * minerUpgradeLevel.value,
               )}) xp per action.`;
             }
@@ -330,7 +337,11 @@
             );
 
             if (smelterUpgrade) {
-              const smelterUpgradeLevel = getCurrentUpgrade(state);
+              const smelterUpgradeLevel = smelterUpgrade.upgrades.find(
+                (u) => u.level === smelterUpgrade.level,
+              );
+              // @TODO: Figure out why getCurrentUpgrade is fucked
+              // const smelterUpgradeLevel = getCurrentUpgrade(state);
               const item = items.find((i) => i.item_id === properties.affects);
 
               str += `<br>${properties.name} will yield ${
