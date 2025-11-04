@@ -31,9 +31,6 @@
                 cursor: pointer;
             }
 
-            .toggle-panel {
-            }
-
             .toggle-panel__header {
                 position: relative;
                 border-bottom: 1px solid black;
@@ -54,10 +51,6 @@
             .toggle-panel__header button {
                 top: 15px;
                 right: 0;
-            }
-
-            .toggle-panel__body {
-
             }
 
             .quest-panel {
@@ -475,6 +468,13 @@
                                         Upgrade
                                     </button>
                                 </template>
+
+                                <br>
+                                <button
+                                    type="button"
+                                    @click="autoer.toggleState({ value: s })">
+                                    {{ autoer.isRunning({ value: s }) ? 'Pause' : 'Start' }}
+                                </button>
                             </li>
                         </ul>
                     </div>

@@ -199,7 +199,7 @@
 
 (
   function () {
-    const version = '0.1.6';
+    const version = '0.1.7';
 
     /**
      * @param {Upgrade | Autoer} props
@@ -235,6 +235,73 @@
 
         const currLevel = stateValue?.level ?? 0;
         return properties.upgrades.find((u) => u.level === currLevel) ?? null;
+      };
+
+      /**
+       * @param {{ value: State }} state
+       */
+      const toggleState = (state) => {
+        if (state.value.running_autoers[properties.id]) {
+          clearInterval(state.value.running_autoers[properties.id]);
+          state.value.running_autoers[properties.id] = null;
+        } else {
+          const upgrade = getCurrentUpgrade(state);
+
+          if (!upgrade) {
+            console.log(`unable to start ${properties.id}`);
+            return;
+          }
+
+          state.value.running_autoers[properties.id] = setInterval(
+            () => getAuterFunction(state),
+            upgrade.value,
+          );
+        }
+      };
+
+      /**
+       * @param {{ value: State }} state
+       * @returns {bool}
+       */
+      const isRunning = (state) => {
+        return !!state.value.running_autoers[properties.id];
+      };
+
+      /**
+       * @param {{ value: State }} state
+       * @returns {function}
+       */
+      const getAuterFunction = (state) => {
+        let eligibleItems;
+
+        if (
+          properties.affects.includes('_weapons') ||
+          properties.affects.includes('_armor')
+        ) {
+          const age = properties.affects.split('_')[0];
+          const cat = properties.affects.split('_')[1];
+          eligibleItems = items.filter(
+            (i) => i.categories.includes(cat) && i.categories.includes(age),
+          );
+        } else if (properties.skill === 'mining') {
+          eligibleItems = resourceNodes.filter(
+            (i) => i.id === properties.affects,
+          );
+        } else {
+          eligibleItems = items.filter((i) => i.item_id === properties.affects);
+        }
+
+        const eligibleItem =
+          eligibleItems[Math.floor(Math.random() * eligibleItems.length)];
+
+        if (
+          properties.skill === 'smithing' &&
+          !hasIngredientsFor(state, eligibleItem)
+        ) {
+          return;
+        }
+
+        autoerAction(state, eligibleItem, properties.skill);
       };
 
       /**
@@ -428,6 +495,8 @@
         getUpgradeValueText,
         hasRequirementsForUpgrade,
         getUpgradeRequirementText,
+        toggleState,
+        isRunning,
       };
     }
     /** @type ResourceNode[] */
@@ -1845,7 +1914,7 @@
         state.value.version = version;
       }
 
-      localStorage.setItem('game-state', JSON.stringify(state.value));
+      // localStorage.setItem('game-state', JSON.stringify(state.value));
     };
 
     const { createApp, ref, computed } = Vue;
