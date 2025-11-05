@@ -1920,6 +1920,12 @@
           purchased_upgrades: false,
           purchased_autoers: false,
           hired_assistants: false,
+          inventory_categories: {
+            ores: true,
+            bars: true,
+            armor: true,
+            weapons: true,
+          },
         });
         const availableOreList = computed(() =>
           resourceNodes.filter(
@@ -2044,6 +2050,12 @@
            */
           togglePanel: (key) =>
             (toggleState.value[key] = !toggleState.value[key]),
+          /**
+           * @param {string} key
+           */
+          toggleInventory: (key) =>
+            (toggleState.value.inventory_categories[key] =
+              !toggleState.value.inventory_categories[key]),
           /**
            * @param {Quest} quest
            */

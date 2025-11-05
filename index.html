@@ -285,24 +285,38 @@
                         <div 
                             v-show="toggleState.inventory"
                             class="toggle-panel__body">
-                            <ul class="simple-list inventory">
-                                <li v-for="invItem in s.inventory" :key="invItem.item_id">
-                                    <div>
-                                        {{ getItem(invItem.item_id).name }} x{{ invItem.quantity }}
-                                        <div>
-                                            <button 
-                                                type="button"
-                                                @click.shift="userDidSell(getItem(invItem.item_id), true)"
-                                                @click.exact="userDidSell(getItem(invItem.item_id))"
-                                                :disabled="!hasInventory(getItem(invItem.item_id))">$</button>
-                                            <button 
-                                                type="button"
-                                                @click="userDidSell(getItem(invItem.item_id), true)"
-                                                :disabled="!hasInventory(getItem(invItem.item_id))"
-                                                class="mobile-only"
-                                                style="margin-left: 1rem;">$$</button>
-                                        </div>
-                                    </div>
+                            <ul class="simple-list inventory" style="padding-left: 1rem;">
+                                <li v-for="category in ['ores', 'bars', 'armor', 'weapons']" :key="category">
+                                    <span 
+                                        style="position: relative; display: block; margin-bottom: 0.75rem; padding: 0.25rem 0; font-size: 1.2rem; text-transform: capitalize; border-bottom: 1px solid black; cursor: pointer;"
+                                        @click="toggleInventory(category)">
+                                        {{ category }}
+                                        <span 
+                                            style="position: absolute; right: 0;"
+                                            :style="{ transform: `rotate(${toggleState.inventory_categories[category] ?  180 : 0}deg)`, }">^</span>
+                                    </span>
+                                    <ul 
+                                        v-show="toggleState.inventory_categories[category]" 
+                                        style="padding-left: 0.75rem;">
+                                        <li v-for="invItem in s.inventory.filter((i) => getItem(i.item_id).categories.includes(category))" :key="invItem.item_id">
+                                            <div>
+                                                {{ getItem(invItem.item_id).name }} x{{ invItem.quantity }}
+                                                <div>
+                                                    <button 
+                                                        type="button"
+                                                        @click.shift="userDidSell(getItem(invItem.item_id), true)"
+                                                        @click.exact="userDidSell(getItem(invItem.item_id))"
+                                                        :disabled="!hasInventory(getItem(invItem.item_id))">$</button>
+                                                    <button 
+                                                        type="button"
+                                                        @click="userDidSell(getItem(invItem.item_id), true)"
+                                                        :disabled="!hasInventory(getItem(invItem.item_id))"
+                                                        class="mobile-only"
+                                                        style="margin-left: 1rem;">$$</button>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
                                 </li>
                             </ul>
 
