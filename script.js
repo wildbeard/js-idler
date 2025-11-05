@@ -199,7 +199,7 @@
 
 (
   function () {
-    const version = '0.1.8';
+    const version = '0.1.9';
 
     /**
      * @param {Upgrade | Autoer} props
@@ -1368,9 +1368,9 @@
 
       if (
         questStep.requirements.upgrades?.length &&
-        state.value.upgrades.filter((u) =>
+        state.value.upgrades.filter((pu) =>
           questStep.requirements.upgrades.find(
-            (uu) => uu.upgrade_id === u.id && uu.value > u.level,
+            (ru) => ru.upgrade_id === pu.id && ru.value <= pu.level,
           ),
         ).length < questStep.requirements.upgrades.length
       ) {
@@ -1378,11 +1378,13 @@
       }
 
       // @TODO: Zzzz this is redundant from the above
+      // ra.value here is the LEVEL we want to require in order to complete
+      // this quest step.
       if (
         questStep.requirements.autoers?.length &&
-        state.value.purchased_autoers.filter((u) =>
+        state.value.purchased_autoers.filter((pa) =>
           questStep.requirements.autoers.find(
-            (uu) => uu.upgrade_id === u.id && uu.value > u.level,
+            (ra) => ra.upgrade_id === pa.id && ra.value <= pa.level,
           ),
         ).length < questStep.requirements.autoers.length
       ) {

@@ -152,12 +152,12 @@ window.quests = [
           autoers: [
             {
               upgrade_id: 'automine_copper',
-              value: 1,
+              value: 0,
               consumed: false,
             },
             {
               upgrade_id: 'automine_tin',
-              value: 1,
+              value: 0,
               consumed: false,
             },
           ],
