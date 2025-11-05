@@ -199,7 +199,7 @@
 
 (
   function () {
-    const version = '0.1.9';
+    const version = '0.1.10';
 
     /**
      * @param {Upgrade | Autoer} props
@@ -239,12 +239,10 @@
 
       /**
        * @param {{ value: State }} state
+       * @param {?('on' | 'off')} preferredState
        */
-      const toggleState = (state) => {
-        if (state.value.running_autoers[properties.id]) {
-          clearInterval(state.value.running_autoers[properties.id]);
-          state.value.running_autoers[properties.id] = null;
-        } else {
+      const toggleState = (state, prefferedState = null) => {
+        const startAutoer = () => {
           const upgrade = getCurrentUpgrade(state);
 
           if (!upgrade) {
@@ -256,6 +254,23 @@
             () => getAutoerFunction(state),
             upgrade.value,
           );
+        };
+        const stopAutoer = () => {
+          clearInterval(state.value.running_autoers[properties.id]);
+          state.value.running_autoers[properties.id] = null;
+        };
+
+        if (!prefferedState) {
+          state.value.running_autoers[properties.id]
+            ? stopAutoer()
+            : startAutoer();
+        } else if (
+          prefferedState === 'on' &&
+          !state.value.running_autoers[properties.id]
+        ) {
+          startAutoer();
+        } else if (prefferedState === 'off') {
+          stopAutoer();
         }
       };
 
@@ -1848,8 +1863,19 @@
     const hydrateState = (loaded, current) => {
       if (loaded.purchased_autoers.length) {
         loaded.purchased_autoers.forEach((a) => {
-          const u = new UpgradableEntity(a);
-          upgrade(u, a.level, current);
+          let fromData = autoers.find((autoer) => autoer.id === a.id);
+
+          const u = new UpgradableEntity({
+            ...fromData,
+            level: a.level,
+          });
+          upgrade(u, u.level, current);
+
+          if (loaded.running_autoers[fromData.id]) {
+            u.toggleState(current, 'on');
+          } else {
+            u.toggleState(current, 'off');
+          }
         });
       }
 
@@ -1894,8 +1920,11 @@
     createApp({
       setup() {
         const baseState = loadState();
+        // baseState was being used in a weird reference loop
+        // and would cause the LOADED state to be modified
+        // ahead of the proper hydration.
         /** @type {{ value: State }} s */
-        let s = ref({ ...baseState });
+        let s = ref(JSON.parse(JSON.stringify(baseState)));
 
         if (baseState.purchased_autoers.length || baseState.upgrades.length) {
           s = hydrateState(baseState, s);
