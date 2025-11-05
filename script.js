@@ -1884,7 +1884,7 @@
         state.value.version = version;
       }
 
-      // localStorage.setItem('game-state', JSON.stringify(state.value));
+      localStorage.setItem('game-state', JSON.stringify(state.value));
     };
 
     const { createApp, ref, computed } = Vue;
