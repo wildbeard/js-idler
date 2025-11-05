@@ -454,5 +454,6 @@ window.items = [
     xp_given: 38,
     success_chance: 0.65,
     value: 85,
+    categories: ['ore'],
   },
 ];
