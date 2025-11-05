@@ -68,7 +68,7 @@ window.items = [
     success_chance: 1.0,
     xp_given: 10,
     sellable: true,
-    categories: ['ore'],
+    categories: ['ore', 'ores'],
   },
   {
     item_id: 'tin_ore',
@@ -79,7 +79,7 @@ window.items = [
     success_chance: 1.0,
     xp_given: 10,
     sellable: true,
-    categories: ['ore'],
+    categories: ['ore', 'ores'],
   },
   {
     item_id: 'bronze_bar',
@@ -177,7 +177,7 @@ window.items = [
     name: 'Iron Ore',
     xp_given: 20,
     success_chance: 0.75,
-    categories: ['ores'],
+    categories: ['ores', 'ore'],
   },
   {
     item_id: 'iron_bar',
@@ -239,7 +239,7 @@ window.items = [
     description: 'A lump-o-coal',
     success_chance: 1.0,
     xp_given: 20,
-    categories: ['ore'],
+    categories: ['ore', 'ores'],
   },
   {
     item_id: 'steel_bar',
@@ -415,9 +415,37 @@ window.items = [
     skill: 'mining',
     name: 'Silver Ore',
     description: 'Unrefined silver ore.',
-    xp_given: 28,
+    xp_given: 40,
     success_chance: 1.0,
-    categories: ['ore'],
+    value: 100,
+    categories: ['ore', 'ores'],
+  },
+  {
+    item_id: 'gold_ore',
+    level: 30,
+    skill: 'mining',
+    name: 'Gold Ore',
+    description: 'Precious',
+    xp_given: 65,
+    success_chance: 1.0,
+    value: 121,
+    categories: ['ore', 'ores'],
+  },
+  {
+    item_id: 'gold_bar',
+    level: 30,
+    skill: 'smithing',
+    name: 'Gold Bar',
+    description: 'A lot heavier than it looks. Worth its weight in..?',
+    xp_given: 65,
+    value: 121,
+    categories: ['bars', 'gold'],
+    ingredients: [
+      {
+        item_id: 'gold_ore',
+        quantity: 1,
+      },
+    ],
   },
   {
     item_id: 'silver_bar',
@@ -427,6 +455,7 @@ window.items = [
     description: 'A bar of refined silver ore.',
     xp_given: 28,
     success_chance: 1.0,
+    value: 100,
     categories: ['bars'],
     ingredients: [
       {
@@ -451,9 +480,9 @@ window.items = [
     skill: 'mining',
     name: 'Starmetal Ore',
     description: '',
-    xp_given: 38,
-    success_chance: 0.65,
+    xp_given: 50,
+    success_chance: 1.0,
     value: 85,
-    categories: ['ore'],
+    categories: ['ore', 'ores'],
   },
 ];

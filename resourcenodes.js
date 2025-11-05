@@ -13,9 +13,9 @@
  *  success_chance: number,
  *  is_rare: number,
  * }[]} yields
- *
- * @type {ResourceNode[]}
  */
+
+/** @type {ResourceNode[]} */
 window.resourceNodes = [
   {
     id: 'copper_deposit',
@@ -104,6 +104,42 @@ window.resourceNodes = [
       {
         item_id: 'coal',
         xp_given: 20,
+        success_chance: 1.0,
+        quantity: 1,
+        is_rare: false,
+      },
+    ],
+  },
+  {
+    id: 'silver_deposit',
+    name: 'Silver Deposit',
+    skill: 'mining',
+    description: 'A deposit of precious silver metal.',
+    level_requirements: {
+      mining: 20,
+    },
+    yields: [
+      {
+        item_id: 'silver_ore',
+        xp_given: 24,
+        success_chance: 1.0,
+        quantity: 1,
+        is_rare: false,
+      },
+    ],
+  },
+  {
+    id: 'gold_deposit',
+    name: 'Gold Deposit',
+    skill: 'mining',
+    description: '',
+    level_requirements: {
+      mining: 30,
+    },
+    yields: [
+      {
+        item_id: 'gold_ore',
+        xp_given: 65,
         success_chance: 1.0,
         quantity: 1,
         is_rare: false,
