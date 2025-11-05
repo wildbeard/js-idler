@@ -359,7 +359,7 @@ window.items = [
     description: 'A rudimentary starmetal alloy.',
     success_chance: 0.6,
     value: 75,
-    categories: ['starmetal', 'bar'],
+    categories: ['starmetal', 'bars'],
     xp_given: 135,
     ingredients: [
       {
@@ -380,7 +380,7 @@ window.items = [
     description: 'A more refined starmetal alloy.',
     success_chance: 0.75,
     value: 175,
-    categories: ['starmetal', 'bar'],
+    categories: ['starmetal', 'bars'],
     xp_given: 188,
     ingredients: [
       {
