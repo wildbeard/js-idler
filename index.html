@@ -690,16 +690,23 @@
                         <li v-if="!availableAutoers.length">None Available</li>
                         <li 
                             v-for="autoer in availableAutoers"
-                            :key="autoer.id">
-                        {{ autoer.name }} | {{ autoer.getUpgradeCost({ value: s }) }}gp <br>
-                        <span v-html="autoer.getUpgradeValueText({ value: s })"></span><br>
-                        <button
-                            type="button"
-                            :title="autoer.description"
-                            @click="userPurchasedUpgrade(autoer)"
-                            :disabled="!autoer.canUpgrade({ value: s })">
-                            Buy
-                        </button>
+                            :key="autoer.id"
+                            style="margin-bottom: 0.75rem;">
+                            {{ autoer.name }} | {{ autoer.getUpgradeCost({ value: s }) }}gp <br>
+                            <span v-html="autoer.getUpgradeValueText({ value: s })"></span><br>
+
+                            <template v-if="s.purchased_autoers.filter((a) => a.id === autoer.id).length">
+                                <p style="display: inline-block; margin: 0 0.5rem 0 0;">Own: {{ s.purchased_autoers.filter((a) => a.id === autoer.id).length }}</p>
+                            </template>
+
+                            <button
+                                type="button"
+                                :title="autoer.description"
+                                @click="userPurchasedUpgrade(autoer)"
+                                :disabled="!autoer.canUpgrade({ value: s })"
+                                style="margin-top: 0.50rem;">
+                                Buy
+                            </button>
                         </li>
                     </ul>
                 </div>

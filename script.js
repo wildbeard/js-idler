@@ -1123,6 +1123,23 @@
     };
 
     /**
+     * @param {Upgrade | Autoer} upgrade
+     * @param {{ value: State }} state
+     * @returns {bool}
+     */
+    const canPurchaseUpgrade = (upgrade, state) => {
+      const level = upgrade.upgrades[0];
+
+      for (const skillKey in level.requirements) {
+        if (level.requirements[skillKey] > state.value.levels[skillKey]) {
+          return false;
+        }
+      }
+
+      return true;
+    };
+
+    /**
      * @param {Upgrade} toUpgrade
      * @param {{ value: State }} state
      */
@@ -1154,12 +1171,6 @@
 
       state.value.gold -= cost;
     };
-
-    /**
-     * @param {Autoer} autoer
-     * @param {{ value: State }} state
-     */
-    const userPurchasedAutoer = (autoer, state) => {};
 
     /**
      *
@@ -2017,8 +2028,12 @@
         );
         const availableAutoers = computed(() =>
           autoers
-            .map((a) => new UpgradableEntity(a))
-            .filter((a) => a.hasRequirementsForUpgrade(s)),
+            .map((a) => {
+              const f = new UpgradableEntity(a);
+              delete f.unique_id;
+              return f;
+            })
+            .filter((a) => canPurchaseUpgrade(a, s)),
         );
         const availableAssistants = computed(() =>
           assistants.value.filter((a) => hasRequirementsForAssistant(a, s)),
