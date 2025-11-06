@@ -410,6 +410,22 @@ window.items = [
     ],
   },
   {
+    item_id: 'starmetal_claymore',
+    level: 36,
+    skill: 'smithing',
+    name: 'Starmetal Claymore',
+    description: 'An extremely large and sharp sword made of starmetal.',
+    value: 900,
+    categories: ['starmetal', 'sword', 'weapons'],
+    xp_given: 800,
+    ingredients: [
+      {
+        item_id: 'starmetal_bar',
+        quantity: 5,
+      },
+    ],
+  },
+  {
     item_id: 'silver_ore',
     level: 20,
     skill: 'mining',
