@@ -475,34 +475,41 @@
                         <ul>
                             <li v-if="!s.purchased_autoers.length">None Purchased</li>
                             <li 
-                                v-for="autoer in s.purchased_autoers"
-                                :key="autoer.id"
-                                style="margin-bottom: 1rem;">
-                                {{ autoer.name }} <br>
-                                <span v-html="autoer.getUpgradeValueText({ value: s })"></span><br>
-                                <template v-if="!autoer.getUpgradeRequirementText({ value: s }).length">
-                                    Max Level
-                                </template>
-                                <template v-else>
-                                    <p style="margin: 0.25rem 0;">Upgrade Requirements</p>
-                                    <p style="margin: 0;">Levels: {{ autoer.getUpgradeRequirementText({ value: s }).join(',') }}</p>
-                                    <p style="margin: 0 0 0.25rem;">Gold: {{ autoer.getUpgradeCost({ value: s }) }}</p>
+                                v-for="autoerGroup in autoerGroups"
+                                :key="autoerGroup.id">
+                                <p style="font-size: 1.2rem;">{{ autoerGroup.name }}</p>
+                                <ul>
+                                    <li 
+                                        v-for="autoer in s.purchased_autoers.filter((a) => a.id === autoerGroup.id)"
+                                        :key="autoer.id"
+                                        style="margin-bottom: 1rem;">
+                                        {{ autoer.name }} <br>
+                                        <span v-html="autoer.getUpgradeValueText({ value: s })"></span><br>
+                                        <template v-if="!autoer.getUpgradeRequirementText({ value: s }).length">
+                                            Max Level
+                                        </template>
+                                        <template v-else>
+                                            <p style="margin: 0.25rem 0;">Upgrade Requirements</p>
+                                            <p style="margin: 0;">Levels: {{ autoer.getUpgradeRequirementText({ value: s }).join(',') }}</p>
+                                            <p style="margin: 0 0 0.25rem;">Gold: {{ autoer.getUpgradeCost({ value: s }) }}</p>
 
-                                    <button
-                                        type="button"
-                                        :title="autoer.description"
-                                        @click="userPurchasedUpgrade(autoer)"
-                                        :disabled="!autoer.canUpgrade({ value: s })">
-                                        Upgrade
-                                    </button>
-                                </template>
+                                            <button
+                                                type="button"
+                                                :title="autoer.description"
+                                                @click="userPurchasedUpgrade(autoer)"
+                                                :disabled="!autoer.canUpgrade({ value: s })">
+                                                Upgrade
+                                            </button>
+                                        </template>
 
-                                <br>
-                                <button
-                                    type="button"
-                                    @click="autoer.toggleState({ value: s })">
-                                    {{ autoer.isRunning({ value: s }) ? 'Pause' : 'Start' }}
-                                </button>
+                                        <br>
+                                        <button
+                                            type="button"
+                                            @click="autoer.toggleState({ value: s })">
+                                            {{ autoer.isRunning({ value: s }) ? 'Pause' : 'Start' }}
+                                        </button>
+                                    </li>
+                                </ul>
                             </li>
                         </ul>
                     </div>
@@ -691,7 +698,7 @@
                             :title="autoer.description"
                             @click="userPurchasedUpgrade(autoer)"
                             :disabled="!autoer.canUpgrade({ value: s })">
-                            {{ s.purchased_autoers.find((a) => a.id === autoer.id) ? 'Upgrade' : 'Buy '}}
+                            Buy
                         </button>
                         </li>
                     </ul>

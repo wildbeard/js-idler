@@ -199,7 +199,7 @@
 
 (
   function () {
-    const version = '0.1.10';
+    const version = '0.1.11';
 
     /**
      * @param {Upgrade | Autoer} props
@@ -211,6 +211,13 @@
         ...props,
       };
 
+      if (!properties.unique_id) {
+        // && properties.category === 'autoer') {
+        properties.unique_id = `${properties.id}_${Math.floor(
+          Math.random() * 100000,
+        )}`;
+      }
+
       /**
        * @param {{ value: State }} state
        * @returns {(PurchasedAutoer | Upgrade) | undefined}
@@ -218,7 +225,9 @@
       const getUpgradeFromState = (state) => {
         const key =
           properties.category === 'autoer' ? 'purchased_autoers' : 'upgrades';
-        return state.value[key].find((u) => u.id === properties.id);
+        return state.value[key].find(
+          (u) => u.unique_id === properties.unique_id,
+        );
       };
 
       /**
@@ -250,23 +259,23 @@
             return;
           }
 
-          state.value.running_autoers[properties.id] = setInterval(
+          state.value.running_autoers[properties.unique_id] = setInterval(
             () => getAutoerFunction(state),
             upgrade.value,
           );
         };
         const stopAutoer = () => {
-          clearInterval(state.value.running_autoers[properties.id]);
-          state.value.running_autoers[properties.id] = null;
+          clearInterval(state.value.running_autoers[properties.unique_id]);
+          state.value.running_autoers[properties.unique_id] = null;
         };
 
         if (!prefferedState) {
-          state.value.running_autoers[properties.id]
+          state.value.running_autoers[properties.unique_id]
             ? stopAutoer()
             : startAutoer();
         } else if (
           prefferedState === 'on' &&
-          !state.value.running_autoers[properties.id]
+          !state.value.running_autoers[properties.unique_id]
         ) {
           startAutoer();
         } else if (prefferedState === 'off') {
@@ -279,7 +288,7 @@
        * @returns {bool}
        */
       const isRunning = (state) => {
-        return !!state.value.running_autoers[properties.id];
+        return !!state.value.running_autoers[properties.unique_id];
       };
 
       /**
@@ -1018,12 +1027,12 @@
      * @param {{ value: State }} state
      */
     const upgradeAutoer = (autoer, upgraded, state) => {
-      if (state.value.running_autoers[autoer.id]) {
+      if (state.value.running_autoers[autoer.unique_id]) {
         autoer.fn(state);
-        clearInterval(state.value.running_autoers[autoer.id]);
+        clearInterval(state.value.running_autoers[autoer.unique_id]);
       }
 
-      state.value.running_autoers[autoer.id] = setInterval(() => {
+      state.value.running_autoers[autoer.unique_id] = setInterval(() => {
         autoer.fn(state);
       }, upgraded.value);
     };
@@ -1039,6 +1048,7 @@
      */
     const upgrade = (upgrade, level, state, hydrating = false) => {
       let targetStateKey = 'upgrades';
+      let idKey = upgrade.category === 'autoer' ? 'unique_id' : 'id';
       let up;
 
       if (level === 0) {
@@ -1089,7 +1099,7 @@
       }
 
       const currIdx = state.value[targetStateKey].findIndex(
-        (u) => u.id === upgrade.id,
+        (u) => u[idKey] === upgrade[idKey],
       );
 
       if (currIdx === -1) {
@@ -1120,7 +1130,10 @@
       // @TODO: Find the upgrade level to purchase
       const key =
         toUpgrade.category === 'autoer' ? 'purchased_autoers' : 'upgrades';
-      let currUpgrade = state.value[key].find((u) => u.id === toUpgrade.id);
+
+      let currUpgrade = state.value[key].find(
+        (u) => u.unique_id === toUpgrade.unique_id,
+      );
       let level = 0;
 
       if (currUpgrade) {
@@ -1864,14 +1877,37 @@
       if (loaded.purchased_autoers.length) {
         loaded.purchased_autoers.forEach((a) => {
           let fromData = autoers.find((autoer) => autoer.id === a.id);
+          let unique_id = a.unique_id;
+          let existingTimer = loaded.running_autoers[unique_id];
+
+          if (!a.unique_id) {
+            unique_id = `${a.id}_${Math.floor(Math.random() * 100000)}`;
+            console.log(`no unique id for ${a.id}, setting to ${unique_id}`);
+          }
+
+          if (!a.unique_id) {
+            delete current.value.running_autoers[a.id];
+
+            const idx = current.value.purchased_autoers.findIndex(
+              (ea) => ea.id === a.id,
+            );
+
+            if (idx >= 0) {
+              console.log('removing autoer', a.id);
+              current.value.purchased_autoers.splice(idx, 1);
+            }
+
+            current.value.running_autoers[unique_id] = existingTimer;
+          }
 
           const u = new UpgradableEntity({
             ...fromData,
+            unique_id: unique_id,
             level: a.level,
           });
           upgrade(u, u.level, current);
 
-          if (loaded.running_autoers[fromData.id]) {
+          if (loaded.running_autoers[unique_id]) {
             u.toggleState(current, 'on');
           } else {
             u.toggleState(current, 'off');
@@ -1884,9 +1920,7 @@
           let upgrd = up;
           let fromData;
 
-          if (up.category === 'autoer') {
-            fromData = autoers.find((a) => a.id === up.id);
-          } else {
+          if (up.category !== 'autoer') {
             fromData = allUpgrades.find((u) => u.id === up.id);
           }
 
@@ -1983,15 +2017,26 @@
         );
         const availableAutoers = computed(() =>
           autoers
-            .filter(
-              (a) => !s.value.purchased_autoers.find((aa) => aa.id === a.id),
-            )
             .map((a) => new UpgradableEntity(a))
             .filter((a) => a.hasRequirementsForUpgrade(s)),
         );
         const availableAssistants = computed(() =>
           assistants.value.filter((a) => hasRequirementsForAssistant(a, s)),
         );
+        const autoerGroups = computed(() => {
+          const groups = [];
+
+          for (const pg of s.value.purchased_autoers) {
+            if (!groups.find((g) => g.id === pg.id)) {
+              groups.push({
+                id: pg.id,
+                name: pg.name,
+              });
+            }
+          }
+
+          return groups;
+        });
 
         if (s.value.quests_started.length) {
           currentQuest.value = quests.find(
@@ -2037,6 +2082,7 @@
           availableUpgrades,
           availableAutoers,
           availableAssistants,
+          autoerGroups,
           currentQuest,
           viewingQuest,
           configuringAssistant,
