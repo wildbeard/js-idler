@@ -1128,7 +1128,7 @@
      * @returns {bool}
      */
     const canPurchaseUpgrade = (upgrade, state) => {
-      const level = upgrade.upgrades[0];
+      const level = upgrade.upgrades.sort((a, b) => a.level > b.level)[0];
 
       for (const skillKey in level.requirements) {
         if (level.requirements[skillKey] > state.value.levels[skillKey]) {
