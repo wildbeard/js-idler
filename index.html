@@ -76,18 +76,24 @@
                 text-align: center;
             }
 
-            .assistant-config {
-                position: absolute;
+            .floating-window {
+                position: fixed;
                 top: 50%;
                 left: 50%;
                 width: 450px;
                 max-width: 85%;
-                height: 450px;
                 padding: 15px;
                 background: white;
                 border: 1px solid black;
                 border-radius: 0.5rem;;
                 transform: translate(-50%, -50%);
+                z-index: 1;
+            }
+
+            .floating-window__body {
+                min-height: 250px;
+                max-height: 450px;
+                overflow: scroll;
             }
 
             .skill-btn {
@@ -102,6 +108,12 @@
             .inventory div {
                 display: flex;
                 justify-content: space-between;
+            }
+
+            @media screen and (min-height: 650px) and (max-height: 1080px) {
+                .floating-window__body {
+                    max-height: 375px;
+                }
             }
 
             @media screen and (min-width: 1024px) {
@@ -145,8 +157,8 @@
         <div class="wrapper">
             <div
                 v-if="firingAssistant"
-                class="assistant-config">
-                <p>Are you sure you want to fire {{ firingAssistant.name }}? This action cannot be undone!</p>
+                class="floating-window assistant-config">
+                <p>Are you sure you want to fire <span style="font-weight: bold; text-decoration: underline;">{{ firingAssistant.name }}</span>? This action cannot be undone!</p>
 
                 <div style="text-align: center;">
                     <button style="margin-right: 15px;" @click="fireAssistant(firingAssistant)">Fire</button>
@@ -156,61 +168,63 @@
 
             <div 
                 v-if="configuringAssistant"
-                class="assistant-config">
-                <p>{{ configuringAssistant.name }}</p>
+                class="floating-window assistant-config">
+                <p style="font-size: 1.4rem;">{{ configuringAssistant.name }}</p>
                 <p>{{ configuringAssistant.name }} will randomly perform one of the following tasks:</p>
             
+                <div class="assistant-config__body">
                 <!-- Hard coding this for now -->
-                <template v-if="configuringAssistant.skills.includes('mining')">
-                    Mining
-                    <ul>
-                        <li 
-                            v-for="item in items.filter((i) => i.skill === 'mining' && i.level <= s.levels.mining)"
-                            :key="item.item_id">
-                            <label>
-                                <input 
-                                    type="checkbox" 
-                                    :checked="configuringAssistant.config.mining.includes(item.item_id)"
-                                    @click="toggleAssistantJob(configuringAssistant, 'mining', item.item_id)">
-                                {{ getItem(item.item_id)?.name }}
-                            </label>
-                        </li>
-                    </ul>
-                </template>
-                <template v-else-if="configuringAssistant.skills.includes('smithing')">
-                    Smithing
-                    <ul>
-                        <li 
-                            v-for="item in items.filter((i) => i.skill === 'smithing' && i.level <= s.levels.smithing)"
-                            :key="item.item_id">
-                            <label>
-                                <input 
-                                    type="checkbox"
-                                    :checked="configuringAssistant.config.smithing.includes(item.item_id)"
-                                    @click="toggleAssistantJob(configuringAssistant, 'smithing', item.item_id)">
-                                    {{ item.name }}
-                            </label>
-                        </li>
-                    </ul>
-                </template>
-                <template v-else>
-                    Selling
-                    <ul>
-                        <li
-                            v-for="item in items.filter((i) => i.level <= s.levels[i.skill])"
-                            :key="item.item_id">
-                            <label>
-                                <input 
-                                    type="checkbox"
-                                    :checked="configuringAssistant.config.selling.includes(item.item_id)"
-                                    @click="toggleAssistantJob(configuringAssistant, 'selling', item.item_id)">
+                    <template v-if="configuringAssistant.skills.includes('mining')">
+                        Mining
+                        <ul>
+                            <li 
+                                v-for="item in items.filter((i) => i.skill === 'mining' && i.level <= s.levels.mining)"
+                                :key="item.item_id">
+                                <label>
+                                    <input 
+                                        type="checkbox" 
+                                        :checked="configuringAssistant.config.mining.includes(item.item_id)"
+                                        @click="toggleAssistantJob(configuringAssistant, 'mining', item.item_id)">
                                     {{ getItem(item.item_id)?.name }}
-                            </label>
-                        </li>
-                    </ul>
-                </template>
+                                </label>
+                            </li>
+                        </ul>
+                    </template>
+                    <template v-else-if="configuringAssistant.skills.includes('smithing')">
+                        Smithing
+                        <ul>
+                            <li 
+                                v-for="item in items.filter((i) => i.skill === 'smithing' && i.level <= s.levels.smithing)"
+                                :key="item.item_id">
+                                <label>
+                                    <input 
+                                        type="checkbox"
+                                        :checked="configuringAssistant.config.smithing.includes(item.item_id)"
+                                        @click="toggleAssistantJob(configuringAssistant, 'smithing', item.item_id)">
+                                        {{ item.name }}
+                                </label>
+                            </li>
+                        </ul>
+                    </template>
+                    <template v-else>
+                        Selling
+                        <ul>
+                            <li
+                                v-for="item in items.filter((i) => i.level <= s.levels[i.skill])"
+                                :key="item.item_id">
+                                <label>
+                                    <input 
+                                        type="checkbox"
+                                        :checked="configuringAssistant.config.selling.includes(item.item_id)"
+                                        @click="toggleAssistantJob(configuringAssistant, 'selling', item.item_id)">
+                                        {{ getItem(item.item_id)?.name }}
+                                </label>
+                            </li>
+                        </ul>
+                    </template>
+                </div>
 
-                <div style="text-align: right;">
+                <div style="margin-top: 1rem; text-align: right;">
                     <button
                         style="margin-right: 15px;"
                         @click="saveAssistantConfig(configuringAssistant)">Save</button>

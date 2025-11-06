@@ -2223,8 +2223,6 @@
            */
           confirmFireAssistant: (assistant) => {
             firingAssistant.value = assistant;
-            // le`sigh
-            window.scrollTo(0, 0);
           },
           cancelFiring: () => {
             firingAssistant.value = null;
@@ -2243,8 +2241,6 @@
            * @param {PurchasedAssistant} purchasedAssistant
            */
           editAssistant: (purchasedAssistant) => {
-            // le`sigh
-            window.scrollTo(0, 0);
             configuringAssistant.value = purchasedAssistant;
           },
           /**
