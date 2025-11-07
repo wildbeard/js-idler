@@ -538,4 +538,65 @@ const _autoers = [
       },
     ],
   },
+  {
+    id: 'automine_starmetal',
+    name: 'Automine: Starmetal',
+    description: 'A magical pickaxe mining a magical rock from the stars.',
+    value_description: 'Automatically mines Starmetal Ore every %{interval}.',
+    value: 2000,
+    cost: 500,
+    skill: 'mining',
+    affects: 'starmetal_deposit',
+    category: 'autoer',
+    upgrades: [
+      {
+        level: 0,
+        cost: 650,
+        value: 2000,
+        requirements: {
+          mining: 30,
+        },
+      },
+      {
+        level: 1,
+        cost: 850,
+        value: 1500,
+        requirements: {
+          mining: 32,
+        },
+      },
+      {
+        level: 2,
+        cost: 1200,
+        value: 1000,
+        requirements: {
+          mining: 34,
+        },
+      },
+      {
+        level: 3,
+        cost: 1650,
+        value: 750,
+        requirements: {
+          mining: 36,
+        },
+      },
+      {
+        level: 4,
+        cost: 1800,
+        value: 500,
+        requirements: {
+          mining: 38,
+        },
+      },
+      {
+        level: 5,
+        cost: 2000,
+        value: 350,
+        requirements: {
+          mining: 40,
+        },
+      },
+    ],
+  },
 ];
