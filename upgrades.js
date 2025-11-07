@@ -13,7 +13,7 @@ const _upgrades = [
         value: 0.1,
         cost: 200,
         requirements: {
-          mining: 8,
+          mining: 1,
         },
       },
       {
@@ -114,15 +114,17 @@ const _upgrades = [
     id: 'store_max_assistants',
     name: 'Shop: Max Assistants',
     description: 'Upgrading your shop allows you to hire more assistants.',
+    value_description:
+      'Increases total number of hireable assistants to %{value}.',
     cost: 750,
     affects: 'global_variables.max_assistants',
-    category: 'shop',
+    category: 'upgrade',
     value: 2,
     upgrades: [
       {
         level: 0,
         cost: 750,
-        value: 2,
+        value: 4,
         requirements: {
           mining: 10,
           smithing: 10,
@@ -131,7 +133,7 @@ const _upgrades = [
       {
         level: 1,
         cost: 1200,
-        value: 3,
+        value: 6,
         requirements: {
           mining: 22,
           smithing: 22,
@@ -140,7 +142,7 @@ const _upgrades = [
       {
         level: 2,
         cost: 1800,
-        value: 4,
+        value: 8,
         requirements: {
           mining: 34,
           smithing: 34,
@@ -424,10 +426,11 @@ const _upgrades = [
     name: 'Tax Avoidance',
     description:
       'Tie up your precious gold in assets, preventing Big Tax from taking your hard earned gold.',
+    value_description: 'Reduces taxes by %{value}%.',
     cost: 25000,
     value: 0.05,
-    affects: 'tax',
-    category: 'upkeep',
+    affects: 'upkeep',
+    category: 'upgrade',
     upgrades: [
       {
         level: 0,
@@ -481,10 +484,11 @@ const _upgrades = [
     name: 'Capitalism',
     description:
       'Pocket more profit by keeping the upkeep on your Assistants down!',
+    value_description: 'Reduces Assistant upkeep by %{value}%.',
     cost: 12000,
     value: 0.08,
     affects: 'upkeep',
-    category: 'upkeep',
+    category: 'upgrade',
     upgrades: [
       {
         level: 0,

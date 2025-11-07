@@ -250,6 +250,22 @@
 
       /**
        * @param {{ value: State }} state
+       * @returns {(Autoer['upgrade'][0] | Upgrade['upgrades'][0]) | null}
+       */
+      const getNextLevel = (state) => {
+        const curr = getCurrentUpgrade(state);
+
+        if (!curr) {
+          return null;
+        }
+
+        return (
+          properties.upgrades.find((u) => u.level === curr.level + 1) ?? null
+        );
+      };
+
+      /**
+       * @param {{ value: State }} state
        * @param {?('on' | 'off')} preferredState
        */
       const toggleState = (state, prefferedState = null) => {
@@ -358,13 +374,36 @@
       };
 
       /**
-       * Returns an HTML string
        * @param {{ value: State }} state
+       * @param {bool} [nextLevel=false]
        * @returns {string}
        */
-      const getUpgradeValueText = (state) => {
-        if (properties.category !== 'autoer' || !properties.value_description) {
+      const getValueTextForUpgrade = (state, nextLevel = false) => {
+        let level = nextLevel
+          ? getNextLevel(state)
+          : getCurrentUpgrade(state, true);
+
+        if (!level) {
           return '';
+        }
+
+        const valueNum = level.value < 1 ? level.value * 100 : level.value;
+        return properties.value_description.replace('%{value}', valueNum);
+      };
+
+      /**
+       * Returns an HTML string
+       * @param {{ value: State }} state
+       * @param {bool} [nextLevel=false]
+       * @returns {string}
+       */
+      const getUpgradeValueText = (state, nextLevel = false) => {
+        if (!properties.value_description) {
+          return '';
+        }
+
+        if (properties.category === 'upgrade') {
+          return getValueTextForUpgrade(state, nextLevel);
         }
 
         const flags = ['%{item}', '%{interval}'];
@@ -1078,7 +1117,11 @@
       } else if (upgrade.id === 'money_is_time') {
         // @TODO: Finish all running autoers + update their intervals
         // Also create a function to do this rather than repeating code
-      } else if (upgrade.category === 'shop') {
+      } else if (
+        upgrade.category === 'upgrade' &&
+        upgrade.affects.includes('.')
+      ) {
+        // @TODO: Should just redo this. Upgrade's shouldn't modify baseline vars
         // Bleh
         const path = upgrade.affects.split('.');
         let p = '';
@@ -1113,10 +1156,14 @@
           ...up,
         });
       } else {
+        // I honestly don't remember why I am adding this??
+        /*
         const newVal =
           !hydrating && level !== 0 && upgrade.category !== 'autoer'
             ? up.value + state.value[targetStateKey][currIdx].value
             : up.value;
+            */
+        const newVal = up.value;
 
         state.value[targetStateKey][currIdx] = {
           ...upgrade,

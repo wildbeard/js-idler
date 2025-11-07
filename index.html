@@ -549,15 +549,27 @@
                             <li 
                                 v-for="upgrade in s.upgrades" 
                                 :key="upgrade.id">
-                                {{ upgrade.name }}
+                                <span style="font-weight: bold;">{{ upgrade.name }}</span>
+                                <span style="padding-left: 5px; font-size: 0.8rem; font-weight: bold;">
+                                    <template v-if="!upgrade.getUpgradeRequirementText({ value: s }).length">
+                                        [Max]
+                                    </template>
+                                    <template v-else>
+                                        [{{ upgrade.level + 1 }} / {{ upgrade.upgrades.length }}]
+                                    </template>
+                                </span>
                                 <br>
-                                Current Value: {{ upgrade.value < 1 ? `${Math.floor(upgrade.value * 100)}%` : upgrade.value }}
-                                <template v-if="!upgrade.getUpgradeRequirementText({ value: s }).length">
-                                    Max Level
+                                <template v-if="upgrade.id.includes('excess')">
+                                    {{ upgrade.value < 1 ? `${Math.floor(upgrade.value * 100)}%` : `${upgrade.value*100}%` }} chance to get an extra item.
                                 </template>
                                 <template v-else>
+                                    {{ upgrade.getUpgradeValueText({ value: s }) }}
+                                </template>
+                                <template v-if="upgrade.getUpgradeRequirementText({ value: s }).length">
                                     <br>
-                                    Next Value:
+                                    <p style="margin: 0.25rem 0;">
+                                        Next Value: {{ upgrade.getUpgradeValueText({ value: s }, true) }}
+                                    </p>
                                     <p style="margin: 0.25rem 0;">Upgrade Requirements</p>
                                     <p style="margin: 0;">Levels: {{ upgrade.getUpgradeRequirementText({ value: s}).join(',') }}</p>
                                     <p style="margin: 0 0 0.25rem;">Gold: {{ upgrade.getUpgradeCost({ value: s }) }}</p>
@@ -757,6 +769,7 @@
                             style="margin-bottom: 0.75rem;">
                             <span style="font-weight: bold;">{{ upgrade.name }}</span> <br>
                             {{ upgrade.description }} <br>
+                            {{ upgrade.getUpgradeValueText({ value: s }) }}<br>
                             Costs: {{ upgrade.getUpgradeCost({ value: s }) }}gp <br>
                             <button 
                                 type="button"
