@@ -138,6 +138,9 @@
  *  max_assistants: number,
  *  max_available_assistants: number,
  *  assistant_refresh_rate: number,
+ *  upkeep_interval: number,
+ *  base_assistant_upkeep: number,
+ *  tax_rate: number,
  * }} global_variables
  * @property {{mining: number, smithing: number}} levels
  * @property {{mining: number, mining_next_leve: number; smithing_next_level: number, smithing: number}} xp
@@ -199,7 +202,7 @@
 
 (
   function () {
-    const version = '0.1.11';
+    const version = '0.1.12';
 
     /**
      * @param {Upgrade | Autoer} props
@@ -212,7 +215,6 @@
       };
 
       if (!properties.unique_id) {
-        // && properties.category === 'autoer') {
         properties.unique_id = `${properties.id}_${Math.floor(
           Math.random() * 100000,
         )}`;
@@ -593,6 +595,9 @@
         max_assistants: 2,
         max_available_assistants: 3,
         assistant_refresh_rate: 180000,
+        upkeep_interval: 300000,
+        base_assistant_upkeep: 125,
+        tax_rate: 0.12,
       },
       upgrades: [],
       purchased_autoers: [],
@@ -1849,6 +1854,84 @@
     };
 
     /**
+     * @param {{ value: State }} state
+     * @returns {
+     *  assistant: number,
+     *  progress: number,
+     *  tax: number,
+     * }
+     */
+    const getUpkeep = (state) => {
+      const progress = Math.floor(
+        (state.value.levels.mining + state.value.levels.smithing) * 0.65,
+      );
+      const assistant = state.value.assistants.reduce((u, a) => {
+        return (u += Math.floor(
+          Math.max(1, a.level) *
+            state.value.global_variables.base_assistant_upkeep +
+            a.cost_per_action * Math.max(1, a.level) * 0.25,
+        ));
+      }, 0);
+      const capitalismUpgrade = state.value.upgrades.find(
+        (u) => u.id === 'capitalism',
+      );
+      const tax = Math.floor(
+        state.value.gold * state.value.global_variables.tax_rate,
+      );
+      const taxEvasionUpgrade = state.value.upgrades.find(
+        (u) => u.id === 'tax_avoidance',
+      );
+      let taxEvasionRate = 0;
+      let capitalismRate = 0;
+
+      if (taxEvasionUpgrade) {
+        taxEvasionRate =
+          taxEvasionUpgrade.upgrades.find(
+            (u) => u.level === taxEvasionUpgrade.level,
+          )?.value ?? 0;
+      }
+
+      if (capitalismUpgrade) {
+        capitalismRate =
+          capitalismUpgrade.upgrades.find(
+            (u) => u.level === capitalismUpgrade.level,
+          )?.value ?? 0;
+      }
+
+      return {
+        assistant: Math.floor(assistant - assistant * capitalismRate),
+        progress,
+        tax: Math.floor(tax - tax * taxEvasionRate),
+      };
+    };
+
+    /**
+     * @param {{ value: State }} state
+     */
+    const taxManCometh = (state) => {
+      const upkeep = getUpkeep(state);
+      const totalUpkeep = upkeep.assistant + upkeep.progress + upkeep.tax;
+      state.value.gold = Math.max(state.value.gold - totalUpkeep, 0);
+    };
+
+    /**
+     * @param {{ value: State }} state
+     */
+    const getUpkeepDisplayTime = (state) => {
+      const interval = state.value.global_variables.upkeep_interval;
+      const timeframe = interval > 60000 ? 'minute' : 'second';
+      let time = 0;
+
+      if (timeframe === 'minute') {
+        time = (interval / 1000 / 60).toFixed(1);
+      } else {
+        time = (interval / 1000).toFixed(2);
+      }
+
+      return `${time} ${timeframe}(s)`;
+    };
+
+    /**
      * Returns the state from localStorage or the default starting state.
      * @returns {State}
      */
@@ -1946,6 +2029,15 @@
         });
       }
 
+      // @TODO: I want to add any missing startingState properties to
+      // the current, recursively. But I am lazy and don't want to do that.
+      for (const key in startingState.global_variables) {
+        if (!current.value.global_variables[key]) {
+          current.value.global_variables[key] =
+            startingState.global_variables[key];
+        }
+      }
+
       return current;
     };
 
@@ -2001,6 +2093,7 @@
             weapons: true,
           },
         });
+        const upkeep = computed(() => getUpkeep(s));
         const availableOreList = computed(() =>
           resourceNodes.filter(
             (i) =>
@@ -2087,6 +2180,11 @@
           assistants.value.push(assistant);
         }, s.value.global_variables.assistant_refresh_rate);
 
+        setInterval(
+          () => taxManCometh(s),
+          s.value.global_variables.upkeep_interval,
+        );
+
         return {
           s,
           items,
@@ -2097,6 +2195,7 @@
           availableUpgrades,
           availableAutoers,
           availableAssistants,
+          upkeep,
           autoerGroups,
           currentQuest,
           viewingQuest,
@@ -2448,6 +2547,7 @@
             s.value.gold += total;
             s.value.stats.lifetime_wealth += total;
           },
+          getUpkeepDisplayTime: () => getUpkeepDisplayTime(s),
         };
       },
     }).mount('.wrapper');

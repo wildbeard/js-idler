@@ -281,6 +281,20 @@
                 </div>
 
                 <div>
+                    <p style="font-size: 1.6rem; line-height: 1.2;">Upkeep</p>
+                    <p>Upkeep is paid every {{ getUpkeepDisplayTime() }} </p>
+                    <div>
+                        <p>
+                            Game State: {{ upkeep.progress }}gp
+                            <br>
+                            Assistants: {{ upkeep.assistant }}gp
+                            <br>
+                            Tax: {{ upkeep.tax }}gp
+                        </p>
+                    </div>
+                </div>
+
+                <div>
                     <div class="toggle-panel">
                         <div class="toggle-panel__header">
                             <div>
@@ -737,14 +751,20 @@
                     <p>Available Upgrades</p>
                     <ul class="available-upgrades">
                         <li v-if="!availableUpgrades.length">None Available</li>
-                        <li v-for="upgrade in availableUpgrades" :key="upgrade.id">
-                            {{ upgrade.name }} <br>
+                        <li 
+                            v-for="upgrade in availableUpgrades"
+                            :key="upgrade.id"
+                            style="margin-bottom: 0.75rem;">
+                            <span style="font-weight: bold;">{{ upgrade.name }}</span> <br>
+                            {{ upgrade.description }} <br>
+                            Costs: {{ upgrade.getUpgradeCost({ value: s }) }}gp <br>
                             <button 
                                 type="button"
                                 :title="upgrade.description ?? 'An upgrade'"
                                 @click="userPurchasedUpgrade(upgrade)"
-                                :disabled="!upgrade.canUpgrade({ value: s })">
-                                Buy for {{ upgrade.getUpgradeCost({ value: s }) }}gp
+                                :disabled="!upgrade.canUpgrade({ value: s })"
+                                style="margin-top: 0.25rem;">
+                                Buy
                             </button>
                         </li>
                     </ul>

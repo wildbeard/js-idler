@@ -419,4 +419,118 @@ const _upgrades = [
       },
     ],
   },
+  {
+    id: 'tax_avoidance',
+    name: 'Tax Avoidance',
+    description:
+      'Tie up your precious gold in assets, preventing Big Tax from taking your hard earned gold.',
+    cost: 25000,
+    value: 0.05,
+    affects: 'tax',
+    category: 'upkeep',
+    upgrades: [
+      {
+        level: 0,
+        cost: 25000,
+        value: 0.05,
+        requirements: {
+          mining: 25,
+          smithing: 25,
+        },
+      },
+      {
+        level: 1,
+        cost: 50000,
+        value: 0.075,
+        requirements: {
+          mining: 32,
+          smithing: 32,
+        },
+      },
+      {
+        level: 2,
+        cost: 55000,
+        value: 0.1,
+        requirements: {
+          mining: 40,
+          smithing: 40,
+        },
+      },
+      {
+        level: 3,
+        cost: 75000,
+        value: 0.12,
+        requirements: {
+          mining: 55,
+          smithing: 55,
+        },
+      },
+      {
+        level: 0,
+        cost: 25000,
+        value: 0.15,
+        requirements: {
+          mining: 65,
+          smithing: 65,
+        },
+      },
+    ],
+  },
+  {
+    id: 'capitalism',
+    name: 'Capitalism',
+    description:
+      'Pocket more profit by keeping the upkeep on your Assistants down!',
+    cost: 12000,
+    value: 0.08,
+    affects: 'upkeep',
+    category: 'upkeep',
+    upgrades: [
+      {
+        level: 0,
+        cost: 12000,
+        value: 0.08,
+        requirements: {
+          mining: 25,
+          smithing: 25,
+        },
+      },
+      {
+        level: 1,
+        cost: 17500,
+        value: 0.11,
+        requirements: {
+          mining: 32,
+          smithing: 32,
+        },
+      },
+      {
+        level: 2,
+        cost: 20000,
+        value: 0.16,
+        requirements: {
+          mining: 40,
+          smithing: 40,
+        },
+      },
+      {
+        level: 3,
+        cost: 28750,
+        value: 0.2,
+        requirements: {
+          mining: 55,
+          smithing: 55,
+        },
+      },
+      {
+        level: 4,
+        cost: 32000,
+        value: 0.25,
+        requirements: {
+          mining: 65,
+          smithing: 65,
+        },
+      },
+    ],
+  },
 ];
