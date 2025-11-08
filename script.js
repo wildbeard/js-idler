@@ -2085,6 +2085,15 @@
         }
       }
 
+      if (
+        isNan(current.value.gold) ||
+        current.value.gold < 0 ||
+        current.value.gold === undefined ||
+        current.value.gold === null
+      ) {
+        current.value.gold = startingState.gold;
+      }
+
       return current;
     };
 
@@ -2109,12 +2118,7 @@
         // ahead of the proper hydration.
         /** @type {{ value: State }} s */
         let s = ref(JSON.parse(JSON.stringify(baseState)));
-
-        if (baseState.purchased_autoers.length || baseState.upgrades.length) {
-          s = hydrateState(baseState, s);
-        } else {
-          s = ref({ ...baseState });
-        }
+        s = hydrateState(baseState, s);
 
         /** @type {{ value: Assistant[] }} */
         const assistants = ref([]);
