@@ -2086,7 +2086,7 @@
       }
 
       if (
-        isNan(current.value.gold) ||
+        isNaN(current.value.gold) ||
         current.value.gold < 0 ||
         current.value.gold === undefined ||
         current.value.gold === null
