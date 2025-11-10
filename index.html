@@ -215,10 +215,55 @@
                                 <label>
                                     <input 
                                         type="checkbox"
-                                        :checked="configuringAssistant.config.selling.includes(item.item_id)"
+                                        :checked="getAssistantItemSellConfig(configuringAssistant, item.item_id) !== null"
                                         @click="toggleAssistantJob(configuringAssistant, 'selling', item.item_id)">
                                         {{ getItem(item.item_id)?.name }}
                                 </label>
+
+                                <div v-if="configuringAssistant.config.selling.find((c) => c.item_id === item.item_id)">
+                                    <label>
+                                        <input 
+                                            type="radio"
+                                            :name="`sell_method_${item.item_id}`"
+                                            :checked="getAssistantItemSellMethod(configuringAssistant, item.item_id) === 'all'"
+                                            @click="setAssistantItemSellMethod(configuringAssistant, item.item_id, 'all', 0)">
+                                        Sell All
+                                    </label>
+                                    <br>
+                                    <label>
+                                        <input 
+                                            type="radio"
+                                            :name="`sell_method_${item.item_id}`"
+                                            :checked="getAssistantItemSellMethod(configuringAssistant, item.item_id) === 'sell_x'"
+                                            :value="getAssistantItemSellValue(configuringAssistant, item.item_id)"
+                                            @click="setAssistantItemSellMethod(configuringAssistant, item.item_id, 'sell_x', 0)">
+                                        Sell
+                                        <input 
+                                            :name="`sell_method_${ item.item_id }_sell_x`"
+                                            type="number" 
+                                            min="0"
+                                            :value="getAssistantItemSellValue(configuringAssistant, item.item_id, 'sell_x')"
+                                            @change="setAssistantItemSellMethod(configuringAssistant, item.item_id, 'sell_x', $event.target.value)"
+                                            style="width: 50px;"/>
+                                    </label>
+                                    <br>
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            :name="`sell_method_${item.item_id}`"
+                                            :checked="getAssistantItemSellMethod(configuringAssistant, item.item_id) === 'percent_keep'"
+                                            @click="setAssistantItemSellMethod(configuringAssistant, item.item_id, 'percent_keep', 0)">
+                                        Keep % in Inventory
+                                        <input 
+                                            :name="`sell_method_${ item.item_id }_percent_keep`"
+                                            type="number"
+                                            min="0"
+                                            max="100"
+                                            :value="getAssistantItemSellValue(configuringAssistant, item.item_id, 'percent_keep') * 100"
+                                            @change="setAssistantItemSellMethod(configuringAssistant, item.item_id, 'percent_keep', $event.target.value / 100)"
+                                            style="width: 50px;"/>%
+                                    </label>
+                                </div>
                             </li>
                         </ul>
                     </template>

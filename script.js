@@ -116,7 +116,11 @@
  * @property {{
  *  mining: string[],
  *  smithing: string[],
- *  selling: string[],
+ *  selling: {
+ *    item_id: string,
+ *    method: 'all' | 'sell_x' | 'percent_keep',
+ *    value: number,
+ *  }[]
  * }} config
  *
  * @typedef {Assistant & PurchasedAssistantProps} PurchasedAssistant
@@ -202,7 +206,7 @@
 
 (
   function () {
-    const version = '0.1.13';
+    const version = '0.1.14';
 
     /**
      * @param {Upgrade | Autoer} props
@@ -1343,24 +1347,45 @@
      */
     const assistantDidSell = (state, assistant, item) => {
       // @TODO: Figure out why getAssistantJobFunctions isn't handling this!!
-      if (
-        !state.value.inventory.find(
-          (i) => i.item_id === item.item_id && i.quantity > 0,
-        )
-      ) {
+      const invItem = state.value.inventory.find(
+        (i) => i.item_id === item.item_id && i.quantity > 0,
+      );
+
+      if (!invItem) {
         console.log(`Not enough inventory for assistant to sell ${item.name}`);
         return;
       }
 
+      const itemConfig = getAssistantItemSellConfig(assistant, item.item_id);
+      let quantity = 0;
       let gold = item.value;
+
+      switch (itemConfig.method) {
+        case 'sell_x':
+          quantity =
+            itemConfig.value > invItem.quantity
+              ? invItem.quantity
+              : itemConfig.value;
+          break;
+        case 'percent_keep':
+          const toKeep = Math.ceil(invItem.quantity * itemConfig.value);
+          quantity = invItem.quantity - toKeep;
+          break;
+        case 'all':
+          quantity = state.value.inventory.find(
+            (i) => i.item_id === item.item_id,
+          ).quantity;
+          break;
+      }
 
       if (assistant.perk.affects === 'selling') {
         gold += Math.ceil(gold * assistant.perk.value);
       }
 
+      gold *= quantity;
       state.value.gold += gold;
       updateStats(state, 'sales', null, gold);
-      updateInventory(state, item.item_id, -1);
+      updateInventory(state, item.item_id, quantity * -1);
     };
 
     /**
@@ -1614,19 +1639,68 @@
     };
 
     /**
-     * @param {string} assistantId
-     * @param {{ mining: string[], smithing: string[], selling: string[] }} newConfig
-     * @param {{ value: State }} state
+     * @param {PurchasedAssistant} assistant
+     * @param {string} itemId
+     * @returns {PurchasedAssistant['config']['selling'][0] | null}
      */
-    const updateAssistantConfig = (assistantId, newConfig, state) => {
-      const idx = state.value.assistants.find((a) => a.id === assistantId);
+    const getAssistantItemSellConfig = (assistant, itemId) => {
+      return assistant.config.selling.find((c) => c.item_id === itemId) || null;
+    };
 
-      if (idx === -1) {
-        return;
+    /**
+     * @param {PurchasedAssistant} assistant
+     * @param {string} itemId
+     * @returns {('all' | 'sell_x' | 'percent_keep') | null}
+     */
+    const getAssistantItemSellMethod = (assistant, itemId) => {
+      return (
+        assistant.config.selling.find((i) => i.item_id === itemId)?.method ||
+        null
+      );
+    };
+
+    /**
+     * @param {PurchasedAssistant} assistant
+     * @param {string} itemId
+     * @param {string} method
+     * @returns {number}
+     */
+    const getAssistantItemSellValue = (assistant, itemId, method) => {
+      let defaultVal = 0;
+
+      if (method === 'percent_keep') {
+        defaultVal = 0;
+      } else if (method === 'sell_x') {
+        defaultVal = 1;
       }
 
-      for (const key in newConfig) {
-        state.value.assistants[idx].config[key] = newConfig[string];
+      return (
+        assistant.config.selling.find(
+          (i) => i.item_id === itemId && i.method === method,
+        )?.value || defaultVal
+      );
+    };
+
+    /**
+     * @param {PurchasedAssistant} assistant
+     * @param {string} itemId
+     * @param {('all' | 'sell_x' | 'percent_keep')} method
+     * @param {number} value
+     */
+    const setAssistantItemSellMethod = (assistant, itemId, method, value) => {
+      const idx = assistant.config.selling.findIndex(
+        (i) => i.item_id === itemId,
+      );
+
+      if (idx === -1) {
+        assistant.config.selling.push({
+          item_id: itemId,
+          method: method,
+          value: value,
+        });
+      } else {
+        assistant.config.selling[idx].method = method;
+        assistant.config.selling[idx].value = value;
       }
     };
 
@@ -1692,12 +1766,32 @@
 
             case 'selling':
               actionFn = assistantDidSell;
-              actionableItems = items.filter(
-                (i) =>
-                  state.value.inventory.find(
-                    (ii) => ii.item_id === i.item_id && ii.quantity > 0,
-                  ) && assistant.config[key].includes(i.item_id),
-              );
+              actionableItems = items.filter((i) => {
+                const config = getAssistantItemSellConfig(assistant, i.item_id);
+                const invItem = state.value.inventory.find(
+                  (ii) => ii.item_id === i.item_id,
+                );
+
+                if (!config || !invItem) {
+                  return false;
+                }
+
+                let minimumQuantity = 1;
+
+                switch (config.method) {
+                  case 'all':
+                  case 'sell_x':
+                    minimumQuantity = 1;
+                    break;
+                  case 'percent_keep':
+                    // If we have 10, and we want to keep 25%, we'll sell 7 and keep 3.
+                    minimumQuantity =
+                      Math.ceil(invItem.quantity * config.value) + 1;
+                    break;
+                }
+
+                return invItem.quantity >= minimumQuantity;
+              });
               break;
           }
 
@@ -1886,6 +1980,7 @@
         )[0];
       const perk = generateAssistantPerk(skill, state);
       const id = Math.floor(Math.random() * 100000);
+      const levels = generateAssistantLevels(skill, perk, state);
       /** @type {Assistant} */
       const assistant = {
         id,
@@ -1894,7 +1989,15 @@
         cost_per_action: Math.floor(Math.random() * 10),
         skills: [skill],
         perk: perk,
-        upgrades: generateAssistantLevels(skill, perk, state),
+        level: 0,
+        interval_id: null,
+        interval: levels[0].value,
+        upgrades: levels,
+        config: {
+          mining: [],
+          smithing: [],
+          selling: [],
+        },
       };
 
       return assistant;
@@ -1908,8 +2011,10 @@
      * }
      */
     const getUpkeep = (state) => {
+      const totalLevel =
+        state.value.levels.mining + state.value.levels.smithing;
       const progress = Math.floor(
-        (state.value.levels.mining + state.value.levels.smithing) * 0.45 * 100,
+        totalLevel * Math.pow(1 + totalLevel / 100, 2) * 0.45 * 100,
       );
       const assistant = state.value.assistants.reduce((u, a) => {
         return (u += Math.floor(
@@ -2451,6 +2556,26 @@
               return;
             }
 
+            if (purchasedAssistant.skills.includes('selling')) {
+              purchasedAssistant.config.selling.forEach((c) => {
+                let value = Number(
+                  document.querySelector(
+                    `input[name="sell_method_${c.item_id}_${c.method}"]`,
+                  )?.value,
+                );
+
+                if (isNaN(value) || value < 1) {
+                  value = 1;
+                }
+
+                if (c.method === 'percent_keep' && value >= 1) {
+                  value = value / 100;
+                }
+
+                c.value = value;
+              });
+            }
+
             s.value.assistants[idx] = JSON.parse(
               JSON.stringify(purchasedAssistant),
             );
@@ -2458,6 +2583,35 @@
 
             updateAssistantJobs(s.value.assistants[idx].id, s);
           },
+          /**
+           * @param {PurchasedAssistant} purchasedAssistant
+           * @param {string} itemId
+           * @returns {('all' | 'sell_x' | 'percent_keep') | null}
+           */
+          getAssistantItemSellMethod: (purchasedAssistant, itemId) =>
+            getAssistantItemSellMethod(purchasedAssistant, itemId),
+          /**
+           * @param {PurchasedAssistant} purchasedAssistant
+           * @param {string} itemId
+           * @param {('all' | 'sell_x' | 'percent_keep')}
+           */
+          setAssistantItemSellMethod: (purchasedAssistant, itemId, method) =>
+            setAssistantItemSellMethod(purchasedAssistant, itemId, method),
+          /**
+           * @param {PurchasedAssistant} purchasedAssistant
+           * @param {string} itemId
+           * @param {?string} method
+           * @returns {number}
+           */
+          getAssistantItemSellValue: (purchasedAssistant, itemId, method) =>
+            getAssistantItemSellValue(purchasedAssistant, itemId, method),
+          /**
+           * @param {PurchasedAssistant} purchasedAssistant
+           * @param {string} itemId
+           * @returns {PurchasedAssistant['config']['selling'][0] | null}
+           */
+          getAssistantItemSellConfig: (purchasedAssistant, itemId) =>
+            getAssistantItemSellConfig(purchasedAssistant, itemId),
           /**
            * @param {PurchasedAssistant} purchasedAssistant
            */
@@ -2559,9 +2713,13 @@
             if (purchasedAssistant.config[jobType].includes(itemId)) {
               purchasedAssistant.config[jobType] = purchasedAssistant.config[
                 jobType
-              ].filter((i) => i !== itemId);
+              ].filter((i) => i.item_id !== itemId);
             } else {
-              purchasedAssistant.config[jobType].push(itemId);
+              purchasedAssistant.config[jobType].push({
+                item_id: itemId,
+                method: 'sell_x',
+                value: 1,
+              });
             }
           },
           getBankSaleValue: () => {
