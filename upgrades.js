@@ -421,6 +421,7 @@ const _upgrades = [
       },
     ],
   },
+  /*
   {
     id: 'tax_avoidance',
     name: 'Tax Avoidance',
@@ -479,6 +480,7 @@ const _upgrades = [
       },
     ],
   },
+  */
   {
     id: 'capitalism',
     name: 'Capitalism',

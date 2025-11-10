@@ -305,7 +305,7 @@ window.items = [
     success_chance: 1.0,
     xp_given: 144,
     categories: ['armor', 'steel', 'helmet'],
-    value: 156,
+    value: 176,
     ingredients: [
       {
         item_id: 'steel_bar',
@@ -358,7 +358,7 @@ window.items = [
     name: 'Rough Starmetal Bar',
     description: 'A rudimentary starmetal alloy.',
     success_chance: 0.6,
-    value: 75,
+    value: 120,
     categories: ['starmetal', 'bars'],
     xp_given: 135,
     ingredients: [
@@ -379,7 +379,7 @@ window.items = [
     name: 'Starmetal Bar',
     description: 'A more refined starmetal alloy.',
     success_chance: 0.75,
-    value: 175,
+    value: 308,
     categories: ['starmetal', 'bars'],
     xp_given: 188,
     ingredients: [
@@ -399,7 +399,7 @@ window.items = [
     skill: 'smithing',
     name: 'Starmetal Sword',
     description: 'A sword made of starmetal.',
-    value: 350,
+    value: 678,
     categories: ['starmetal', 'sword', 'weapons'],
     xp_given: 345,
     ingredients: [
@@ -415,7 +415,7 @@ window.items = [
     skill: 'smithing',
     name: 'Starmetal Claymore',
     description: 'An extremely large and sharp sword made of starmetal.',
-    value: 900,
+    value: 1694,
     categories: ['starmetal', 'sword', 'weapons'],
     xp_given: 800,
     ingredients: [
@@ -454,7 +454,7 @@ window.items = [
     name: 'Gold Bar',
     description: 'A lot heavier than it looks. Worth its weight in..?',
     xp_given: 65,
-    value: 121,
+    value: 134,
     categories: ['bars', 'gold'],
     ingredients: [
       {
@@ -471,7 +471,7 @@ window.items = [
     description: 'A bar of refined silver ore.',
     xp_given: 28,
     success_chance: 1.0,
-    value: 100,
+    value: 110,
     categories: ['bars'],
     ingredients: [
       {

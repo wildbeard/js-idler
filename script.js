@@ -202,7 +202,7 @@
 
 (
   function () {
-    const version = '0.1.12';
+    const version = '0.1.13';
 
     /**
      * @param {Upgrade | Autoer} props
@@ -1905,12 +1905,11 @@
      * @returns {
      *  assistant: number,
      *  progress: number,
-     *  tax: number,
      * }
      */
     const getUpkeep = (state) => {
       const progress = Math.floor(
-        (state.value.levels.mining + state.value.levels.smithing) * 0.65,
+        (state.value.levels.mining + state.value.levels.smithing) * 0.45 * 100,
       );
       const assistant = state.value.assistants.reduce((u, a) => {
         return (u += Math.floor(
@@ -1922,21 +1921,7 @@
       const capitalismUpgrade = state.value.upgrades.find(
         (u) => u.id === 'capitalism',
       );
-      const tax = Math.floor(
-        state.value.gold * state.value.global_variables.tax_rate,
-      );
-      const taxEvasionUpgrade = state.value.upgrades.find(
-        (u) => u.id === 'tax_avoidance',
-      );
-      let taxEvasionRate = 0;
       let capitalismRate = 0;
-
-      if (taxEvasionUpgrade) {
-        taxEvasionRate =
-          taxEvasionUpgrade.upgrades.find(
-            (u) => u.level === taxEvasionUpgrade.level,
-          )?.value ?? 0;
-      }
 
       if (capitalismUpgrade) {
         capitalismRate =
@@ -1948,7 +1933,6 @@
       return {
         assistant: Math.floor(assistant - assistant * capitalismRate),
         progress,
-        tax: Math.floor(tax - tax * taxEvasionRate),
       };
     };
 
@@ -1957,7 +1941,7 @@
      */
     const taxManCometh = (state) => {
       const upkeep = getUpkeep(state);
-      const totalUpkeep = upkeep.assistant + upkeep.progress + upkeep.tax;
+      const totalUpkeep = upkeep.assistant + upkeep.progress;
       state.value.gold = Math.max(state.value.gold - totalUpkeep, 0);
     };
 
