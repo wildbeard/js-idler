@@ -401,7 +401,7 @@ window.items = [
     description: 'A sword made of starmetal.',
     value: 678,
     categories: ['starmetal', 'sword', 'weapons'],
-    xp_given: 345,
+    xp_given: 390,
     ingredients: [
       {
         item_id: 'starmetal_bar',
@@ -417,11 +417,98 @@ window.items = [
     description: 'An extremely large and sharp sword made of starmetal.',
     value: 1694,
     categories: ['starmetal', 'sword', 'weapons'],
-    xp_given: 800,
+    xp_given: 975,
     ingredients: [
       {
         item_id: 'starmetal_bar',
         quantity: 5,
+      },
+      {
+        item_id: 'steel_bar',
+        quantity: 1,
+      },
+    ],
+  },
+  {
+    item_id: 'starmetal_plate_armor',
+    level: 40,
+    skill: 'smithing',
+    name: 'Starmetal Plate Armor',
+    description:
+      'Heavy armor crafted from the rarest starmetal, offering unmatched protection.',
+    success_chance: 1,
+    xp_given: 1650,
+    value: 2400,
+    categories: ['starmetal', 'armor', 'plate'],
+    ingredients: [
+      {
+        item_id: 'starmetal_bar',
+        quantity: 8,
+      },
+      {
+        item_id: 'steel_bar',
+        quantity: 2,
+      },
+    ],
+  },
+  {
+    item_id: 'starmetal_battle_axe',
+    level: 35,
+    skill: 'smithing',
+    name: 'Starmetal Battle Axe',
+    description: 'A brutal weapon made from a rare and mystical metal.',
+    success_chance: 1.0,
+    xp_given: 1050,
+    value: 1900,
+    categories: ['starmetal', 'weapons', 'axe'],
+    ingredients: [
+      {
+        item_id: 'starmetal_bar',
+        quantity: 5,
+      },
+      {
+        item_id: 'steel_bar',
+        quantity: 1,
+      },
+    ],
+  },
+  {
+    item_id: 'starmetal_shield',
+    level: 38,
+    skill: 'smithing',
+    name: 'Starmetal Shield',
+    description:
+      'A shield capable of withstanding the hardest blows. Forged from starmetal.',
+    success_chance: 1.0,
+    xp_given: 1325,
+    value: 2100,
+    categories: ['starmetal', 'armor', 'shield'],
+    ingredients: [
+      {
+        item_id: 'starmetal_bar',
+        quantity: 6,
+      },
+      {
+        item_id: 'steel_bar',
+        quantity: 2,
+      },
+    ],
+  },
+  {
+    item_id: 'starmetal_helmet',
+    level: 37,
+    skill: 'smithing',
+    name: 'Starmetal Helmet',
+    description:
+      'A finely crafted starmetal helmet, offering excellent protection.',
+    success_chance: 1.0,
+    xp_given: 875,
+    value: 1500,
+    categories: ['starmetal', 'armor', 'helmet'],
+    ingredients: [
+      {
+        item_id: 'starmetal_bar',
+        quantity: 4,
       },
     ],
   },

@@ -723,4 +723,128 @@ const _autoers = [
       },
     ],
   },
+  {
+    id: 'autoforge_starmetal_weapons',
+    name: 'Autoforge: Starmetal Weapons',
+    description: 'This thing here will forge random weapons from Starmetal.',
+    value_description:
+      'Automatically forges a random Starmetal weapon every %{interval}.',
+    value: 2000,
+    cost: 1000,
+    skill: 'smithing',
+    affects: 'starmetal_weapons',
+    category: 'autoer',
+    upgrades: [
+      {
+        level: 0,
+        cost: 1000,
+        value: 2000,
+        requirements: {
+          smithing: 34,
+        },
+      },
+      {
+        level: 1,
+        cost: 1200,
+        value: 1500,
+        requirements: {
+          smithing: 36,
+        },
+      },
+      {
+        level: 2,
+        cost: 1550,
+        value: 1000,
+        requirements: {
+          smithing: 38,
+        },
+      },
+      {
+        level: 3,
+        cost: 2000,
+        value: 750,
+        requirements: {
+          smithing: 40,
+        },
+      },
+      {
+        level: 4,
+        cost: 2150,
+        value: 500,
+        requirements: {
+          smithing: 42,
+        },
+      },
+      {
+        level: 5,
+        cost: 2375,
+        value: 350,
+        requirements: {
+          smithing: 44,
+        },
+      },
+    ],
+  },
+  {
+    id: 'autoforge_starmetal_armor',
+    name: 'Autoforge: Starmetal Armor',
+    description: 'This thing here will forge random weapons from Starmetal.',
+    value_description:
+      'Automatically forges a random piece of Starmetal armor every %{interval}.',
+    value: 2000,
+    cost: 1000,
+    skill: 'smithing',
+    affects: 'starmetal_armor',
+    category: 'autoer',
+    upgrades: [
+      {
+        level: 0,
+        cost: 1000,
+        value: 2000,
+        requirements: {
+          smithing: 34,
+        },
+      },
+      {
+        level: 1,
+        cost: 1200,
+        value: 1500,
+        requirements: {
+          smithing: 36,
+        },
+      },
+      {
+        level: 2,
+        cost: 1550,
+        value: 1000,
+        requirements: {
+          smithing: 38,
+        },
+      },
+      {
+        level: 3,
+        cost: 2000,
+        value: 750,
+        requirements: {
+          smithing: 40,
+        },
+      },
+      {
+        level: 4,
+        cost: 2150,
+        value: 500,
+        requirements: {
+          smithing: 42,
+        },
+      },
+      {
+        level: 5,
+        cost: 2375,
+        value: 350,
+        requirements: {
+          smithing: 44,
+        },
+      },
+    ],
+  },
 ];
