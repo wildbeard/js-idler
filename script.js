@@ -118,7 +118,7 @@
  *  smithing: string[],
  *  selling: {
  *    item_id: string,
- *    method: 'all' | 'sell_x' | 'percent_keep',
+ *    method: 'all' | 'sell_x' | 'keep_x',
  *    value: number,
  *  }[]
  * }} config
@@ -206,7 +206,7 @@
 
 (
   function () {
-    const version = '0.1.14';
+    const version = '0.1.15';
 
     /**
      * @param {Upgrade | Autoer} props
@@ -1367,14 +1367,11 @@
               ? invItem.quantity
               : itemConfig.value;
           break;
-        case 'percent_keep':
-          const toKeep = Math.ceil(invItem.quantity * itemConfig.value);
-          quantity = invItem.quantity - toKeep;
+        case 'keep_x':
+          quantity = invItem.quantity - itemConfig.value;
           break;
         case 'all':
-          quantity = state.value.inventory.find(
-            (i) => i.item_id === item.item_id,
-          ).quantity;
+          quantity = invItem.quantity;
           break;
       }
 
@@ -1650,7 +1647,7 @@
     /**
      * @param {PurchasedAssistant} assistant
      * @param {string} itemId
-     * @returns {('all' | 'sell_x' | 'percent_keep') | null}
+     * @returns {('all' | 'sell_x' | 'keep_x') | null}
      */
     const getAssistantItemSellMethod = (assistant, itemId) => {
       return (
@@ -1668,9 +1665,7 @@
     const getAssistantItemSellValue = (assistant, itemId, method) => {
       let defaultVal = 0;
 
-      if (method === 'percent_keep') {
-        defaultVal = 0;
-      } else if (method === 'sell_x') {
+      if (method === 'keep_x' || method === 'sell_x') {
         defaultVal = 1;
       }
 
@@ -1684,7 +1679,7 @@
     /**
      * @param {PurchasedAssistant} assistant
      * @param {string} itemId
-     * @param {('all' | 'sell_x' | 'percent_keep')} method
+     * @param {('all' | 'sell_x' | 'keep_x')} method
      * @param {number} value
      */
     const setAssistantItemSellMethod = (assistant, itemId, method, value) => {
@@ -1783,10 +1778,9 @@
                   case 'sell_x':
                     minimumQuantity = 1;
                     break;
-                  case 'percent_keep':
+                  case 'keep_x':
                     // If we have 10, and we want to keep 25%, we'll sell 7 and keep 3.
-                    minimumQuantity =
-                      Math.ceil(invItem.quantity * config.value) + 1;
+                    minimumQuantity = config.value + 1;
                     break;
                 }
 
@@ -2568,10 +2562,6 @@
                   value = 1;
                 }
 
-                if (c.method === 'percent_keep' && value >= 1) {
-                  value = value / 100;
-                }
-
                 c.value = value;
               });
             }
@@ -2586,14 +2576,14 @@
           /**
            * @param {PurchasedAssistant} purchasedAssistant
            * @param {string} itemId
-           * @returns {('all' | 'sell_x' | 'percent_keep') | null}
+           * @returns {('all' | 'sell_x' | 'keep_x') | null}
            */
           getAssistantItemSellMethod: (purchasedAssistant, itemId) =>
             getAssistantItemSellMethod(purchasedAssistant, itemId),
           /**
            * @param {PurchasedAssistant} purchasedAssistant
            * @param {string} itemId
-           * @param {('all' | 'sell_x' | 'percent_keep')}
+           * @param {('all' | 'sell_x' | 'keep_x')}
            */
           setAssistantItemSellMethod: (purchasedAssistant, itemId, method) =>
             setAssistantItemSellMethod(purchasedAssistant, itemId, method),

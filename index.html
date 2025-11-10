@@ -251,17 +251,17 @@
                                         <input
                                             type="radio"
                                             :name="`sell_method_${item.item_id}`"
-                                            :checked="getAssistantItemSellMethod(configuringAssistant, item.item_id) === 'percent_keep'"
-                                            @click="setAssistantItemSellMethod(configuringAssistant, item.item_id, 'percent_keep', 0)">
-                                        Keep % in Inventory
+                                            :checked="getAssistantItemSellMethod(configuringAssistant, item.item_id) === 'keep_x'"
+                                            @click="setAssistantItemSellMethod(configuringAssistant, item.item_id, 'keep_x', 0)">
+                                        Keep X in Inventory
                                         <input 
-                                            :name="`sell_method_${ item.item_id }_percent_keep`"
+                                            :name="`sell_method_${ item.item_id }_keep_x`"
                                             type="number"
                                             min="0"
                                             max="100"
-                                            :value="getAssistantItemSellValue(configuringAssistant, item.item_id, 'percent_keep') * 100"
-                                            @change="setAssistantItemSellMethod(configuringAssistant, item.item_id, 'percent_keep', $event.target.value / 100)"
-                                            style="width: 50px;"/>%
+                                            :value="getAssistantItemSellValue(configuringAssistant, item.item_id, 'keep_x')"
+                                            @change="setAssistantItemSellMethod(configuringAssistant, item.item_id, 'keep_x', $event.target.value)"
+                                            style="width: 50px;"/>
                                     </label>
                                 </div>
                             </li>
