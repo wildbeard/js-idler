@@ -599,4 +599,128 @@ const _autoers = [
       },
     ],
   },
+  {
+    id: 'autosmelt_rough_starmetal',
+    name: 'Autosmelt: Rough Starmetal',
+    description: 'A magical smelter smelting magical ore from the stars',
+    value_description:
+      'Automatically smelts a Rough Starmetal Bar every %{interval}.',
+    value: 2000,
+    cost: 650,
+    skill: 'smithing',
+    affects: 'starmetal_bar_rough',
+    category: 'autoer',
+    upgrades: [
+      {
+        level: 0,
+        cost: 800,
+        value: 2000,
+        requirements: {
+          smithing: 30,
+        },
+      },
+      {
+        level: 1,
+        cost: 1000,
+        value: 1500,
+        requirements: {
+          smithing: 32,
+        },
+      },
+      {
+        level: 2,
+        cost: 1350,
+        value: 1000,
+        requirements: {
+          smithing: 34,
+        },
+      },
+      {
+        level: 3,
+        cost: 1800,
+        value: 750,
+        requirements: {
+          smithing: 36,
+        },
+      },
+      {
+        level: 4,
+        cost: 1950,
+        value: 500,
+        requirements: {
+          smithing: 38,
+        },
+      },
+      {
+        level: 5,
+        cost: 2150,
+        value: 350,
+        requirements: {
+          smithing: 40,
+        },
+      },
+    ],
+  },
+  {
+    id: 'autosmelt_starmetal',
+    name: 'Autosmelt: Starmetal',
+    description: 'A magical smelter smelting magical ore from the stars',
+    value_description:
+      'Automatically smelts a Starmetal Bar every %{interval}.',
+    value: 2000,
+    cost: 875,
+    skill: 'smithing',
+    affects: 'starmetal_bar',
+    category: 'autoer',
+    upgrades: [
+      {
+        level: 0,
+        cost: 875,
+        value: 2000,
+        requirements: {
+          smithing: 34,
+        },
+      },
+      {
+        level: 1,
+        cost: 1075,
+        value: 1500,
+        requirements: {
+          smithing: 36,
+        },
+      },
+      {
+        level: 2,
+        cost: 1425,
+        value: 1000,
+        requirements: {
+          smithing: 38,
+        },
+      },
+      {
+        level: 3,
+        cost: 1875,
+        value: 750,
+        requirements: {
+          smithing: 40,
+        },
+      },
+      {
+        level: 4,
+        cost: 2025,
+        value: 500,
+        requirements: {
+          smithing: 42,
+        },
+      },
+      {
+        level: 5,
+        cost: 2250,
+        value: 350,
+        requirements: {
+          smithing: 44,
+        },
+      },
+    ],
+  },
 ];
