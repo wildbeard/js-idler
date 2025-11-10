@@ -636,7 +636,7 @@
         assistant_refresh_rate: 180000,
         upkeep_interval: 300000,
         base_assistant_upkeep: 125,
-        tax_rate: 0.12,
+        tax_rate: 0.08,
       },
       upgrades: [],
       purchased_autoers: [],
