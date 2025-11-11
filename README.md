@@ -1,4 +1,8 @@
-### Why This Looks Like Shit
+### Why Does This *Visually* Looks Like Shit
+
+I enjoy the scuffed aesthetic of it all. In the future I might implement TailwinddCSS, but honestly it's too "nice" for what I want.
+
+### Why Does the *Code* Look Like Shit
 
 Okay so I am writing this code on a computer that I can't use JS runtimes like Node on.
 
