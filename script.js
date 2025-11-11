@@ -206,7 +206,7 @@
 
 (
   function () {
-    const version = '0.1.16';
+    const version = '0.1.17';
 
     /**
      * @param {Upgrade | Autoer} props
@@ -2740,28 +2740,6 @@
                 .find((a) => a.id === purchasedAssistant.id)
                 ?.skills.join(',') ?? 'N/A'
             );
-          },
-          /**
-           * @param {PurchasedAssistant} purchasedAssistant
-           * @param {'mining' | 'smithing' | 'selling'} jobType
-           * @param {string} itemId
-           */
-          toggleAssistantJob: (purchasedAssistant, jobType, itemId) => {
-            if (
-              purchasedAssistant.config[jobType].find(
-                (c) => c.item_id === itemId,
-              )
-            ) {
-              purchasedAssistant.config[jobType] = purchasedAssistant.config[
-                jobType
-              ].filter((c) => c.item_id !== itemId);
-            } else {
-              purchasedAssistant.config[jobType].push({
-                item_id: itemId,
-                method: 'sell_x',
-                value: 1,
-              });
-            }
           },
           getBankSaleValue: () => {
             return s.value.inventory.reduce((curr, inv) => {
