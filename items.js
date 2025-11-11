@@ -176,6 +176,7 @@ window.items = [
     skill: 'mining',
     name: 'Iron Ore',
     xp_given: 20,
+    sellable: true,
     success_chance: 0.75,
     categories: ['ores', 'ore'],
   },
@@ -185,6 +186,7 @@ window.items = [
     value: 15,
     skill: 'smithing',
     name: 'Iron Bar',
+    sellable: true,
     success_chance: 0.65,
     xp_given: 15,
     categories: ['iron', 'bars'],
@@ -203,6 +205,7 @@ window.items = [
     name: 'Iron Sword',
     description: 'A sword made of iron.',
     success_chance: 1.0,
+    sellable: true,
     xp_given: 45,
     categories: ['iron', 'swords'],
     ingredients: [
@@ -221,6 +224,7 @@ window.items = [
     description:
       'If you like it, you should put a ring on it. Or several thousand.',
     success_chance: 1.0,
+    sellable: true,
     xp_given: 60,
     categories: ['iron', 'armor'],
     ingredients: [
@@ -238,6 +242,7 @@ window.items = [
     name: 'Coal',
     description: 'A lump-o-coal',
     success_chance: 1.0,
+    sellable: true,
     xp_given: 20,
     categories: ['ore', 'ores'],
   },
@@ -248,6 +253,7 @@ window.items = [
     name: 'Steel Bar',
     description: "It's like iron but better.",
     success_chance: 1.0,
+    sellable: true,
     xp_given: 45,
     value: 40,
     categories: ['steel', 'bars'],
@@ -269,6 +275,7 @@ window.items = [
     name: 'Steel Dagger',
     description: 'A dagger made of steel.',
     success_chance: 1.0,
+    sellable: true,
     xp_given: 48,
     categories: ['steel', 'weapons', 'dagger'],
     value: 48,
@@ -286,6 +293,7 @@ window.items = [
     name: 'Steel Sword',
     description: 'A sword made of steel.',
     success_chance: 1.0,
+    sellable: true,
     xp_given: 96,
     categories: ['steel', 'weapons', 'swords'],
     value: 102,
@@ -303,6 +311,7 @@ window.items = [
     name: 'Steel Helmet',
     description: 'A helmet made of steel.',
     success_chance: 1.0,
+    sellable: true,
     xp_given: 144,
     categories: ['armor', 'steel', 'helmet'],
     value: 176,
@@ -321,6 +330,7 @@ window.items = [
     description:
       "Wow, this necklace is gorgeous but there's something off about it.",
     xp_given: 85,
+    sellable: true,
     success_chance: 1.0,
     categories: ['jewlery', 'quest_item', 'necklace'],
     ingredients: [
@@ -341,6 +351,7 @@ window.items = [
     name: 'Steel Pickaxe',
     description: 'A pickaxe made of steel.',
     success_chance: 1.0,
+    sellable: true,
     xp_given: 146,
     categories: ['steel', 'tool', 'quest_item'],
     value: 152,
@@ -360,6 +371,7 @@ window.items = [
     success_chance: 0.6,
     value: 120,
     categories: ['starmetal', 'bars'],
+    sellable: true,
     xp_given: 135,
     ingredients: [
       {
@@ -381,6 +393,7 @@ window.items = [
     success_chance: 0.75,
     value: 308,
     categories: ['starmetal', 'bars'],
+    sellable: true,
     xp_given: 188,
     ingredients: [
       {
@@ -401,6 +414,7 @@ window.items = [
     description: 'A sword made of starmetal.',
     value: 678,
     categories: ['starmetal', 'sword', 'weapons'],
+    sellable: true,
     xp_given: 390,
     ingredients: [
       {
@@ -417,6 +431,7 @@ window.items = [
     description: 'An extremely large and sharp sword made of starmetal.',
     value: 1694,
     categories: ['starmetal', 'sword', 'weapons'],
+    sellable: true,
     xp_given: 975,
     ingredients: [
       {
@@ -437,6 +452,7 @@ window.items = [
     description:
       'Heavy armor crafted from the rarest starmetal, offering unmatched protection.',
     success_chance: 1,
+    sellable: true,
     xp_given: 1650,
     value: 2400,
     categories: ['starmetal', 'armor', 'plate'],
@@ -458,6 +474,7 @@ window.items = [
     name: 'Starmetal Battle Axe',
     description: 'A brutal weapon made from a rare and mystical metal.',
     success_chance: 1.0,
+    sellable: true,
     xp_given: 1050,
     value: 1900,
     categories: ['starmetal', 'weapons', 'axe'],
@@ -481,6 +498,7 @@ window.items = [
       'A shield capable of withstanding the hardest blows. Forged from starmetal.',
     success_chance: 1.0,
     xp_given: 1325,
+    sellable: true,
     value: 2100,
     categories: ['starmetal', 'armor', 'shield'],
     ingredients: [
@@ -503,6 +521,7 @@ window.items = [
       'A finely crafted starmetal helmet, offering excellent protection.',
     success_chance: 1.0,
     xp_given: 875,
+    sellable: true,
     value: 1500,
     categories: ['starmetal', 'armor', 'helmet'],
     ingredients: [
@@ -519,6 +538,7 @@ window.items = [
     name: 'Silver Ore',
     description: 'Unrefined silver ore.',
     xp_given: 40,
+    sellable: true,
     success_chance: 1.0,
     value: 100,
     categories: ['ore', 'ores'],
@@ -529,6 +549,7 @@ window.items = [
     skill: 'mining',
     name: 'Gold Ore',
     description: 'Precious',
+    sellable: true,
     xp_given: 65,
     success_chance: 1.0,
     value: 121,
@@ -540,6 +561,7 @@ window.items = [
     skill: 'smithing',
     name: 'Gold Bar',
     description: 'A lot heavier than it looks. Worth its weight in..?',
+    sellable: true,
     xp_given: 65,
     value: 134,
     categories: ['bars', 'gold'],
@@ -556,6 +578,7 @@ window.items = [
     skill: 'smithing',
     name: 'Silver Bar',
     description: 'A bar of refined silver ore.',
+    sellable: true,
     xp_given: 28,
     success_chance: 1.0,
     value: 110,
@@ -583,6 +606,7 @@ window.items = [
     skill: 'mining',
     name: 'Starmetal Ore',
     description: '',
+    sellable: true,
     xp_given: 50,
     success_chance: 1.0,
     value: 85,

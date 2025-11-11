@@ -206,7 +206,7 @@
 
 (
   function () {
-    const version = '0.1.15';
+    const version = '0.1.16';
 
     /**
      * @param {Upgrade | Autoer} props
@@ -2209,6 +2209,8 @@
         const currentQuest = ref(null);
         const viewingQuest = ref(null);
         const configuringAssistant = ref(null);
+        /** @type {{ value: PurchasedAssistant['config'] }} */
+        const configuringAssistantConfig = ref(null);
         /** @type {{ value: PurchasedAssistant }} */
         const firingAssistant = ref(null);
         /** @type {{ value: { quest: bool, inventory: bool }}} */
@@ -2334,6 +2336,7 @@
           currentQuest,
           viewingQuest,
           configuringAssistant,
+          configuringAssistantConfig,
           firingAssistant,
           toggleState,
           currentAutoers: computed(() => {
@@ -2535,6 +2538,36 @@
            * @param {PurchasedAssistant} purchasedAssistant
            */
           editAssistant: (purchasedAssistant) => {
+            const c = {
+              mining: [],
+              smithing: [],
+              selling: {},
+            };
+
+            for (const key in purchasedAssistant.config) {
+              if (
+                purchasedAssistant.skills.includes('selling') &&
+                key === 'selling'
+              ) {
+                for (const item of items.filter((i) => i.sellable)) {
+                  const currConfig = getAssistantItemSellConfig(
+                    purchasedAssistant,
+                    item.item_id,
+                  );
+
+                  c.selling[item.item_id] = {
+                    checked: !!currConfig,
+                    item_id: item.item_id,
+                    method: currConfig?.method || 'sell_x',
+                    value: currConfig?.value || 0,
+                  };
+                }
+              } else {
+                c[key] = [...purchasedAssistant.config[key]];
+              }
+            }
+
+            configuringAssistantConfig.value = { ...c };
             configuringAssistant.value = purchasedAssistant;
           },
           /**
@@ -2550,26 +2583,40 @@
               return;
             }
 
-            if (purchasedAssistant.skills.includes('selling')) {
-              purchasedAssistant.config.selling.forEach((c) => {
-                let value = Number(
-                  document.querySelector(
-                    `input[name="sell_method_${c.item_id}_${c.method}"]`,
-                  )?.value,
-                );
+            for (const key in configuringAssistantConfig.value) {
+              if (key === 'selling') {
+                purchasedAssistant.config.selling = [];
+                for (const itemId in configuringAssistantConfig.value.selling) {
+                  const itemConfig =
+                    configuringAssistantConfig.value.selling[itemId];
 
-                if (isNaN(value) || value < 1) {
-                  value = 1;
+                  if (itemConfig.checked) {
+                    purchasedAssistant.config.selling.push({
+                      item_id: itemConfig.item_id,
+                      method: itemConfig.method,
+                      value: itemConfig.value,
+                    });
+                  } else {
+                    const idx = purchasedAssistant.config.selling.findIndex(
+                      (c) => c.item_id === itemId,
+                    );
+
+                    if (idx > -1) {
+                      purchasedAssistant.config.selling.splice(idx, 1);
+                    }
+                  }
                 }
-
-                c.value = value;
-              });
+              } else {
+                purchasedAssistant.config[key] =
+                  configuringAssistantConfig.value[key];
+              }
             }
 
             s.value.assistants[idx] = JSON.parse(
               JSON.stringify(purchasedAssistant),
             );
             configuringAssistant.value = null;
+            configuringAssistantConfig.value = null;
 
             updateAssistantJobs(s.value.assistants[idx].id, s);
           },
@@ -2700,10 +2747,14 @@
            * @param {string} itemId
            */
           toggleAssistantJob: (purchasedAssistant, jobType, itemId) => {
-            if (purchasedAssistant.config[jobType].includes(itemId)) {
+            if (
+              purchasedAssistant.config[jobType].find(
+                (c) => c.item_id === itemId,
+              )
+            ) {
               purchasedAssistant.config[jobType] = purchasedAssistant.config[
                 jobType
-              ].filter((i) => i.item_id !== itemId);
+              ].filter((c) => c.item_id !== itemId);
             } else {
               purchasedAssistant.config[jobType].push({
                 item_id: itemId,

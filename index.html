@@ -210,58 +210,52 @@
                         Selling
                         <ul>
                             <li
-                                v-for="item in items.filter((i) => i.level <= s.levels[i.skill])"
+                                v-for="item in items.filter((i) => i.level <= s.levels[i.skill] && i.sellable)"
                                 :key="item.item_id">
                                 <label>
                                     <input 
                                         type="checkbox"
-                                        :checked="getAssistantItemSellConfig(configuringAssistant, item.item_id) !== null"
-                                        @click="toggleAssistantJob(configuringAssistant, 'selling', item.item_id)">
+                                        v-model="configuringAssistantConfig.selling[item.item_id].checked">
                                         {{ getItem(item.item_id)?.name }}
                                 </label>
 
-                                <div v-if="configuringAssistant.config.selling.find((c) => c.item_id === item.item_id)">
-                                    <label>
+                                <div 
+                                    v-if="configuringAssistantConfig.selling[item.item_id].checked"
+                                    style="display: flex; flex-wrap: wrap;">
+                                    <label style="flex: 0 0 100%;">
                                         <input 
                                             type="radio"
-                                            :name="`sell_method_${item.item_id}`"
-                                            :checked="getAssistantItemSellMethod(configuringAssistant, item.item_id) === 'all'"
-                                            @click="setAssistantItemSellMethod(configuringAssistant, item.item_id, 'all', 0)">
-                                        Sell All
+                                            :name="`sell_method_${item.item_id}_all`"
+                                            v-model="configuringAssistantConfig.selling[item.item_id].method"
+                                            value="all">
+                                            Sell All
                                     </label>
-                                    <br>
-                                    <label>
+                                    <label style="flex: 0 0 100%;">
                                         <input 
                                             type="radio"
-                                            :name="`sell_method_${item.item_id}`"
-                                            :checked="getAssistantItemSellMethod(configuringAssistant, item.item_id) === 'sell_x'"
-                                            :value="getAssistantItemSellValue(configuringAssistant, item.item_id)"
-                                            @click="setAssistantItemSellMethod(configuringAssistant, item.item_id, 'sell_x', 0)">
-                                        Sell
-                                        <input 
-                                            :name="`sell_method_${ item.item_id }_sell_x`"
-                                            type="number" 
-                                            min="0"
-                                            :value="getAssistantItemSellValue(configuringAssistant, item.item_id, 'sell_x')"
-                                            @change="setAssistantItemSellMethod(configuringAssistant, item.item_id, 'sell_x', $event.target.value)"
-                                            style="width: 50px;"/>
+                                            :name="`sell_method_${item.item_id}_sell_x`"
+                                            v-model="configuringAssistantConfig.selling[item.item_id].method"
+                                            value="sell_x">
+                                        Sell X
                                     </label>
-                                    <br>
-                                    <label>
-                                        <input
+                                    <label style="flex: 0 0 100%;">
+                                        <input 
                                             type="radio"
-                                            :name="`sell_method_${item.item_id}`"
-                                            :checked="getAssistantItemSellMethod(configuringAssistant, item.item_id) === 'keep_x'"
-                                            @click="setAssistantItemSellMethod(configuringAssistant, item.item_id, 'keep_x', 0)">
+                                            :name="`sell_method_${item.item_id}_keep_x`"
+                                            v-model="configuringAssistantConfig.selling[item.item_id].method"
+                                            value="keep_x">
                                         Keep X in Inventory
+                                    </label>
+                                    <label 
+                                        v-if="configuringAssistantConfig.selling[item.item_id].method !== 'all'"
+                                        style="flex: 0 0 calc(100% - 4px); margin-left: 4px;">
+                                        {{ configuringAssistantConfig.selling[item.item_id].method === 'sell_x' ? 'Sell' : 'Keep' }}
                                         <input 
-                                            :name="`sell_method_${ item.item_id }_keep_x`"
                                             type="number"
+                                            :name="`sell_method_${item.item_id}_x`"
+                                            v-model="configuringAssistantConfig.selling[item.item_id].value"
                                             min="0"
-                                            max="100"
-                                            :value="getAssistantItemSellValue(configuringAssistant, item.item_id, 'keep_x')"
-                                            @change="setAssistantItemSellMethod(configuringAssistant, item.item_id, 'keep_x', $event.target.value)"
-                                            style="width: 50px;"/>
+                                            value="0">
                                     </label>
                                 </div>
                             </li>
