@@ -2008,7 +2008,7 @@
       const totalLevel =
         state.value.levels.mining + state.value.levels.smithing;
       const progress = Math.floor(
-        totalLevel * Math.pow(1 + totalLevel / 100, 2) * 0.45 * 100,
+        totalLevel * Math.pow(1 + totalLevel / 100, 1.25) * 0.25 * 100,
       );
       const assistant = state.value.assistants.reduce((u, a) => {
         return (u += Math.floor(
