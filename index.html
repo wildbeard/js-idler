@@ -27,6 +27,26 @@
                 width: 100%;
             }
 
+            .levels {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                grid-gap: 1rem;
+            }
+
+            .levels p {
+                margin: 0.50rem 0;
+            }
+
+            .levels progress {
+                width: 100%;
+            }
+
+            @media screen and (min-width: 1024px) {
+                .levels {
+                    display: block;
+                }
+            }
+
             .available-quests li {
                 cursor: pointer;
             }
@@ -34,6 +54,9 @@
             .toggle-panel__header {
                 position: relative;
                 border-bottom: 1px solid black;
+            }
+            .toggle-panel__header:hover {
+                cursor: pointer;
             }
 
             .toggle-panel__header > div {
@@ -97,7 +120,8 @@
             }
 
             .skill-btn {
-                min-width: 115px;
+                min-width: 165px;
+                padding: 8px 12px;
                 text-align: center;
             }
 
@@ -308,156 +332,209 @@
             <div id="sidebar">
                 <div>
                     <p style="font-size: 1.6rem; line-height: 1.2;">Levels</p>
-                    <div>
-                        <p>Mining {{ s.levels.mining }}</p>
-                        <progress :value="xpForSkill('mining')" max="100" :title="s.xp.mining" />
-                    </div>
 
-                    <div>
-                        <p>Smithing {{ s.levels.smithing }}</p>
-                        <progress :value="xpForSkill('smithing')" max="100" />
-                    </div>
-                </div>
-
-                <div>
-                    <p style="font-size: 1.6rem; line-height: 1.2;">Upkeep</p>
-                    <p>Upkeep is paid every {{ getUpkeepDisplayTime() }} </p>
-                    <div>
-                        <p>
-                            Shop Upkeep: {{ upkeep.progress }}gp
-                            <br>
-                            Assistant Upkeep: {{ upkeep.assistant }}gp
-                        </p>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="toggle-panel">
-                        <div class="toggle-panel__header">
-                            <div>
-                                <p class="toggle-panel__header-title">Inventory</p>
-                                <p>Gold {{ s.gold }}</p>
-                            </div>
-                        
-                            <button
-                                class="minimize-button"
-                                type="button"
-                                @click="togglePanel('inventory')">
-                                {{ toggleState.inventory ? '-' : '+' }}
-                            </button>
+                    <div class="levels">
+                        <div>
+                            <p>Mining {{ s.levels.mining }}</p>
+                            <progress :value="xpForSkill('mining')" max="100" :title="s.xp.mining" />
                         </div>
 
-                        <div 
-                            v-show="toggleState.inventory"
-                            class="toggle-panel__body">
-                            <ul class="simple-list inventory" style="padding-left: 1rem;">
-                                <li v-for="category in ['ores', 'bars', 'armor', 'weapons']" :key="category">
+                        <div>
+                            <p>Smithing {{ s.levels.smithing }}</p>
+                            <progress :value="xpForSkill('smithing')" max="100" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="toggle-panel">
+                    <div 
+                        class="toggle-panel__header"
+                        @click="togglePanel('upkeep')">
+                        <div>
+                            <p class="toggle-panel__header-title">Upkeep</p>
+                            {{ upkeep.progress + upkeep.assistant }}gp
+                        </div>
+
+                        <button
+                            class="minimize-button"
+                            type="button"
+                            @click.stop="togglePanel('upkeep')">
+                            {{ toggleState.upkeep ? '-' : '+' }}
+                        </button>
+                    </div>
+
+                    <div 
+                        class="toggle-panel__body"
+                        v-show="toggleState.upkeep">
+                        <p>Upkeep is paid every {{ getUpkeepDisplayTime() }} </p>
+
+                        <ul style="width: 75%; margin: 0 auto; padding-left: 0; list-style-type: none;">
+                            <li style="display: flex; justify-content: space-between;">
+                                <span style="font-weight: bold;">Shop Upkeep</span>
+                                <span>{{ upkeep.progress }}</span>
+                            </li>
+                            <li style="display: flex; justify-content: space-between;">
+                                <span style="font-weight: bold;">Assistant Upkeep</span>
+                                <span>{{ upkeep.assistant }}</span>
+                            </li>
+                            <li><hr></li>
+                            <li style="display: flex; justify-content: space-between;">
+                                <span style="font-weight: bold;">Total</span>
+                                <span>{{ upkeep.progress + upkeep.assistant }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="toggle-panel">
+                    <div 
+                        class="toggle-panel__header"
+                        @click="togglePanel('inventory')">
+                        <div>
+                            <p class="toggle-panel__header-title">Inventory</p>
+                            <p>{{ s.gold }}gp</p>
+                        </div>
+                    
+                        <button
+                            class="minimize-button"
+                            type="button"
+                            @click.stop="togglePanel('inventory')">
+                            {{ toggleState.inventory ? '-' : '+' }}
+                        </button>
+                    </div>
+
+                    <div 
+                        v-show="toggleState.inventory"
+                        class="toggle-panel__body">
+                        <ul class="simple-list inventory" style="padding-left: 1rem;">
+                            <li v-for="category in ['ores', 'bars', 'armor', 'weapons']" :key="category">
+                                <span 
+                                    style="position: relative; display: block; margin-bottom: 0.75rem; padding: 0.25rem 0; font-size: 1.2rem; text-transform: capitalize; border-bottom: 1px solid black; cursor: pointer;"
+                                    @click="toggleInventory(category)">
+                                    {{ category }}
                                     <span 
-                                        style="position: relative; display: block; margin-bottom: 0.75rem; padding: 0.25rem 0; font-size: 1.2rem; text-transform: capitalize; border-bottom: 1px solid black; cursor: pointer;"
-                                        @click="toggleInventory(category)">
-                                        {{ category }}
-                                        <span 
-                                            style="position: absolute; right: 0;"
-                                            :style="{ transform: `rotate(${toggleState.inventory_categories[category] ?  180 : 0}deg)`, }">^</span>
-                                    </span>
-                                    <ul 
-                                        v-show="toggleState.inventory_categories[category]" 
-                                        style="padding-left: 0.75rem;">
-                                        <li v-for="invItem in s.inventory.filter((i) => getItem(i.item_id).categories.includes(category))" :key="invItem.item_id">
+                                        style="position: absolute; right: 0;"
+                                        :style="{ transform: `rotate(${toggleState.inventory_categories[category] ?  0 : 180}deg)`, }">^</span>
+                                </span>
+                                <ul 
+                                    v-show="toggleState.inventory_categories[category]" 
+                                    style="padding-left: 0.75rem;">
+                                    <li v-for="invItem in s.inventory.filter((i) => getItem(i.item_id).categories.includes(category))" :key="invItem.item_id">
+                                        <div>
+                                            {{ getItem(invItem.item_id).name }} x{{ invItem.quantity }}
                                             <div>
-                                                {{ getItem(invItem.item_id).name }} x{{ invItem.quantity }}
-                                                <div>
-                                                    <button 
-                                                        type="button"
-                                                        @click.shift="userDidSell(getItem(invItem.item_id), true)"
-                                                        @click.exact="userDidSell(getItem(invItem.item_id))"
-                                                        :disabled="!hasInventory(getItem(invItem.item_id))">$</button>
-                                                    <button 
-                                                        type="button"
-                                                        @click="userDidSell(getItem(invItem.item_id), true)"
-                                                        :disabled="!hasInventory(getItem(invItem.item_id))"
-                                                        class="mobile-only"
-                                                        style="margin-left: 1rem;">$$</button>
-                                                </div>
+                                                <button 
+                                                    type="button"
+                                                    @click.shift="userDidSell(getItem(invItem.item_id), true)"
+                                                    @click.exact="userDidSell(getItem(invItem.item_id))"
+                                                    :disabled="!hasInventory(getItem(invItem.item_id))">$</button>
+                                                <button 
+                                                    type="button"
+                                                    @click="userDidSell(getItem(invItem.item_id), true)"
+                                                    :disabled="!hasInventory(getItem(invItem.item_id))"
+                                                    class="mobile-only"
+                                                    style="margin-left: 1rem;">$$</button>
                                             </div>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
 
-                            <div style="margin-top: 1rem; text-align: right;">
-                                <button
-                                    :title="`Bank Sale! ${getBankSaleValue()}gp!`"
-                                    @click="bankSale()">
-                                    Sell All
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div>
-                    <div class="toggle-panel" style="margin-top: 1.5rem;">
-                        <div class="toggle-panel__header">
-                            <div>
-                                <p class="toggle-panel__header-title">Mining</p>
-                            </div>
+                        <div style="margin-top: 1rem; text-align: right;">
                             <button
-                                class="minimize-button"
-                                type="button"
-                                @click="togglePanel('mining')">
-                                {{ toggleState.mining ? '-' : '+' }}
+                                :title="`Bank Sale! ${getBankSaleValue()}gp!`"
+                                @click="bankSale()">
+                                Sell All
                             </button>
-                        </div>
-
-                        <div 
-                            v-show="toggleState.mining"
-                            class="toggle-panel__body">
-                            <ul class="simple-list ore-list">
-                                <li v-for="ore in availableOreList" :key="ore.item_id">
-                                    <button 
-                                        class="skill-btn" 
-                                        type="button" 
-                                        @click="userDidMine(ore)">
-                                        {{ ore.name }}
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="toggle-panel" style="margin-top: 1.5rem;">
-                        <div class="toggle-panel__header">
-                            <div>
-                                <p class="toggle-panel__header-title">Smithing</p>
-                            </div>
-                            <button
-                                class="minimize-button"
-                                type="button"
-                                @click="togglePanel('smithing')">
-                                {{ toggleState.smithing ? '-' : '+' }}
-                            </button>
-                        </div>
-
-                        <div v-show="toggleState.smithing" class="toggle-panel__body">
-                            <ul class="simple-list smithing-list">
-                                <li v-for="smithable in availableSmithableList" :key="smithable.item_id">
-                                    <button 
-                                        class="skill-btn"
-                                        type="button"
-                                        @click="userDidSmith(smithable)"
-                                        :disabled="!userCanCraft(smithable)">{{ smithable.name }}</button>
-                                </li>
-                            </ul>
                         </div>
                     </div>
                 </div>
 
                 <div class="toggle-panel" style="margin-top: 1.5rem;">
-                    <div class="toggle-panel__header">
+                    <div 
+                        class="toggle-panel__header"
+                        @click="togglePanel('mining')">
+                        <div>
+                            <p class="toggle-panel__header-title">Mining</p>
+                        </div>
+                        <button
+                            class="minimize-button"
+                            type="button"
+                            @click.prevent="togglePanel('mining')">
+                            {{ toggleState.mining ? '-' : '+' }}
+                        </button>
+                    </div>
+
+                    <div 
+                        v-show="toggleState.mining"
+                        class="toggle-panel__body">
+                        <ul class="simple-list ore-list">
+                            <li v-for="ore in availableOreList" :key="ore.item_id">
+                                <button 
+                                    class="skill-btn" 
+                                    type="button" 
+                                    @click="userDidMine(ore)">
+                                    {{ ore.name }}
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="toggle-panel" style="margin-top: 1.5rem;">
+                    <div 
+                        class="toggle-panel__header"
+                        @click="togglePanel('smithing')">
+                        <div>
+                            <p class="toggle-panel__header-title">Smithing</p>
+                        </div>
+                        <button
+                            class="minimize-button"
+                            type="button"
+                            @click.stop="togglePanel('smithing')">
+                            {{ toggleState.smithing ? '-' : '+' }}
+                        </button>
+                    </div>
+
+                    <div v-show="toggleState.smithing" class="toggle-panel__body">
+                        <ul class="simple-list smithing-list">
+                            <li 
+                                v-for="(smithables, tier) in availableSmithableList"
+                                :key="tier">
+                                <span 
+                                    style="position: relative; display: block; margin-bottom: 0.75rem; padding: 0.25rem 0; font-size: 1.2rem; text-transform: capitalize; border-bottom: 1px solid black; cursor: pointer;"
+                                    @click="toggleInventory(tier)">
+                                    {{ tier }}
+                                    <span 
+                                        style="position: absolute; right: 0;"
+                                        :style="{ transform: `rotate(${toggleState.inventory_categories[tier] ?  0 : 180}deg)`, }">^</span>
+                                </span>
+
+                                <ul 
+                                    v-show="toggleState.inventory_categories[tier]"
+                                    style="margin-top: 0.5rem; padding-left: 0;">
+                                    <li
+                                        v-for="smithable in smithables"
+                                        :key="smithable.item_id">
+                                        <button 
+                                            class="skill-btn"
+                                            type="button"
+                                            @click="userDidSmith(smithable)"
+                                            :disabled="!userCanCraft(smithable)">
+                                            {{ smithable.name }}
+                                        </button>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="toggle-panel" style="margin-top: 1.5rem;">
+                    <div 
+                        class="toggle-panel__header"
+                        @click="togglePanel('hired_assistants')">
                         <div>
                             <p class="toggle-panel__header-title">
                                 Assistants 
@@ -468,7 +545,7 @@
                         <button
                             class="minimize-button"
                             type="button"
-                            @click="togglePanel('hired_assistants')">
+                            @click.stop="togglePanel('hired_assistants')">
                             {{ toggleState.hired_assistants ? '-' : '+' }}
                         </button>
                     </div>
@@ -509,7 +586,9 @@
                 </div>
 
                 <div class="toggle-panel" style="margin-top: 1.5rem;">
-                    <div class="toggle-panel__header">
+                    <div 
+                        class="toggle-panel__header"
+                        @click="togglePanel('purchased_autoers')">
                         <div>
                             <p class="toggle-panel__header-title">Autoers</p>
                         </div>
@@ -517,7 +596,7 @@
                         <button
                             class="minimize-button"
                             type="button"
-                            @click="togglePanel('purchased_autoers')">
+                            @click.stop="togglePanel('purchased_autoers')">
                             {{ toggleState.purchased_autoers ? '-' : '+' }}
                         </button>
                     </div>
@@ -567,7 +646,9 @@
                 </div>
 
                 <div class="toggle-panel" style="margin-top: 1.5rem;">
-                    <div class="toggle-panel__header">
+                    <div 
+                        class="toggle-panel__header"
+                        @click="togglePanel('purchased_upgrades')">
                         <div>
                             <p class="toggle-panel__header-title">Current Upgrades</p>
                         </div>
@@ -575,7 +656,7 @@
                         <button
                             class="minimize-button"
                             type="button"
-                            @click="togglePanel('purchased_upgrades')">
+                            @click.stop="togglePanel('purchased_upgrades')">
                             {{ toggleState.purchased_upgrades ? '-' : '+' }}
                         </button>
                     </div>

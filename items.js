@@ -90,7 +90,7 @@ window.items = [
     success_chance: 1.0,
     xp_given: 10,
     sellable: true,
-    categories: ['bars'],
+    categories: ['bronze', 'bars'],
     ingredients: [
       {
         item_id: 'copper_ore',

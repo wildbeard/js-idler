@@ -2227,6 +2227,12 @@
             bars: true,
             armor: true,
             weapons: true,
+            // @TODO I'm lazy don't judge me
+            bronze: true,
+            iron: true,
+            steel: true,
+            starmetal: true,
+            other: true,
           },
         });
         const upkeep = computed(() => getUpkeep(s));
@@ -2237,15 +2243,34 @@
               i.level_requirements.mining <= s.value.levels.mining,
           ),
         );
-        const availableSmithableList = computed(() =>
-          // @TODO: Show quest items when a required quest is active
-          items.filter(
-            (i) =>
-              i.skill === 'smithing' &&
-              i.level <= s.value.levels.smithing &&
-              !i.categories.includes('quest_item'),
-          ),
-        );
+        const availableSmithableList = computed(() => {
+          const tiers = ['bronze', 'iron', 'steel', 'starmetal', 'other'];
+          const output = {};
+
+          tiers.forEach((t) => {
+            if (t !== 'other') {
+              output[t] = items.filter(
+                (i) =>
+                  i.skill === 'smithing' &&
+                  i.level <= s.value.levels.smithing &&
+                  i.categories.includes(t) &&
+                  !i.categories.includes('quest_item'),
+              );
+            } else {
+              output[t] = items.filter(
+                (i) =>
+                  i.skill === 'smithing' &&
+                  i.level <= s.value.levels.smithing &&
+                  !i.categories.filter((c) =>
+                    tiers.filter((a) => a !== 'other').includes(c),
+                  ).length &&
+                  !i.categories.includes('quest_item'),
+              );
+            }
+          });
+
+          return output;
+        });
         const availableQuests = computed(() =>
           quests.filter((q) => !s.value.quests_completed.includes(q.id)),
         );
