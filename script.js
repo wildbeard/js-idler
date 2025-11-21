@@ -206,7 +206,7 @@
 
 (
   function () {
-    const version = '0.1.17';
+    const version = '0.1.18';
 
     /**
      * @param {Upgrade | Autoer} props
@@ -2175,6 +2175,10 @@
         current.value.gold === null
       ) {
         current.value.gold = startingState.gold;
+      }
+
+      if (loaded.assistants.length) {
+        loaded.assistants.forEach((a) => updateAssistantJobs(a.id, current));
       }
 
       return current;
