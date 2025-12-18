@@ -461,7 +461,7 @@
                         <button
                             class="minimize-button"
                             type="button"
-                            @click.prevent="togglePanel('mining')">
+                            @click.stop="togglePanel('mining')">
                             {{ toggleState.mining ? '-' : '+' }}
                         </button>
                     </div>
