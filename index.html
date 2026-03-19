@@ -1,926 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1">
-        <style>
-            body, html {
-                width: 100%;
-                height: 100%;
-                margin: 0;
-            }
-
-            .wrapper {
-                display: flex;
-                flex-wrap: wrap;
-                padding: 0 15px;
-            }
-
-            #sidebar,
-            #rightbar {
-                order: 2;
-                width: 100%;
-            }
-
-            #main {
-                order: 1;
-                width: 100%;
-            }
-
-            .levels {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                grid-gap: 1rem;
-            }
-
-            .levels p {
-                margin: 0.50rem 0;
-            }
-
-            .levels progress {
-                width: 100%;
-            }
-
-            @media screen and (min-width: 1024px) {
-                .levels {
-                    display: block;
-                }
-            }
-
-            .available-quests li {
-                cursor: pointer;
-            }
-
-            .toggle-panel__header {
-                position: relative;
-                border-bottom: 1px solid black;
-            }
-            .toggle-panel__header:hover {
-                cursor: pointer;
-            }
-
-            .toggle-panel__header > div {
-                display: flex;
-                width: 90%;
-                justify-content: space-between;
-                align-items: center;
-            }
-
-            .toggle-panel__header-title {
-                margin: 0.75rem 0;
-                font-size: 1.6rem;
-            }
-
-            .toggle-panel__header button {
-                top: 15px;
-                right: 0;
-            }
-
-            .quest-panel {
-                position: relative;
-                margin-top: 1.5rem;
-                padding: 15px;
-                background-color: white;
-                border: 1px solid black;
-                border-radius: 0.25rem;
-            }
-
-            .minimize-button {
-                position: absolute;
-                top: 8px;
-                right: 8px;
-                width: 22px;
-                height: 22px;
-            }
-
-            .quest-title {
-                margin: 0.75rem 0 0.5rem;
-                font-size: 1.25rem;
-                text-align: center;
-            }
-
-            .floating-window {
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                width: 450px;
-                max-width: 85%;
-                padding: 15px;
-                background: white;
-                border: 1px solid black;
-                border-radius: 0.5rem;;
-                transform: translate(-50%, -50%);
-                z-index: 1;
-            }
-
-            .floating-window__body {
-                min-height: 250px;
-                max-height: 450px;
-                overflow: scroll;
-            }
-
-            .skill-btn {
-                min-width: 165px;
-                padding: 8px 12px;
-                text-align: center;
-            }
-
-            .simple-list li {
-                margin-bottom: 0.5rem;
-            }
-
-            .inventory div {
-                display: flex;
-                justify-content: space-between;
-            }
-
-            @media screen and (min-height: 650px) and (max-height: 1080px) {
-                .floating-window__body {
-                    max-height: 375px;
-                }
-            }
-
-            @media screen and (min-width: 1024px) {
-                .mobile-only {
-                    display: none;
-                }
-
-                #sidebar,
-                #rightbar {
-                    flex: 0 1 25%;
-                }
-
-                #sidebar {
-                    order: 1;
-                    max-width: 250px;
-                }
-
-                #rightbar {
-                    order: 2;
-                    max-width: 275px;
-                }
-
-                #main {
-                    display: flex;
-                    flex: 1 0 50%;
-                    order: 2;
-                    justify-content: center;
-                    margin-top: 15px;
-                }
-
-                #main > div {
-                    width: 50%;
-                    padding: 0 15px;
-                }
-            }
-        </style>
-        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    </head>
-
-    <body>
-        <div class="wrapper">
-            <div
-                v-if="firingAssistant"
-                class="floating-window assistant-config">
-                <p>Are you sure you want to fire <span style="font-weight: bold; text-decoration: underline;">{{ firingAssistant.name }}</span>? This action cannot be undone!</p>
-
-                <div style="text-align: center;">
-                    <button style="margin-right: 15px;" @click="fireAssistant(firingAssistant)">Fire</button>
-                    <button @click="cancelFiring()">Cancel</button>
-                </div>
-            </div>
-
-            <div 
-                v-if="configuringAssistant"
-                class="floating-window assistant-config">
-                <p style="font-size: 1.4rem;">{{ configuringAssistant.name }}</p>
-                <p>{{ configuringAssistant.name }} will randomly perform one of the following tasks:</p>
-            
-                <div class="floating-window__body">
-                <!-- Hard coding this for now -->
-                    <template v-if="configuringAssistant.skills.includes('mining')">
-                        Mining
-                        <ul>
-                            <li 
-                                v-for="item in items.filter((i) => i.skill === 'mining' && i.level <= s.levels.mining)"
-                                :key="item.item_id">
-                                <label>
-                                    <input 
-                                        type="checkbox" 
-                                        :value="item.item_id"
-                                        v-model="configuringAssistantConfig.mining">
-                                    {{ getItem(item.item_id)?.name }}
-                                </label>
-                            </li>
-                        </ul>
-                    </template>
-                    <template v-else-if="configuringAssistant.skills.includes('smithing')">
-                        Smithing
-                        <ul>
-                            <li 
-                                v-for="item in items.filter((i) => i.skill === 'smithing' && i.level <= s.levels.smithing && i.sellable)"
-                                :key="item.item_id">
-                                <label>
-                                    <input 
-                                        type="checkbox"
-                                        :value="item.item_id"
-                                        v-model="configuringAssistantConfig.smithing">
-                                        {{ item.name }}
-                                </label>
-                            </li>
-                        </ul>
-                    </template>
-                    <template v-else>
-                        Selling
-                        <ul>
-                            <li
-                                v-for="item in items.filter((i) => i.level <= s.levels[i.skill] && i.sellable)"
-                                :key="item.item_id">
-                                <label>
-                                    <input 
-                                        type="checkbox"
-                                        v-model="configuringAssistantConfig.selling[item.item_id].checked">
-                                        {{ getItem(item.item_id)?.name }}
-                                </label>
-
-                                <div 
-                                    v-if="configuringAssistantConfig.selling[item.item_id].checked"
-                                    style="display: flex; flex-wrap: wrap;">
-                                    <label style="flex: 0 0 100%;">
-                                        <input 
-                                            type="radio"
-                                            :name="`sell_method_${item.item_id}_all`"
-                                            v-model="configuringAssistantConfig.selling[item.item_id].method"
-                                            value="all">
-                                            Sell All
-                                    </label>
-                                    <label style="flex: 0 0 100%;">
-                                        <input 
-                                            type="radio"
-                                            :name="`sell_method_${item.item_id}_sell_x`"
-                                            v-model="configuringAssistantConfig.selling[item.item_id].method"
-                                            value="sell_x">
-                                        Sell X
-                                    </label>
-                                    <label style="flex: 0 0 100%;">
-                                        <input 
-                                            type="radio"
-                                            :name="`sell_method_${item.item_id}_keep_x`"
-                                            v-model="configuringAssistantConfig.selling[item.item_id].method"
-                                            value="keep_x">
-                                        Keep X in Inventory
-                                    </label>
-                                    <label 
-                                        v-if="configuringAssistantConfig.selling[item.item_id].method !== 'all'"
-                                        style="flex: 0 0 calc(100% - 4px); margin-left: 4px;">
-                                        {{ configuringAssistantConfig.selling[item.item_id].method === 'sell_x' ? 'Sell' : 'Keep' }}
-                                        <input 
-                                            type="number"
-                                            :name="`sell_method_${item.item_id}_x`"
-                                            v-model="configuringAssistantConfig.selling[item.item_id].value"
-                                            min="0"
-                                            value="0">
-                                    </label>
-                                </div>
-                            </li>
-                        </ul>
-                    </template>
-                </div>
-
-                <div style="margin-top: 1rem; text-align: right;">
-                    <button
-                        style="margin-right: 15px;"
-                        @click="saveAssistantConfig(configuringAssistant)">Save</button>
-                    <button @click="() => {configuringAssistant = null}">Cancel</button>
-                </div>
-            </div>
-
-            <div 
-                v-if="statsShown"
-                class="stats"
-                style="flex: 1 0 100%;">
-                <p>Lifetime Gold: {{ s.stats.lifetime_wealth }}</p>
-
-                <p>Gathered Material</p>
-                <ul>
-                    <li
-                        v-for="gather in s.stats.gathers"
-                        :key="gather.item_id">
-                        {{ `${getItem(gather.item_id)?.name}: ${gather.value}` }}
-                    </li>
-                </ul>
-
-                <p>Crafted Items</p>
-                <ul>
-                    <li
-                        v-for="craft in s.stats.crafts"
-                        :key="craft.item_id">
-                        {{ `${getItem(craft.item_id)?.name}: ${craft.value}` }}
-                    </li>
-                </ul>
-
-                <p>Gold from Selling</p>
-                <ul>
-                    <li
-                        v-for="sale in s.stats.sales"
-                        :key="sale.item_id">
-                        {{ `${getItem(sale.item_id)?.name}: ${sale.value}gp` }}
-                    </li>
-                </ul>
-            </div>
-
-            <div id="sidebar">
-                <div>
-                    <p style="font-size: 1.6rem; line-height: 1.2;">Levels</p>
-
-                    <div class="levels">
-                        <div>
-                            <p>Mining {{ s.levels.mining }}</p>
-                            <progress :value="xpForSkill('mining')" max="100" :title="s.xp.mining" />
-                        </div>
-
-                        <div>
-                            <p>Smithing {{ s.levels.smithing }}</p>
-                            <progress :value="xpForSkill('smithing')" max="100" />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="toggle-panel">
-                    <div 
-                        class="toggle-panel__header"
-                        @click="togglePanel('upkeep')">
-                        <div>
-                            <p class="toggle-panel__header-title">Upkeep</p>
-                            {{ upkeep.progress + upkeep.assistant }}gp
-                        </div>
-
-                        <button
-                            class="minimize-button"
-                            type="button"
-                            @click.stop="togglePanel('upkeep')">
-                            {{ toggleState.upkeep ? '-' : '+' }}
-                        </button>
-                    </div>
-
-                    <div 
-                        class="toggle-panel__body"
-                        v-show="toggleState.upkeep">
-                        <p>Upkeep is paid every {{ getUpkeepDisplayTime() }} </p>
-
-                        <ul style="width: 75%; margin: 0 auto; padding-left: 0; list-style-type: none;">
-                            <li style="display: flex; justify-content: space-between;">
-                                <span style="font-weight: bold;">Shop Upkeep</span>
-                                <span>{{ upkeep.progress }}</span>
-                            </li>
-                            <li style="display: flex; justify-content: space-between;">
-                                <span style="font-weight: bold;">Assistant Upkeep</span>
-                                <span>{{ upkeep.assistant }}</span>
-                            </li>
-                            <li><hr></li>
-                            <li style="display: flex; justify-content: space-between;">
-                                <span style="font-weight: bold;">Total</span>
-                                <span>{{ upkeep.progress + upkeep.assistant }}</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="toggle-panel">
-                    <div 
-                        class="toggle-panel__header"
-                        @click="togglePanel('inventory')">
-                        <div>
-                            <p class="toggle-panel__header-title">Inventory</p>
-                            <p>{{ s.gold }}gp</p>
-                        </div>
-                    
-                        <button
-                            class="minimize-button"
-                            type="button"
-                            @click.stop="togglePanel('inventory')">
-                            {{ toggleState.inventory ? '-' : '+' }}
-                        </button>
-                    </div>
-
-                    <div 
-                        v-show="toggleState.inventory"
-                        class="toggle-panel__body">
-                        <ul class="simple-list inventory" style="padding-left: 1rem;">
-                            <li v-for="category in ['ores', 'bars', 'armor', 'weapons']" :key="category">
-                                <span 
-                                    style="position: relative; display: block; margin-bottom: 0.75rem; padding: 0.25rem 0; font-size: 1.2rem; text-transform: capitalize; border-bottom: 1px solid black; cursor: pointer;"
-                                    @click="toggleInventory(category)">
-                                    {{ category }}
-                                    <span 
-                                        style="position: absolute; right: 0;"
-                                        :style="{ transform: `rotate(${toggleState.inventory_categories[category] ?  0 : 180}deg)`, }">^</span>
-                                </span>
-                                <ul 
-                                    v-show="toggleState.inventory_categories[category]" 
-                                    style="padding-left: 0.75rem;">
-                                    <li v-for="invItem in s.inventory.filter((i) => getItem(i.item_id).categories.includes(category))" :key="invItem.item_id">
-                                        <div>
-                                            {{ getItem(invItem.item_id).name }} x{{ invItem.quantity }}
-                                            <div>
-                                                <button 
-                                                    type="button"
-                                                    @click.shift="userDidSell(getItem(invItem.item_id), true)"
-                                                    @click.exact="userDidSell(getItem(invItem.item_id))"
-                                                    :disabled="!hasInventory(getItem(invItem.item_id))">$</button>
-                                                <button 
-                                                    type="button"
-                                                    @click="userDidSell(getItem(invItem.item_id), true)"
-                                                    :disabled="!hasInventory(getItem(invItem.item_id))"
-                                                    class="mobile-only"
-                                                    style="margin-left: 1rem;">$$</button>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-
-                        <div style="margin-top: 1rem; text-align: right;">
-                            <button
-                                :title="`Bank Sale! ${getBankSaleValue()}gp!`"
-                                @click="bankSale()">
-                                Sell All
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="toggle-panel" style="margin-top: 1.5rem;">
-                    <div 
-                        class="toggle-panel__header"
-                        @click="togglePanel('mining')">
-                        <div>
-                            <p class="toggle-panel__header-title">Mining</p>
-                        </div>
-                        <button
-                            class="minimize-button"
-                            type="button"
-                            @click.stop="togglePanel('mining')">
-                            {{ toggleState.mining ? '-' : '+' }}
-                        </button>
-                    </div>
-
-                    <div 
-                        v-show="toggleState.mining"
-                        class="toggle-panel__body">
-                        <ul class="simple-list ore-list">
-                            <li v-for="ore in availableOreList" :key="ore.item_id">
-                                <button 
-                                    class="skill-btn" 
-                                    type="button" 
-                                    @click="userDidMine(ore)">
-                                    {{ ore.name }}
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="toggle-panel" style="margin-top: 1.5rem;">
-                    <div 
-                        class="toggle-panel__header"
-                        @click="togglePanel('smithing')">
-                        <div>
-                            <p class="toggle-panel__header-title">Smithing</p>
-                        </div>
-                        <button
-                            class="minimize-button"
-                            type="button"
-                            @click.stop="togglePanel('smithing')">
-                            {{ toggleState.smithing ? '-' : '+' }}
-                        </button>
-                    </div>
-
-                    <div v-show="toggleState.smithing" class="toggle-panel__body">
-                        <ul class="simple-list smithing-list">
-                            <li 
-                                v-for="(smithables, tier) in availableSmithableList"
-                                :key="tier">
-                                <span 
-                                    style="position: relative; display: block; margin-bottom: 0.75rem; padding: 0.25rem 0; font-size: 1.2rem; text-transform: capitalize; border-bottom: 1px solid black; cursor: pointer;"
-                                    @click="toggleInventory(tier)">
-                                    {{ tier }}
-                                    <span 
-                                        style="position: absolute; right: 0;"
-                                        :style="{ transform: `rotate(${toggleState.inventory_categories[tier] ?  0 : 180}deg)`, }">^</span>
-                                </span>
-
-                                <ul 
-                                    v-show="toggleState.inventory_categories[tier]"
-                                    style="margin-top: 0.5rem; padding-left: 0;">
-                                    <li
-                                        v-for="smithable in smithables"
-                                        :key="smithable.item_id">
-                                        <button 
-                                            class="skill-btn"
-                                            type="button"
-                                            @click="userDidSmith(smithable)"
-                                            :disabled="!userCanCraft(smithable)">
-                                            {{ smithable.name }}
-                                        </button>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="toggle-panel" style="margin-top: 1.5rem;">
-                    <div 
-                        class="toggle-panel__header"
-                        @click="togglePanel('hired_assistants')">
-                        <div>
-                            <p class="toggle-panel__header-title">
-                                Assistants 
-                                <span style="font-size: 0.85rem;">({{ `${s.assistants.length}/${s.global_variables.max_assistants}` }})</span>
-                            </p>
-                        </div>
-
-                        <button
-                            class="minimize-button"
-                            type="button"
-                            @click.stop="togglePanel('hired_assistants')">
-                            {{ toggleState.hired_assistants ? '-' : '+' }}
-                        </button>
-                    </div>
-
-                    <div v-show="toggleState.hired_assistants" class="toggle-panel__body">
-                        <ul>
-                            <li v-if="!s.assistants.length">None Hired</li>
-                            <li
-                                v-for="assistant in s.assistants"
-                                :key="assistant.id"
-                                style="margin-bottom: 1rem;">
-                                {{ assistant.name }} <br>
-                                Assistant Speed: {{ (assistant.interval / 1000).toFixed(2) }}s<br>
-                                Assistant Wages: {{ assistant.cost_per_action }}gp<br>
-                                Assistant is: {{ getAssistantJob(assistant) }}<br>
-                                Assistant Perk: {{ assistant.perk.description }}<br>
-                                <button
-                                    type="button"
-                                    @click="upgradeAssistant(assistant)"
-                                    :title="getAssistantUpgradeTitle(assistant)"
-                                    :disabled="!canUpgradeAssistant(assistant)">
-                                    <template v-if="!isAssistantMaxed(assistant)">
-                                        Train {{ getAssistantUpgradeCost(assistant) }}gp
-                                    </template>
-                                    <template v-else>
-                                        Max Level
-                                    </template>
-                                </button>
-                                <button
-                                    type="button"
-                                    @click="editAssistant(assistant)">Edit Job</button>
-                                <button
-                                    type="button"
-                                    @click="confirmFireAssistant(assistant)">Fire Assistant</button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="toggle-panel" style="margin-top: 1.5rem;">
-                    <div 
-                        class="toggle-panel__header"
-                        @click="togglePanel('purchased_autoers')">
-                        <div>
-                            <p class="toggle-panel__header-title">Autoers</p>
-                        </div>
-
-                        <button
-                            class="minimize-button"
-                            type="button"
-                            @click.stop="togglePanel('purchased_autoers')">
-                            {{ toggleState.purchased_autoers ? '-' : '+' }}
-                        </button>
-                    </div>
-
-                    <div v-show="toggleState.purchased_autoers" class="toggle-panel__body">
-                        <ul>
-                            <li v-if="!s.purchased_autoers.length">None Purchased</li>
-                            <li 
-                                v-for="autoerGroup in autoerGroups"
-                                :key="autoerGroup.id">
-                                <p style="font-size: 1.2rem;">{{ autoerGroup.name }}</p>
-                                <ul>
-                                    <li 
-                                        v-for="autoer in s.purchased_autoers.filter((a) => a.id === autoerGroup.id)"
-                                        :key="autoer.id"
-                                        style="margin-bottom: 1rem;">
-                                        {{ autoer.name }} <br>
-                                        <span v-html="autoer.getUpgradeValueText({ value: s })"></span><br>
-                                        <template v-if="!autoer.getUpgradeRequirementText({ value: s }).length">
-                                            Max Level
-                                        </template>
-                                        <template v-else>
-                                            <p style="margin: 0.25rem 0;">Upgrade Requirements</p>
-                                            <p style="margin: 0;">Levels: {{ autoer.getUpgradeRequirementText({ value: s }).join(',') }}</p>
-                                            <p style="margin: 0 0 0.25rem;">Gold: {{ autoer.getUpgradeCost({ value: s }) }}</p>
-
-                                            <button
-                                                type="button"
-                                                :title="autoer.description"
-                                                @click="userPurchasedUpgrade(autoer)"
-                                                :disabled="!autoer.canUpgrade({ value: s })">
-                                                Upgrade
-                                            </button>
-                                        </template>
-
-                                        <br>
-                                        <button
-                                            type="button"
-                                            @click="autoer.toggleState({ value: s })">
-                                            {{ autoer.isRunning({ value: s }) ? 'Pause' : 'Start' }}
-                                        </button>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="toggle-panel" style="margin-top: 1.5rem;">
-                    <div 
-                        class="toggle-panel__header"
-                        @click="togglePanel('purchased_upgrades')">
-                        <div>
-                            <p class="toggle-panel__header-title">Current Upgrades</p>
-                        </div>
-
-                        <button
-                            class="minimize-button"
-                            type="button"
-                            @click.stop="togglePanel('purchased_upgrades')">
-                            {{ toggleState.purchased_upgrades ? '-' : '+' }}
-                        </button>
-                    </div>
-
-                    <div v-show="toggleState.purchased_upgrades" class="toggle-panel__body">
-                        <ul class="available-upgrades">
-                            <li v-if="!s.upgrades.length">None Purchased</li>
-                            <li 
-                                v-for="upgrade in s.upgrades" 
-                                :key="upgrade.id">
-                                <span style="font-weight: bold;">{{ upgrade.name }}</span>
-                                <span style="padding-left: 5px; font-size: 0.8rem; font-weight: bold;">
-                                    <template v-if="!upgrade.getUpgradeRequirementText({ value: s }).length">
-                                        [Max]
-                                    </template>
-                                    <template v-else>
-                                        [{{ upgrade.level + 1 }} / {{ upgrade.upgrades.length }}]
-                                    </template>
-                                </span>
-                                <br>
-                                <template v-if="upgrade.id.includes('excess')">
-                                    {{ upgrade.value < 1 ? `${Math.floor(upgrade.value * 100)}%` : `${upgrade.value*100}%` }} chance to get an extra item.
-                                </template>
-                                <template v-else>
-                                    {{ upgrade.getUpgradeValueText({ value: s }) }}
-                                </template>
-                                <template v-if="upgrade.getUpgradeRequirementText({ value: s }).length">
-                                    <br>
-                                    <p style="margin: 0.25rem 0;">
-                                        Next Value: {{ upgrade.getUpgradeValueText({ value: s }, true) }}
-                                    </p>
-                                    <p style="margin: 0.25rem 0;">Upgrade Requirements</p>
-                                    <p style="margin: 0;">Levels: {{ upgrade.getUpgradeRequirementText({ value: s}).join(',') }}</p>
-                                    <p style="margin: 0 0 0.25rem;">Gold: {{ upgrade.getUpgradeCost({ value: s }) }}</p>
-
-                                    <button
-                                        type="button"
-                                        :title="upgrade.description"
-                                        @click="userPurchasedUpgrade(upgrade)"
-                                        :disabled="!upgrade.canUpgrade({ value: s })">
-                                        Upgrade
-                                    </button>
-                                </template>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <div id="main">
-                <div>
-                    <div class="quest-panel" v-if="viewingQuest">
-                        <button 
-                            class="minimize-button"
-                            type="button"
-                            @click="togglePanel('quest')">
-                            {{ !toggleState.quest ? '-' : '+' }}
-                        </button>
-                        <h2 class="quest-title">{{ viewingQuest.name }}</h2>
-                        
-                        <div 
-                            v-if="!toggleState.quest"
-                            class="quest-body">
-                            <p class="quest-desc">{{ viewingQuest.description }}</p>
-                            <div class="requirements">
-                                <div class="quest-level-requirements">
-                                    <p>Level Requirements</p>
-                                    <ul class="level-reqs">
-                                        <li v-for="(value, levelKey) in viewingQuest.requirements.levels" :key="levelKey">
-                                            <span :style="{ color: s.levels[levelKey] >= value ? 'green' : 'red' }">
-                                                {{ `${levelKey}: ${value}` }}
-                                            </span>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <div class="quest-quest-requirements">
-                                    <p>Quest Requirements</p>
-                                    <ul 
-                                        v-if="viewingQuest.requirements.quests.length"
-                                        class="quest-reqs">
-                                        <li 
-                                            v-for="questId in viewingQuest.requirements.quests"
-                                            :key="questId">
-                                            {{ getQuest(questId)?.name }}
-                                        </li>
-                                    </ul>
-                                    <p v-else>None</p>
-                                </div>
-                            </div>
-
-                            <div>
-                                <p>Rewards</p>
-                                <ul class="quest-rewards">
-                                    <li v-for="(reward, idx) in viewingQuest.rewards" :key="idx">
-                                        <template v-if="reward.category === 'experience'">
-                                            {{ `${reward.value} ${reward.affects} xp` }}
-                                        </template>
-                                        <template v-else-if="reward.category === 'item' && getItem(reward.item_id)">
-                                            <template v-if="reward.value === 1">
-                                                {{ `${getItem(reward.item_id).name}` }}
-                                            </template>
-                                            <template v-else>
-                                                {{ `${reward.value}x ${getItem(reward.item_id).name}` }}
-                                            </template>
-                                        </template>
-                                        <template v-else-if="reward.category === 'money'">
-                                            {{ `${reward.value} gold` }}
-                                        </template>
-                                        <template v-else-if="reward.category === 'assistant'">
-                                            A {{ reward.affects }} assistant
-                                        </template>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div style="text-align: right;">
-                                <button 
-                                    v-if="!isQuestStarted(viewingQuest)"
-                                    type="button"
-                                    class="start-quest"
-                                    @click="acceptQuest(viewingQuest)"
-                                    :disabled="!canStartQuest(viewingQuest)">
-                                    Start
-                                </button>
-                                <button 
-                                    v-if="isQuestStarted(viewingQuest)"
-                                    type="button"
-                                    class="complete-quest"
-                                    :disabled="!canCompleteQuest(viewingQuest)">
-                                    Complete
-                                </button>
-                                <button
-                                    v-if="isQuestStarted(viewingQuest)"
-                                    type="button"
-                                    @click="closeQuestPanel(viewingQuest)"
-                                    style="margin-left: 1rem;">
-                                    Cancel
-                                </button>
-                            </div>
-
-                            <hr v-if="currentQuest && currentQuest.id === viewingQuest.id" style="margin: 1rem 0;">
-
-                            <div v-if="currentQuest && currentQuest.id === viewingQuest.id" class="current-quest">
-                                <p class="quest-title">Quest Progress</p>
-
-                                <ul class="quest-steps">
-                                    <li 
-                                        v-for="questStep in currentQuest.steps"
-                                        :style="{
-                                            textDecoration: getCurrentQuestStep() > questStep.id ? 'line-through' : 'none',
-                                        }">
-                                        {{ questStep.description }}
-                                    </li>
-                                </ul>
-
-                                <div style="text-align: right;">
-                                    <button 
-                                        type="button"
-                                        class="complete-step"
-                                        @click="completeQuestStep"
-                                        :disabled="!canCompleteQuestStep(currentQuest)">Complete Step</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <div id="rightbar">
-                <div>
-                    <p>Available Autoers</p>
-                    <ul class="available-autoers">
-                        <li v-if="!availableAutoers.length">None Available</li>
-                        <li 
-                            v-for="autoer in availableAutoers"
-                            :key="autoer.id"
-                            style="margin-bottom: 0.75rem;">
-                            {{ autoer.name }} | {{ autoer.getUpgradeCost({ value: s }) }}gp <br>
-                            <span v-html="autoer.getUpgradeValueText({ value: s })"></span><br>
-
-                            <template v-if="s.purchased_autoers.filter((a) => a.id === autoer.id).length">
-                                <p style="display: inline-block; margin: 0 0.5rem 0 0;">Own: {{ s.purchased_autoers.filter((a) => a.id === autoer.id).length }}</p>
-                            </template>
-
-                            <button
-                                type="button"
-                                :title="autoer.description"
-                                @click="userPurchasedUpgrade(autoer)"
-                                :disabled="!autoer.canUpgrade({ value: s })"
-                                style="margin-top: 0.50rem;">
-                                Buy
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-
-                <div>
-                    <p>Available Assistants</p>
-                    <ul class="available-assistants">
-                        <li 
-                            v-if="availableAssistants.length"
-                            v-for="assistant in availableAssistants"
-                            :key="assistant.id">
-                            Name: {{ assistant.name }} <br>
-                            Skills: {{ assistant.skills.join(',') }} <br>
-                            Perk: {{ assistant.perk.description }} <br>
-                            Wages: {{ assistant.cost_per_action }}gp <br>
-                            <button
-                                type="button"
-                                :disabled="!canHireAssistant(assistant)"
-                                @click="hireAssistant(assistant)">
-                                Hire for {{ getAssistantCost(assistant) }}
-                            </button>
-                        </li>
-                        <li v-else>None Available</li>
-                    </ul>
-                </div>
-
-                <div>
-                    <p>Available Upgrades</p>
-                    <ul class="available-upgrades">
-                        <li v-if="!availableUpgrades.length">None Available</li>
-                        <li 
-                            v-for="upgrade in availableUpgrades"
-                            :key="upgrade.id"
-                            style="margin-bottom: 0.75rem;">
-                            <span style="font-weight: bold;">{{ upgrade.name }}</span> <br>
-                            {{ upgrade.description }} <br>
-                            {{ upgrade.getUpgradeValueText({ value: s }) }}<br>
-                            Costs: {{ upgrade.getUpgradeCost({ value: s }) }}gp <br>
-                            <button 
-                                type="button"
-                                :title="upgrade.description ?? 'An upgrade'"
-                                @click="userPurchasedUpgrade(upgrade)"
-                                :disabled="!upgrade.canUpgrade({ value: s })"
-                                style="margin-top: 0.25rem;">
-                                Buy
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-
-                <div>
-                    <p>Quests</p>
-                    <ul class="available-quests">
-                        <li v-if="!availableQuests.length">- All Quests Completed -</li>
-                        <li 
-                            v-for="quest in availableQuests"
-                            :key="quest.id"
-                            @click="updateQuestPanel(quest)">
-                            <span :style="{ color: canStartQuest(quest) ? 'black' : 'red' }">{{ quest.name }}</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <script src="upgrades.js"></script>
-        <script src="autoers.js"></script>
-        <script src="resourcenodes.js"></script>
-        <script src="items.js"></script>
-        <script src="quests.js"></script>
-        <script src="script.js"></script>
-    </body>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1" />
+    <style>
+      body, html {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+      }
+
+      .wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0 15px;
+      }
+
+      #sidebar,
+      #rightbar {
+        order: 2;
+        width: 100%;
+      }
+
+      #main {
+        order: 1;
+        width: 100%;
+      }
+
+      .levels {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 1rem;
+      }
+
+      .levels p {
+        margin: 0.50rem 0;
+      }
+
+      .levels progress {
+        width: 100%;
+      }
+
+      @media screen and (min-width: 1024px) {
+        .levels {
+          display: block;
+        }
+      }
+
+      .available-quests li {
+        cursor: pointer;
+      }
+
+      .toggle-panel__header {
+        position: relative;
+        border-bottom: 1px solid black;
+      }
+      .toggle-panel__header:hover {
+        cursor: pointer;
+      }
+
+      .toggle-panel__header > div {
+        display: flex;
+        width: 90%;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .toggle-panel__header-title {
+        margin: 0.75rem 0;
+        font-size: 1.6rem;
+      }
+
+      .toggle-panel__header button {
+        top: 15px;
+        right: 0;
+      }
+
+      .quest-panel {
+        position: relative;
+        margin-top: 1.5rem;
+        padding: 15px;
+        background-color: white;
+        border: 1px solid black;
+        border-radius: 0.25rem;
+      }
+
+      .minimize-button {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 22px;
+        height: 22px;
+      }
+
+      .quest-title {
+        margin: 0.75rem 0 0.5rem;
+        font-size: 1.25rem;
+        text-align: center;
+      }
+
+      .floating-window {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        width: 450px;
+        max-width: 85%;
+        padding: 15px;
+        background: white;
+        border: 1px solid black;
+        border-radius: 0.5rem;
+        transform: translate(-50%, -50%);
+        z-index: 1;
+      }
+
+      .floating-window__body {
+        min-height: 250px;
+        max-height: 450px;
+        overflow: scroll;
+      }
+
+      .skill-btn {
+        min-width: 165px;
+        padding: 8px 12px;
+        text-align: center;
+      }
+
+      .simple-list li {
+        margin-bottom: 0.5rem;
+      }
+
+      .inventory div {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      @media screen and (min-height: 650px) and (max-height: 1080px) {
+        .floating-window__body {
+          max-height: 375px;
+        }
+      }
+
+      @media screen and (min-width: 1024px) {
+        .mobile-only {
+          display: none;
+        }
+
+        #sidebar,
+        #rightbar {
+          flex: 0 1 25%;
+        }
+
+        #sidebar {
+          order: 1;
+          max-width: 250px;
+        }
+
+        #rightbar {
+          order: 2;
+          max-width: 275px;
+        }
+
+        #main {
+          display: flex;
+          flex: 1 0 50%;
+          order: 2;
+          justify-content: center;
+          margin-top: 15px;
+        }
+
+        #main > div {
+          width: 50%;
+          padding: 0 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>
