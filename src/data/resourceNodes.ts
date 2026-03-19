@@ -1,4 +1,4 @@
-import type { ResourceNode } from '../types'
+import type { ResourceNode } from '@/types';
 
 export const resourceNodes: ResourceNode[] = [
   {
@@ -8,8 +8,20 @@ export const resourceNodes: ResourceNode[] = [
     skill: 'mining',
     level_requirements: { mining: 1 },
     yields: [
-      { item_id: 'copper_ore', xp_given: 10, success_chance: 1.0, quantity: 1, is_rare: false },
-      { item_id: 'uncut_emerald', xp_given: 0, success_change: 0.02, quantity: 1, is_rare: true },
+      {
+        item_id: 'copper_ore',
+        xp_given: 10,
+        success_chance: 1.0,
+        quantity: 1,
+        is_rare: false,
+      },
+      {
+        item_id: 'uncut_emerald',
+        xp_given: 0,
+        success_change: 0.02,
+        quantity: 1,
+        is_rare: true,
+      },
     ],
   },
   {
@@ -19,8 +31,20 @@ export const resourceNodes: ResourceNode[] = [
     skill: 'mining',
     level_requirements: { mining: 1 },
     yields: [
-      { item_id: 'tin_ore', xp_given: 10, success_chance: 1.0, quantity: 1, is_rare: false },
-      { item_id: 'uncut_emerald', xp_given: 0, success_change: 0.02, quantity: 1, is_rare: true },
+      {
+        item_id: 'tin_ore',
+        xp_given: 10,
+        success_chance: 1.0,
+        quantity: 1,
+        is_rare: false,
+      },
+      {
+        item_id: 'uncut_emerald',
+        xp_given: 0,
+        success_change: 0.02,
+        quantity: 1,
+        is_rare: true,
+      },
     ],
   },
   {
@@ -30,8 +54,20 @@ export const resourceNodes: ResourceNode[] = [
     skill: 'mining',
     level_requirements: { mining: 10 },
     yields: [
-      { item_id: 'iron_ore', xp_given: 20, success_chance: 0.75, quantity: 1, is_rare: false },
-      { item_id: 'uncut_emerald', xp_given: 0, success_change: 0.04, quantity: 1, is_rare: true },
+      {
+        item_id: 'iron_ore',
+        xp_given: 20,
+        success_chance: 0.75,
+        quantity: 1,
+        is_rare: false,
+      },
+      {
+        item_id: 'uncut_emerald',
+        xp_given: 0,
+        success_change: 0.04,
+        quantity: 1,
+        is_rare: true,
+      },
     ],
   },
   {
@@ -41,7 +77,13 @@ export const resourceNodes: ResourceNode[] = [
     skill: 'mining',
     level_requirements: { mining: 10 },
     yields: [
-      { item_id: 'coal', xp_given: 20, success_chance: 1.0, quantity: 1, is_rare: false },
+      {
+        item_id: 'coal',
+        xp_given: 20,
+        success_chance: 1.0,
+        quantity: 1,
+        is_rare: false,
+      },
     ],
   },
   {
@@ -51,7 +93,13 @@ export const resourceNodes: ResourceNode[] = [
     description: 'A deposit of precious silver metal.',
     level_requirements: { mining: 20 },
     yields: [
-      { item_id: 'silver_ore', xp_given: 24, success_chance: 1.0, quantity: 1, is_rare: false },
+      {
+        item_id: 'silver_ore',
+        xp_given: 24,
+        success_chance: 1.0,
+        quantity: 1,
+        is_rare: false,
+      },
     ],
   },
   {
@@ -61,7 +109,13 @@ export const resourceNodes: ResourceNode[] = [
     description: '',
     level_requirements: { mining: 30 },
     yields: [
-      { item_id: 'gold_ore', xp_given: 65, success_chance: 1.0, quantity: 1, is_rare: false },
+      {
+        item_id: 'gold_ore',
+        xp_given: 65,
+        success_chance: 1.0,
+        quantity: 1,
+        is_rare: false,
+      },
     ],
   },
   {
@@ -71,7 +125,13 @@ export const resourceNodes: ResourceNode[] = [
     skill: 'mining',
     level_requirements: { mining: 30 },
     yields: [
-      { item_id: 'starmetal_ore', xp_given: 38, success_chance: 0.65, quantity: 1, is_rare: false },
+      {
+        item_id: 'starmetal_ore',
+        xp_given: 38,
+        success_chance: 0.65,
+        quantity: 1,
+        is_rare: false,
+      },
     ],
   },
-]
+];

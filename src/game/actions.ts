@@ -1,11 +1,11 @@
-import type { GameState, Item, ResourceNode } from '../types';
+import type { GameState, Item, ResourceNode } from '@/types';
 import { mine, hasIngredientsFor } from './mining';
 import { smith } from './smithing';
 import { sellItem } from './selling';
 import { updateInventory, updateStats } from './inventory';
 import { updateXp } from './skills';
-import { items } from '../data/items';
-import { upgrades as upgradeData } from '../data/upgrades';
+import { items } from '@/data/items';
+import { upgrades as upgradeData } from '@/data/upgrades';
 
 export function autoerAction(
   stateRef: { value: GameState },
@@ -20,8 +20,10 @@ export function autoerAction(
   let qty = 0;
 
   if (xpPercentUpgrade) {
-    const staticData = upgradeData.find((u) => u.id === xpPercentUpgrade.id)
-    xpPercent = staticData?.upgrades.find((u) => u.level === xpPercentUpgrade.level)?.value ?? 0;
+    const staticData = upgradeData.find((u) => u.id === xpPercentUpgrade.id);
+    xpPercent =
+      staticData?.upgrades.find((u) => u.level === xpPercentUpgrade.level)
+        ?.value ?? 0;
   }
 
   switch (action) {

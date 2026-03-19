@@ -1,4 +1,4 @@
-import type { Item } from '../types'
+import type { Item } from '@/types';
 
 export const items: Item[] = [
   {
@@ -159,7 +159,8 @@ export const items: Item[] = [
     value: 78,
     skill: 'smithing',
     name: 'Iron Chain Vest',
-    description: 'If you like it, you should put a ring on it. Or several thousand.',
+    description:
+      'If you like it, you should put a ring on it. Or several thousand.',
     success_chance: 1.0,
     sellable: true,
     xp_given: 60,
@@ -238,7 +239,8 @@ export const items: Item[] = [
     level: 20,
     skill: 'smithing',
     name: 'Suspiciously Ornate Necklace',
-    description: "Wow, this necklace is gorgeous but there's something off about it.",
+    description:
+      "Wow, this necklace is gorgeous but there's something off about it.",
     xp_given: 85,
     sellable: true,
     success_chance: 1.0,
@@ -325,7 +327,8 @@ export const items: Item[] = [
     level: 40,
     skill: 'smithing',
     name: 'Starmetal Plate Armor',
-    description: 'Heavy armor crafted from the rarest starmetal, offering unmatched protection.',
+    description:
+      'Heavy armor crafted from the rarest starmetal, offering unmatched protection.',
     success_chance: 1,
     sellable: true,
     xp_given: 1650,
@@ -357,7 +360,8 @@ export const items: Item[] = [
     level: 38,
     skill: 'smithing',
     name: 'Starmetal Shield',
-    description: 'A shield capable of withstanding the hardest blows. Forged from starmetal.',
+    description:
+      'A shield capable of withstanding the hardest blows. Forged from starmetal.',
     success_chance: 1.0,
     xp_given: 1325,
     sellable: true,
@@ -373,7 +377,8 @@ export const items: Item[] = [
     level: 37,
     skill: 'smithing',
     name: 'Starmetal Helmet',
-    description: 'A finely crafted starmetal helmet, offering excellent protection.',
+    description:
+      'A finely crafted starmetal helmet, offering excellent protection.',
     success_chance: 1.0,
     xp_given: 875,
     sellable: true,
@@ -452,4 +457,4 @@ export const items: Item[] = [
     value: 85,
     categories: ['ore', 'ores'],
   },
-]
+];

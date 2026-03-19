@@ -1,7 +1,7 @@
-import type { GameState, Item, ResourceNode } from '../types';
+import type { GameState, Item, ResourceNode } from '@/types';
 import { updateInventory, updateStats } from './inventory';
 import { updateXp } from './skills';
-import { items } from '../data/items';
+import { items } from '@/data/items';
 
 export function hasIngredientsFor(
   stateRef: { value: GameState },

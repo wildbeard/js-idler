@@ -1,4 +1,4 @@
-import type { Autoer } from '../types'
+import type { Autoer } from '@/types';
 
 export const autoers: Autoer[] = [
   {
@@ -42,7 +42,8 @@ export const autoers: Autoer[] = [
   {
     id: 'autosmelt_bronze',
     name: 'Autosmelter: Bronze',
-    description: "Imagine having an apprentice smelting bronze for you. It's just like that.",
+    description:
+      "Imagine having an apprentice smelting bronze for you. It's just like that.",
     value_description: 'Automatically smelts a %{item} every %{interval}.',
     value: 2000,
     skill: 'smithing',
@@ -61,8 +62,10 @@ export const autoers: Autoer[] = [
   {
     id: 'autoforge_bronze_weapons',
     name: 'Autohammer: Bronze Weapons',
-    description: "We don't now how to adjust this thing, so it'll just make a random bronze weapon for you.",
-    value_description: 'Automatically smiths a random Bronze weapon every %{interval}.',
+    description:
+      "We don't now how to adjust this thing, so it'll just make a random bronze weapon for you.",
+    value_description:
+      'Automatically smiths a random Bronze weapon every %{interval}.',
     value: 2000,
     cost: 200,
     skill: 'smithing',
@@ -79,8 +82,10 @@ export const autoers: Autoer[] = [
   {
     id: 'autoforge_bronze_armor',
     name: 'Autohammer: Bronze Armor',
-    description: "We don't now how to adjust this thing, so it'll just make a random bronze armor for you.",
-    value_description: 'Automatically smiths a piece of Bronze armor every %{interval}.',
+    description:
+      "We don't now how to adjust this thing, so it'll just make a random bronze armor for you.",
+    value_description:
+      'Automatically smiths a piece of Bronze armor every %{interval}.',
     value: 2000,
     cost: 200,
     skill: 'smithing',
@@ -198,7 +203,8 @@ export const autoers: Autoer[] = [
     id: 'autosmelt_rough_starmetal',
     name: 'Autosmelt: Rough Starmetal',
     description: 'A magical smelter smelting magical ore from the stars',
-    value_description: 'Automatically smelts a Rough Starmetal Bar every %{interval}.',
+    value_description:
+      'Automatically smelts a Rough Starmetal Bar every %{interval}.',
     value: 2000,
     cost: 650,
     skill: 'smithing',
@@ -218,7 +224,8 @@ export const autoers: Autoer[] = [
     id: 'autosmelt_starmetal',
     name: 'Autosmelt: Starmetal',
     description: 'A magical smelter smelting magical ore from the stars',
-    value_description: 'Automatically smelts a Starmetal Bar every %{interval}.',
+    value_description:
+      'Automatically smelts a Starmetal Bar every %{interval}.',
     value: 2000,
     cost: 875,
     skill: 'smithing',
@@ -238,7 +245,8 @@ export const autoers: Autoer[] = [
     id: 'autoforge_starmetal_weapons',
     name: 'Autoforge: Starmetal Weapons',
     description: 'This thing here will forge random weapons from Starmetal.',
-    value_description: 'Automatically forges a random Starmetal weapon every %{interval}.',
+    value_description:
+      'Automatically forges a random Starmetal weapon every %{interval}.',
     value: 2000,
     cost: 1000,
     skill: 'smithing',
@@ -257,7 +265,8 @@ export const autoers: Autoer[] = [
     id: 'autoforge_starmetal_armor',
     name: 'Autoforge: Starmetal Armor',
     description: 'This thing here will forge random weapons from Starmetal.',
-    value_description: 'Automatically forges a random piece of Starmetal armor every %{interval}.',
+    value_description:
+      'Automatically forges a random piece of Starmetal armor every %{interval}.',
     value: 2000,
     cost: 1000,
     skill: 'smithing',
@@ -272,4 +281,4 @@ export const autoers: Autoer[] = [
       { level: 5, cost: 2375, value: 350, requirements: { smithing: 44 } },
     ],
   },
-]
+];

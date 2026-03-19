@@ -1,21 +1,22 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
-import { useGameStore } from './stores/gameStore'
-import { useAssistantStore } from './stores/assistantStore'
-import Sidebar from './components/Sidebar.vue'
-import MainPanel from './components/MainPanel.vue'
-import RightBar from './components/RightBar.vue'
-import FireAssistantModal from './components/modals/FireAssistantModal.vue'
-import AssistantConfigModal from './components/modals/AssistantConfigModal.vue'
-import { useUIStore } from './stores/uiStore'
+import { storeToRefs } from 'pinia';
+import { useGameStore } from '@/stores/gameStore';
+import { useAssistantStore } from '@/stores/assistantStore';
+import Sidebar from '@/components/Sidebar.vue';
+import MainPanel from '@/components/MainPanel.vue';
+import RightBar from '@/components/RightBar.vue';
+import FireAssistantModal from '@/components/modals/FireAssistantModal.vue';
+import AssistantConfigModal from '@/components/modals/AssistantConfigModal.vue';
+import { useUIStore } from '@/stores/uiStore';
 
-const gameStore = useGameStore()
-const assistantStore = useAssistantStore()
-const uiStore = useUIStore()
+const gameStore = useGameStore();
+const assistantStore = useAssistantStore();
+const uiStore = useUIStore();
 
-const { s } = storeToRefs(gameStore)
-const { statsShown } = storeToRefs(uiStore)
-const { firingAssistant, configuringAssistant, configuringAssistantConfig } = storeToRefs(assistantStore)
+const { s } = storeToRefs(gameStore);
+const { statsShown } = storeToRefs(uiStore);
+const { firingAssistant, configuringAssistant, configuringAssistantConfig } =
+  storeToRefs(assistantStore);
 </script>
 
 <template>
@@ -25,7 +26,8 @@ const { firingAssistant, configuringAssistant, configuringAssistantConfig } = st
       v-if="firingAssistant"
       :assistant="firingAssistant"
       @fire="assistantStore.fireAssistant"
-      @cancel="assistantStore.cancelFiring" />
+      @cancel="assistantStore.cancelFiring"
+    />
 
     <!-- Assistant config modal -->
     <AssistantConfigModal
@@ -33,10 +35,15 @@ const { firingAssistant, configuringAssistant, configuringAssistantConfig } = st
       :assistant="configuringAssistant"
       :config="configuringAssistantConfig"
       @save="assistantStore.saveAssistantConfig"
-      @cancel="() => { configuringAssistant = null }" />
+      @cancel="
+        () => {
+          configuringAssistant = null;
+        }
+      "
+    />
 
     <!-- Stats overlay -->
-    <div v-if="statsShown" class="stats" style="flex: 1 0 100%;">
+    <div v-if="statsShown" class="stats" style="flex: 1 0 100%">
       <p>Lifetime Gold: {{ s.stats.lifetime_wealth }}</p>
 
       <p>Gathered Material</p>

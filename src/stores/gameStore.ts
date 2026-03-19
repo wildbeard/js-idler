@@ -1,29 +1,29 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
-import type { GameState, Item, ResourceNode } from '../types';
-import { items } from '../data/items';
-import { autoers as autoerData } from '../data/autoers';
-import { upgrades as upgradeData } from '../data/upgrades';
-import { quests as questData } from '../data/quests';
-import { resourceNodes } from '../data/resourceNodes';
+import type { GameState, Item, ResourceNode } from '@/types';
+import { items } from '@/data/items';
+import { autoers as autoerData } from '@/data/autoers';
+import { upgrades as upgradeData } from '@/data/upgrades';
+import { quests as questData } from '@/data/quests';
+import { resourceNodes } from '@/data/resourceNodes';
 import {
   createAutoerEntity,
   createUpgradeEntity,
   type AutoerEntity,
   type UpgradeEntity,
-} from '../game/UpgradableEntity';
-import { userDidMine } from '../game/mining';
-import { userDidSmith } from '../game/smithing';
-import { userDidSell } from '../game/selling';
-import { hasIngredientsFor } from '../game/mining';
-import { getXpForLevel } from '../game/skills';
+} from '@/game/UpgradableEntity';
+import { userDidMine } from '@/game/mining';
+import { userDidSmith } from '@/game/smithing';
+import { userDidSell } from '@/game/selling';
+import { hasIngredientsFor } from '@/game/mining';
+import { getXpForLevel } from '@/game/skills';
 import {
   applyUpgrade,
   hydrateState,
   loadState,
   saveGameState,
-} from '../game/persistence';
-import { getUpkeep, getUpkeepDisplayTime, taxManCometh } from '../game/upkeep';
+} from '@/game/persistence';
+import { getUpkeep, getUpkeepDisplayTime, taxManCometh } from '@/game/upkeep';
 
 export const useGameStore = defineStore('game', () => {
   const baseState = loadState();
@@ -82,7 +82,9 @@ export const useGameStore = defineStore('game', () => {
     autoerData
       .map((a) => createAutoerEntity(a, s))
       .filter((a) => {
-        const firstLevel = a.upgrades.sort((x: { level: number }, y: { level: number }) => x.level - y.level)[0];
+        const firstLevel = a.upgrades.sort(
+          (x: { level: number }, y: { level: number }) => x.level - y.level,
+        )[0];
         if (!firstLevel) return false;
         for (const [key, val] of Object.entries(firstLevel.requirements)) {
           if ((s.value.levels[key] ?? 0) < (val as number)) return false;
@@ -94,7 +96,10 @@ export const useGameStore = defineStore('game', () => {
     const groups: { id: string; name: string }[] = [];
     for (const pa of s.value.purchased_autoers) {
       if (!groups.find((g) => g.id === pa.id)) {
-        groups.push({ id: pa.id, name: autoerData.find((a) => a.id === pa.id)?.name ?? pa.id });
+        groups.push({
+          id: pa.id,
+          name: autoerData.find((a) => a.id === pa.id)?.name ?? pa.id,
+        });
       }
     }
     return groups;
@@ -104,7 +109,10 @@ export const useGameStore = defineStore('game', () => {
       .map((a) => {
         const fromData = autoerData.find((ae) => ae.id === a.id);
         if (!fromData) return null;
-        return createAutoerEntity({ ...fromData, unique_id: a.unique_id, level: a.level }, s);
+        return createAutoerEntity(
+          { ...fromData, unique_id: a.unique_id, level: a.level },
+          s,
+        );
       })
       .filter(Boolean),
   );
@@ -122,7 +130,9 @@ export const useGameStore = defineStore('game', () => {
   function userPurchasedUpgrade(entity: AutoerEntity | UpgradeEntity) {
     let level = 0;
     if (entity.category === 'autoer') {
-      const curr = s.value.purchased_autoers.find((u) => u.unique_id === entity.unique_id);
+      const curr = s.value.purchased_autoers.find(
+        (u) => u.unique_id === entity.unique_id,
+      );
       level = curr ? curr.level + 1 : 0;
     } else {
       const curr = s.value.upgrades.find((u) => u.id === entity.id);

@@ -1,4 +1,4 @@
-import type { Quest } from '../types'
+import type { Quest } from '@/types';
 
 export const quests: Quest[] = [
   {
@@ -13,13 +13,19 @@ export const quests: Quest[] = [
     rewards: [
       { item_id: 'money', category: 'money', affects: 'gold', value: 100 },
       { item_id: 'exp', category: 'experience', affects: 'mining', value: 100 },
-      { item_id: 'exp', category: 'experience', affects: 'smithing', value: 100 },
+      {
+        item_id: 'exp',
+        category: 'experience',
+        affects: 'smithing',
+        value: 100,
+      },
     ],
     steps: [
       {
         id: 0,
         name: 'Mine some Copper',
-        description: 'Mining is easy. But prove you can do it. Mine 10 copper and tin.',
+        description:
+          'Mining is easy. But prove you can do it. Mine 10 copper and tin.',
         requirements: {
           items: [
             { item_id: 'copper_ore', value: 10, consumed: false },
@@ -50,7 +56,12 @@ export const quests: Quest[] = [
     rewards: [
       { item_id: 'money', category: 'money', affects: 'gold', value: 150 },
       { item_id: 'exp', category: 'experience', affects: 'mining', value: 100 },
-      { item_id: 'exp', category: 'experience', affects: 'smithing', value: 100 },
+      {
+        item_id: 'exp',
+        category: 'experience',
+        affects: 'smithing',
+        value: 100,
+      },
     ],
     steps: [
       {
@@ -81,8 +92,18 @@ export const quests: Quest[] = [
     rewards: [
       { item_id: 'money', category: 'money', affects: 'gold', value: 200 },
       { item_id: 'exp', category: 'experience', affects: 'mining', value: 100 },
-      { item_id: 'exp', category: 'experience', affects: 'smithing', value: 100 },
-      { item_id: 'Jimothy', category: 'assistant', affects: 'mining', value: 0 },
+      {
+        item_id: 'exp',
+        category: 'experience',
+        affects: 'smithing',
+        value: 100,
+      },
+      {
+        item_id: 'Jimothy',
+        category: 'assistant',
+        affects: 'mining',
+        value: 0,
+      },
     ],
     steps: [
       {
@@ -125,7 +146,8 @@ export const quests: Quest[] = [
   {
     id: 'helpless_chef',
     name: 'The Helpless Chef',
-    description: "The castle chef is a hopeless fool. He's always losing things. This time? His kitchen utensils.",
+    description:
+      "The castle chef is a hopeless fool. He's always losing things. This time? His kitchen utensils.",
     requirements: {
       stats: {},
       levels: { mining: 1, smithing: 1 },
@@ -133,18 +155,24 @@ export const quests: Quest[] = [
     },
     rewards: [
       { item_id: 'money', category: 'money', affects: 'gold', value: 100 },
-      { item_id: 'exp', category: 'experience', affects: 'smithing', value: 100 },
+      {
+        item_id: 'exp',
+        category: 'experience',
+        affects: 'smithing',
+        value: 100,
+      },
       { item_id: 'exp', category: 'experience', affects: 'mining', value: 100 },
     ],
     steps: [
       {
         id: 0,
         name: '',
-        description: "While a dagger isn't quite a knife, it'll do the job for that damn chef.",
+        description:
+          "While a dagger isn't quite a knife, it'll do the job for that damn chef.",
         requirements: {
           items: [{ item_id: 'bronze_dagger', value: 1, consumed: true }],
         },
       },
     ],
   },
-]
+];

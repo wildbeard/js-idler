@@ -1,4 +1,4 @@
-import type { PerkData } from '../types'
+import type { PerkData } from '@/types';
 
 export const perksData: PerkData[] = [
   {
@@ -29,15 +29,37 @@ export const perksData: PerkData[] = [
     skills: ['mining', 'smithing', 'selling'],
     affects: 'interval',
   },
-]
+];
 
 export const assistantFirstNames = [
-  'Pebble', 'Retch', 'Smudge', 'Pikwik', 'Crum', 'Skip',
-  'Chatopher', 'Squelch', 'Crank', 'Jarnathan', 'Chonk', 'Jough',
-]
+  'Pebble',
+  'Retch',
+  'Smudge',
+  'Pikwik',
+  'Crum',
+  'Skip',
+  'Chatopher',
+  'Squelch',
+  'Crank',
+  'Jarnathan',
+  'Chonk',
+  'Jough',
+];
 
 export const assistantLastNames = [
-  'Toast', 'Groundscore', 'Muhhog', 'Dingus', 'Grubcoal', 'Mudbritches',
-  'Rubble', 'Spitwik', 'Jippity', 'Grumble', 'Wungo', 'Dimwit',
-  'Pizzle', 'Stinkerton', 'Rudeboy',
-]
+  'Toast',
+  'Groundscore',
+  'Muhhog',
+  'Dingus',
+  'Grubcoal',
+  'Mudbritches',
+  'Rubble',
+  'Spitwik',
+  'Jippity',
+  'Grumble',
+  'Wungo',
+  'Dimwit',
+  'Pizzle',
+  'Stinkerton',
+  'Rudeboy',
+];

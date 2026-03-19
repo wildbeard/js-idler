@@ -1,4 +1,4 @@
-import type { Upgrade } from '../types'
+import type { Upgrade } from '@/types';
 
 export const upgrades: Upgrade[] = [
   {
@@ -20,7 +20,8 @@ export const upgrades: Upgrade[] = [
   {
     id: 'tin_mining_excess',
     name: 'Mining: Excess Tin',
-    description: 'Lady luck is back, but this time she fancies tin. Or is it ten? Tin ten?',
+    description:
+      'Lady luck is back, but this time she fancies tin. Or is it ten? Tin ten?',
     cost: 100,
     value: 0.1,
     affects: 'tin_ore',
@@ -37,15 +38,31 @@ export const upgrades: Upgrade[] = [
     id: 'store_max_assistants',
     name: 'Shop: Max Assistants',
     description: 'Upgrading your shop allows you to hire more assistants.',
-    value_description: 'Increases total number of hireable assistants to %{value}.',
+    value_description:
+      'Increases total number of hireable assistants to %{value}.',
     cost: 750,
     affects: 'global_variables.max_assistants',
     category: 'upgrade',
     value: 2,
     upgrades: [
-      { level: 0, cost: 750, value: 4, requirements: { mining: 10, smithing: 10 } },
-      { level: 1, cost: 1200, value: 6, requirements: { mining: 22, smithing: 22 } },
-      { level: 2, cost: 1800, value: 8, requirements: { mining: 34, smithing: 34 } },
+      {
+        level: 0,
+        cost: 750,
+        value: 4,
+        requirements: { mining: 10, smithing: 10 },
+      },
+      {
+        level: 1,
+        cost: 1200,
+        value: 6,
+        requirements: { mining: 22, smithing: 22 },
+      },
+      {
+        level: 2,
+        cost: 1800,
+        value: 8,
+        requirements: { mining: 34, smithing: 34 },
+      },
     ],
   },
   {
@@ -57,39 +74,121 @@ export const upgrades: Upgrade[] = [
     value: 0.1,
     category: 'gold_bonus',
     upgrades: [
-      { level: 0, cost: 1000, value: 0.1, requirements: { mining: 10, smithing: 10 } },
-      { level: 1, cost: 2500, value: 0.15, requirements: { mining: 20, smithing: 20 } },
-      { level: 2, cost: 2750, value: 0.25, requirements: { mining: 25, smithing: 25 } },
-      { level: 3, cost: 3500, value: 0.35, requirements: { mining: 30, smithing: 30 } },
-      { level: 4, cost: 4000, value: 0.45, requirements: { mining: 40, smithing: 40 } },
-      { level: 5, cost: 4000, value: 0.6, requirements: { mining: 50, smithing: 50 } },
-      { level: 6, cost: 4000, value: 0.8, requirements: { mining: 60, smithing: 60 } },
-      { level: 7, cost: 4000, value: 1.0, requirements: { mining: 70, smithing: 70 } },
+      {
+        level: 0,
+        cost: 1000,
+        value: 0.1,
+        requirements: { mining: 10, smithing: 10 },
+      },
+      {
+        level: 1,
+        cost: 2500,
+        value: 0.15,
+        requirements: { mining: 20, smithing: 20 },
+      },
+      {
+        level: 2,
+        cost: 2750,
+        value: 0.25,
+        requirements: { mining: 25, smithing: 25 },
+      },
+      {
+        level: 3,
+        cost: 3500,
+        value: 0.35,
+        requirements: { mining: 30, smithing: 30 },
+      },
+      {
+        level: 4,
+        cost: 4000,
+        value: 0.45,
+        requirements: { mining: 40, smithing: 40 },
+      },
+      {
+        level: 5,
+        cost: 4000,
+        value: 0.6,
+        requirements: { mining: 50, smithing: 50 },
+      },
+      {
+        level: 6,
+        cost: 4000,
+        value: 0.8,
+        requirements: { mining: 60, smithing: 60 },
+      },
+      {
+        level: 7,
+        cost: 4000,
+        value: 1.0,
+        requirements: { mining: 70, smithing: 70 },
+      },
     ],
   },
   {
     id: 'money_is_time',
     name: 'Money is Time',
-    description: 'Increases rate of all auto miners, smelters, forges, and sellers.',
+    description:
+      'Increases rate of all auto miners, smelters, forges, and sellers.',
     cost: 1000,
     affects: 'rates',
     value: 0.1,
     category: 'autoer_speed',
     upgrades: [
-      { level: 0, cost: 1000, value: 0.1, requirements: { mining: 10, smithing: 10 } },
-      { level: 1, cost: 2500, value: 0.15, requirements: { mining: 20, smithing: 20 } },
-      { level: 2, cost: 2750, value: 0.25, requirements: { mining: 25, smithing: 25 } },
-      { level: 3, cost: 3500, value: 0.35, requirements: { mining: 30, smithing: 30 } },
-      { level: 4, cost: 4000, value: 0.45, requirements: { mining: 40, smithing: 40 } },
-      { level: 5, cost: 4000, value: 0.6, requirements: { mining: 50, smithing: 50 } },
-      { level: 6, cost: 4000, value: 0.8, requirements: { mining: 60, smithing: 60 } },
-      { level: 7, cost: 4000, value: 1.0, requirements: { mining: 70, smithing: 70 } },
+      {
+        level: 0,
+        cost: 1000,
+        value: 0.1,
+        requirements: { mining: 10, smithing: 10 },
+      },
+      {
+        level: 1,
+        cost: 2500,
+        value: 0.15,
+        requirements: { mining: 20, smithing: 20 },
+      },
+      {
+        level: 2,
+        cost: 2750,
+        value: 0.25,
+        requirements: { mining: 25, smithing: 25 },
+      },
+      {
+        level: 3,
+        cost: 3500,
+        value: 0.35,
+        requirements: { mining: 30, smithing: 30 },
+      },
+      {
+        level: 4,
+        cost: 4000,
+        value: 0.45,
+        requirements: { mining: 40, smithing: 40 },
+      },
+      {
+        level: 5,
+        cost: 4000,
+        value: 0.6,
+        requirements: { mining: 50, smithing: 50 },
+      },
+      {
+        level: 6,
+        cost: 4000,
+        value: 0.8,
+        requirements: { mining: 60, smithing: 60 },
+      },
+      {
+        level: 7,
+        cost: 4000,
+        value: 1.0,
+        requirements: { mining: 70, smithing: 70 },
+      },
     ],
   },
   {
     id: 'autoer_mining_xp',
     name: 'Mining Autoer: XP',
-    description: 'Mining Autoers now give a small portion of xp for each action performed.',
+    description:
+      'Mining Autoers now give a small portion of xp for each action performed.',
     cost: 1200,
     value: 0.1,
     affects: 'xp',
@@ -105,7 +204,8 @@ export const upgrades: Upgrade[] = [
   {
     id: 'autoer_smithing_xp',
     name: 'Smithing Autoer: XP',
-    description: 'Smithing Autoers now give a small portion of xp for each action performed.',
+    description:
+      'Smithing Autoers now give a small portion of xp for each action performed.',
     cost: 1200,
     value: 0.1,
     affects: 'xp',
@@ -121,18 +221,44 @@ export const upgrades: Upgrade[] = [
   {
     id: 'capitalism',
     name: 'Capitalism',
-    description: 'Pocket more profit by keeping the upkeep on your Assistants down!',
+    description:
+      'Pocket more profit by keeping the upkeep on your Assistants down!',
     value_description: 'Reduces Assistant upkeep by %{value}%.',
     cost: 12000,
     value: 0.08,
     affects: 'upkeep',
     category: 'upgrade',
     upgrades: [
-      { level: 0, cost: 12000, value: 0.08, requirements: { mining: 25, smithing: 25 } },
-      { level: 1, cost: 17500, value: 0.11, requirements: { mining: 32, smithing: 32 } },
-      { level: 2, cost: 20000, value: 0.16, requirements: { mining: 40, smithing: 40 } },
-      { level: 3, cost: 28750, value: 0.2, requirements: { mining: 55, smithing: 55 } },
-      { level: 4, cost: 32000, value: 0.25, requirements: { mining: 65, smithing: 65 } },
+      {
+        level: 0,
+        cost: 12000,
+        value: 0.08,
+        requirements: { mining: 25, smithing: 25 },
+      },
+      {
+        level: 1,
+        cost: 17500,
+        value: 0.11,
+        requirements: { mining: 32, smithing: 32 },
+      },
+      {
+        level: 2,
+        cost: 20000,
+        value: 0.16,
+        requirements: { mining: 40, smithing: 40 },
+      },
+      {
+        level: 3,
+        cost: 28750,
+        value: 0.2,
+        requirements: { mining: 55, smithing: 55 },
+      },
+      {
+        level: 4,
+        cost: 32000,
+        value: 0.25,
+        requirements: { mining: 65, smithing: 65 },
+      },
     ],
   },
-]
+];
