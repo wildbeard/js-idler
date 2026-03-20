@@ -10,7 +10,7 @@ import {
 } from './UpgradableEntity';
 import { updateAssistantJobs } from './assistants';
 
-const VERSION = '0.2.0';
+const VERSION = '0.1.19';
 
 export const startingState: GameState = {
   version: VERSION,
