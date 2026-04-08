@@ -42,108 +42,123 @@ const sellingItems = computed(() =>
 </script>
 
 <template>
-  <div class="floating-window assistant-config">
-    <p style="font-size: 1.4rem">{{ assistant.name }}</p>
-    <p>
-      {{ assistant.name }} will randomly perform one of the following tasks:
-    </p>
+  <div class="modal-backdrop" @click.self="$emit('cancel')">
+    <div class="modal-panel w-full">
+      <p class="text-lg font-bold text-osrs-gold mb-1">{{ assistant.name }}</p>
+      <p class="text-sm text-osrs-muted mb-3">
+        {{ assistant.name }} will randomly perform one of the following tasks:
+      </p>
 
-    <div class="floating-window__body">
-      <template v-if="assistant.skills.includes('mining')">
-        Mining
-        <ul>
-          <li v-for="item in miningItems" :key="item.item_id">
-            <label>
-              <input
-                type="checkbox"
-                :value="item.item_id"
-                v-model="config.mining"
-              />
-              {{ item.name }}
-            </label>
-          </li>
-        </ul>
-      </template>
-      <template v-else-if="assistant.skills.includes('smithing')">
-        Smithing
-        <ul>
-          <li v-for="item in smithingItems" :key="item.item_id">
-            <label>
-              <input
-                type="checkbox"
-                :value="item.item_id"
-                v-model="config.smithing"
-              />
-              {{ item.name }}
-            </label>
-          </li>
-        </ul>
-      </template>
-      <template v-else>
-        Selling
-        <ul>
-          <li v-for="item in sellingItems" :key="item.item_id">
-            <label>
-              <input
-                type="checkbox"
-                v-model="config.selling[item.item_id].checked"
-              />
-              {{ item.name }}
-            </label>
-            <div
-              v-if="config.selling[item.item_id].checked"
-              style="display: flex; flex-wrap: wrap"
-            >
-              <label style="flex: 0 0 100%">
-                <input
-                  type="radio"
-                  v-model="config.selling[item.item_id].method"
-                  value="all"
-                />
-                Sell All
-              </label>
-              <label style="flex: 0 0 100%">
-                <input
-                  type="radio"
-                  v-model="config.selling[item.item_id].method"
-                  value="sell_x"
-                />
-                Sell X
-              </label>
-              <label style="flex: 0 0 100%">
-                <input
-                  type="radio"
-                  v-model="config.selling[item.item_id].method"
-                  value="keep_x"
-                />
-                Keep X in Inventory
-              </label>
+      <div class="max-h-96 overflow-y-auto text-sm">
+        <template v-if="assistant.skills.includes('mining')">
+          <p class="font-semibold text-osrs-gold mb-2">Mining</p>
+          <ul class="space-y-1 mb-4">
+            <li v-for="item in miningItems" :key="item.item_id">
               <label
-                v-if="config.selling[item.item_id].method !== 'all'"
-                style="flex: 0 0 calc(100% - 4px); margin-left: 4px"
+                class="flex items-center gap-2 cursor-pointer hover:text-osrs-gold"
               >
-                {{
-                  config.selling[item.item_id].method === 'sell_x'
-                    ? 'Sell'
-                    : 'Keep'
-                }}
                 <input
-                  type="number"
-                  v-model="config.selling[item.item_id].value"
-                  min="0"
+                  type="checkbox"
+                  :value="item.item_id"
+                  v-model="config.mining"
+                  class="accent-osrs-gold"
                 />
+                {{ item.name }}
               </label>
-            </div>
-          </li>
-        </ul>
-      </template>
-    </div>
+            </li>
+          </ul>
+        </template>
 
-    <div style="margin-top: 1rem; text-align: right">
-      <button style="margin-right: 15px" @click="$emit('save', assistant)">
-        Save
-      </button>
-      <button @click="$emit('cancel')">Cancel</button>
+        <template v-else-if="assistant.skills.includes('smithing')">
+          <p class="font-semibold text-osrs-gold mb-2">Smithing</p>
+          <ul class="space-y-1 mb-4">
+            <li v-for="item in smithingItems" :key="item.item_id">
+              <label
+                class="flex items-center gap-2 cursor-pointer hover:text-osrs-gold"
+              >
+                <input
+                  type="checkbox"
+                  :value="item.item_id"
+                  v-model="config.smithing"
+                  class="accent-osrs-gold"
+                />
+                {{ item.name }}
+              </label>
+            </li>
+          </ul>
+        </template>
+
+        <template v-else>
+          <p class="font-semibold text-osrs-gold mb-2">Selling</p>
+          <ul class="space-y-3">
+            <li v-for="item in sellingItems" :key="item.item_id">
+              <label
+                class="flex items-center gap-2 cursor-pointer hover:text-osrs-gold"
+              >
+                <input
+                  type="checkbox"
+                  v-model="config.selling[item.item_id].checked"
+                  class="accent-osrs-gold"
+                />
+                {{ item.name }}
+              </label>
+              <div
+                v-if="config.selling[item.item_id].checked"
+                class="ml-5 mt-1 space-y-1"
+              >
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    v-model="config.selling[item.item_id].method"
+                    value="all"
+                    class="accent-osrs-gold"
+                  />
+                  Sell All
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    v-model="config.selling[item.item_id].method"
+                    value="sell_x"
+                    class="accent-osrs-gold"
+                  />
+                  Sell X
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    v-model="config.selling[item.item_id].method"
+                    value="keep_x"
+                    class="accent-osrs-gold"
+                  />
+                  Keep X in Inventory
+                </label>
+                <label
+                  v-if="config.selling[item.item_id].method !== 'all'"
+                  class="flex items-center gap-2"
+                >
+                  {{
+                    config.selling[item.item_id].method === 'sell_x'
+                      ? 'Sell'
+                      : 'Keep'
+                  }}
+                  <input
+                    type="number"
+                    v-model="config.selling[item.item_id].value"
+                    min="0"
+                    class="w-20 bg-osrs-bg border border-osrs-border rounded px-2 py-0.5 text-osrs-text"
+                  />
+                </label>
+              </div>
+            </li>
+          </ul>
+        </template>
+      </div>
+
+      <div class="flex justify-end gap-3 mt-4 pt-3 border-t border-osrs-border">
+        <button class="btn" @click="$emit('save', assistant)">Save</button>
+        <button class="btn" @click="$emit('cancel')">Cancel</button>
+      </div>
     </div>
   </div>
 </template>

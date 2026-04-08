@@ -1,28 +1,29 @@
 <script setup lang="ts">
 defineProps<{
-  title: string
-  open: boolean
-  badge?: string
-}>()
+  title: string;
+  open: boolean;
+  badge?: string;
+}>();
 
-defineEmits<{ toggle: [] }>()
+defineEmits<{ toggle: [] }>();
 </script>
 
 <template>
-  <div class="toggle-panel">
-    <div class="toggle-panel__header" @click="$emit('toggle')">
-      <div>
-        <p class="toggle-panel__header-title">
-          {{ title }}
-          <span v-if="badge" style="font-size: 0.85rem;">{{ badge }}</span>
-        </p>
-        <slot name="header-right" />
+  <div class="border-b border-osrs-border">
+    <div
+      class="flex items-center justify-between px-3 py-2.5 cursor-pointer hover:bg-osrs-panel/30 select-none"
+      @click="$emit('toggle')"
+    >
+      <div class="flex items-center gap-2 min-w-0">
+        <span class="font-bold text-osrs-gold">{{ title }}</span>
+        <span v-if="badge" class="text-xs text-osrs-muted">{{ badge }}</span>
       </div>
-      <button class="minimize-button" type="button" @click.stop="$emit('toggle')">
-        {{ open ? '-' : '+' }}
-      </button>
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <slot name="header-right" />
+        <span class="text-osrs-muted text-xs">{{ open ? '▲' : '▼' }}</span>
+      </div>
     </div>
-    <div class="toggle-panel__body" v-show="open">
+    <div v-show="open" class="px-3 py-2">
       <slot />
     </div>
   </div>

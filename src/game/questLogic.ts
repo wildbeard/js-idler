@@ -8,6 +8,7 @@ export function checkQuestRequirements(
   quest: Quest,
   stateRef: { value: GameState },
 ): boolean {
+  if (stateRef.value.quests_completed.includes(quest.id)) return false;
   for (const key in quest.requirements) {
     if (key === 'stats') continue;
     if (key === 'levels') {
@@ -111,6 +112,7 @@ export function startQuest(
   quest: Quest,
 ): boolean {
   if (stateRef.value.quests_started.length) return false;
+  if (stateRef.value.quests_completed.includes(quest.id)) return false;
   stateRef.value.quests_started.push({
     quest_id: quest.id,
     step: quest.steps[0].id,

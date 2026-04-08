@@ -1,0 +1,84 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-osrs-bg: #2C3320;
+  --color-osrs-surface: #2C3320;
+  --color-osrs-panel: #6CA767;
+  --color-osrs-border: #4a8a14;
+  --color-osrs-text: #F0ECD8;
+  --color-osrs-muted: #98AB97;
+  --color-osrs-gold: #ffb000;
+  --color-osrs-btn: #1e3a10;
+  --color-osrs-btn-hover: #284a18;
+  --color-osrs-green: #5a8a00;
+  --color-osrs-red: #8b1a00;
+  --color-osrs-tab-active: #2a5a1a;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: sans-serif;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.3rem 0.65rem;
+  background-color: var(--color-osrs-btn);
+  border: 1px solid var(--color-osrs-border);
+  color: var(--color-osrs-text);
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background-color 0.12s;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.btn:hover:not(:disabled) {
+  background-color: var(--color-osrs-btn-hover);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-skill {
+  min-width: 9rem;
+  text-align: center;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.section-header {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-osrs-gold);
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-osrs-border);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal-panel {
+  background-color: var(--color-osrs-panel);
+  border: 2px solid var(--color-osrs-border);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  max-width: 32rem;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  color: var(--color-osrs-text);
+}

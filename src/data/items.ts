@@ -150,7 +150,7 @@ export const items: Item[] = [
     success_chance: 1.0,
     sellable: true,
     xp_given: 45,
-    categories: ['iron', 'swords'],
+    categories: ['iron', 'swords', 'weapons'],
     ingredients: [{ item_id: 'iron_bar', quantity: 3 }],
   },
   {

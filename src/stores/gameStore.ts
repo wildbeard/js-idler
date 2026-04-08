@@ -105,25 +105,23 @@ export const useGameStore = defineStore('game', () => {
     return groups;
   });
   const purchasedAutoerEntities = computed(() =>
-    s.value.purchased_autoers
-      .map((a) => {
-        const fromData = autoerData.find((ae) => ae.id === a.id);
-        if (!fromData) return null;
-        return createAutoerEntity(
+    s.value.purchased_autoers.flatMap((a) => {
+      const fromData = autoerData.find((ae) => ae.id === a.id);
+      if (!fromData) return [];
+      return [
+        createAutoerEntity(
           { ...fromData, unique_id: a.unique_id, level: a.level },
           s,
-        );
-      })
-      .filter(Boolean),
+        ),
+      ];
+    }),
   );
   const purchasedUpgradeEntities = computed(() =>
-    s.value.upgrades
-      .map((u) => {
-        const fromData = upgradeData.find((ud) => ud.id === u.id);
-        if (!fromData) return null;
-        return createUpgradeEntity({ ...fromData, level: u.level }, s);
-      })
-      .filter(Boolean),
+    s.value.upgrades.flatMap((u) => {
+      const fromData = upgradeData.find((ud) => ud.id === u.id);
+      if (!fromData) return [];
+      return [createUpgradeEntity({ ...fromData, level: u.level }, s)];
+    }),
   );
 
   // User Actions

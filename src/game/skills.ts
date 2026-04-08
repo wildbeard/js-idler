@@ -9,7 +9,6 @@ export function updateXp(
   key: string,
   value: number,
 ): void {
-  const nxtLvlKey = `${key}_next_level` as keyof typeof stateRef.value.xp;
   stateRef.value.xp[key as keyof typeof stateRef.value.xp] += value as never;
   (stateRef.value.xp as Record<string, number>)[`${key}_xp_level`] += value;
 
@@ -36,10 +35,10 @@ export function xpPercentForSkill(
   const xpLevel = (stateRef.value.xp as Record<string, number>)[
     `${skill}_xp_level`
   ];
-  const nextLevel = (stateRef.value.xp as Record<string, number>)[
-    `${skill}_next_level`
-  ];
-  return Math.floor(
-    (xpLevel / getXpForLevel(stateRef.value.levels[skill])) * 100,
+  return Math.min(
+    100,
+    Math.floor(
+      (xpLevel / getXpForLevel(stateRef.value.levels[skill] + 1)) * 100,
+    ),
   );
 }
